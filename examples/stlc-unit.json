@@ -1,0 +1,218 @@
+{
+  "description": "Simply-typed lambda calculus with a unit type",
+  "syntax": {
+    "term": {
+      "description": "Terms",
+      "grammar": [
+        {
+          "id": "variable",
+          "texParts": [],
+          "fixity": "none",
+          "arguments": [
+            { "from": "identifier", "id": "x", "tex": "x" }
+          ]
+        },
+        {
+          "id": "lambda",
+          "texParts": [ "\\lambda", ":", "." ],
+          "fixity": "prefix",
+          "arguments": [
+            { "from": "identifier", "id": "x", "tex": "x" },
+            { "from": "type", "id": "t", "tex": "\\tau" },
+            { "from": "term", "id": "e", "tex": "e" }
+          ]
+        },
+        {
+          "id": "apply",
+          "texParts": [ "\\med" ],
+          "fixity": "infix",
+          "arguments": [
+            { "from": "term", "id": "e1", "tex": "e_1" },
+            { "from": "term", "id": "e2", "tex": "e_2" }
+          ]
+        },
+        {
+          "id": "star",
+          "texParts": [ "\\star" ],
+          "fixity": "none",
+          "arguments": []
+        }
+      ]
+    },
+    "type": {
+      "description": "Types",
+      "grammar": [
+        {
+          "id": "arrow",
+          "texParts": [ "\\rightarrow" ],
+          "fixity": "infix",
+          "arguments": [
+            { "from": "type", "id": "t1", "tex": "A" },
+            { "from": "type", "id": "t2", "tex": "B" }
+          ]
+        },
+        {
+          "id": "unit",
+          "texParts": [ "\\bold{1}" ],
+          "fixity": "none",
+          "arguments": []
+        }
+      ]
+    },
+    "context": {
+      "description": "Contexts",
+      "grammar": [
+        {
+          "id": "empty",
+          "texParts": [ "\\cdot" ],
+          "fixity": "none",
+          "arguments": []
+        },
+        {
+          "id": "extend",
+          "texParts": [ ",", ":" ],
+          "fixity": "infix",
+          "arguments": [
+            { "from": "context", "id": "ctx", "tex": "\\Gamma" },
+            { "from": "identifier", "id": "x", "tex": "x" },
+            { "from": "type", "id": "t", "tex": "\\tau" }
+          ]
+        }
+      ]
+    }
+  },
+  "relations": {
+    "judge": {
+      "description": "Term $e$ has type $\\tau$ on context $\\Gamma$",
+      "texParts": [ "\\vdash", ":" ],
+      "fixity": "infix",
+      "arguments": [
+        { "from": "context", "tex": "\\Gamma", "id": "ctx" },
+        { "from": "term", "tex": "e", "id": "tm" },
+        { "from": "type", "tex": "\\tau", "id": "ty" }
+      ],
+      "rules": [
+        {
+          "rule": { "tex": "App", "id": "app" },
+          "variables": [
+            { "tex": "e_1", "id": "e1" },
+            { "tex": "e_2", "id": "e2" },
+            { "tex": "A", "id": "a" },
+            { "tex": "B", "id": "b" },
+            { "tex": "\\Gamma", "id": "ctx" }
+          ],
+          "patterns": {
+            "ctx": "ctx",
+            "tm": { "tag": "apply", "args": [ "e1", "e2" ] },
+            "ty": "B"
+          },
+          "premises": [
+            {
+              "relation": "judge",
+              "args": [ "ctx", "e1", { "tag": "arrow", "args": [ "A", "B" ] } ]
+            }
+          ]
+        },
+        {
+          "rule": { "tex": "Lam", "id": "lam" },
+          "variables": [
+            { "tex": "\\Gamma", "id": "ctx" },
+            { "tex": "x", "id": "x" },
+            { "tex": "A", "id": "a" },
+            { "tex": "B", "id": "b" },
+            { "tex": "e", "id": "e" }
+          ],
+          "patterns": {
+            "ctx": "ctx",
+            "tm": { "tag": "lam", "args": [ "x", "a", "e" ] },
+            "ty": { "tag": "arrow", "args": [ "a", "b" ] }
+          },
+          "premises": [
+            {
+              "relation": "judge",
+              "args": [ { "tag": "extend", "args": [ "ctx", "x", "a" ] }, "e", "b" ]
+            }
+          ]
+        },
+        {
+          "rule": { "tex": "Unit", "id": "unit" },
+          "variables": [
+            { "tex": "\\Gamma", "id": "ctx" }
+          ],
+          "patterns": {
+            "ctx": "ctx",
+            "tm": { "tag": "star", "args": [] },
+            "ty": { "tag": "unit", "args": [] }
+          },
+          "premises": []
+        },
+        {
+          "rule": { "tex": "Var", "id": "var" },
+          "variables": [
+            { "tex": "\\Gamma", "id": "ctx" },
+            { "tex": "x", "id": "x" },
+            { "tex": "\\tau", "id": "t" }
+          ],
+          "patterns": {
+            "ctx": "ctx",
+            "tm": { "tag": "variable", "args": [ "x" ] },
+            "ty": "t"
+          },
+          "premises": [
+            {
+              "relation": "member",
+              "args": [ "ctx", "x", "t" ]
+            }
+          ]
+        }
+      ]
+    },
+    "member": {
+      "description": "Term $e$ inside context $\\Gamma$ has type $\\tau$",
+      "texParts": [ ":", "\\in" ],
+      "fixity": "infix",
+      "arguments": [
+        { "from": "identifier", "tex": "x", "id": "ident" },
+        { "from": "type", "tex": "\\tau", "id": "ty" },
+        { "from": "context", "tex": "\\Gamma", "id": "ctx" }
+      ],
+      "rules": [
+        {
+          "rule": { "tex": "Found", "id": "found" },
+          "variables": [
+            { "tex": "x", "id": "x" },
+            { "tex": "\\tau", "id": "t" },
+            { "tex": "\\Gamma", "id": "ctx" }
+          ],
+          "patterns": {
+            "ctx": { "tag": "extend", "args": [ "ctx", "x", "t" ] },
+            "ident": "x",
+            "ty": "t"
+          },
+          "premises": []
+        },
+        {
+          "rule": { "tex": "Next", "id": "next" },
+          "variables": [
+            { "tex": "x", "id": "x" },
+            { "tex": "y", "id": "y" },
+            { "tex": "\\tau", "id": "t1" },
+            { "tex": "\\sigma", "id": "t2" },
+            { "tex": "\\Gamma", "id": "ctx" }
+          ],
+          "patterns": {
+            "ctx": { "tag": "extend", "args": [ "ctx", "y", "t2" ] },
+            "ident": "x",
+            "ty": "t1"
+          },
+          "premises": [
+            {
+              "relation": "member",
+              "args": [ "ctx", "x", "t1" ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

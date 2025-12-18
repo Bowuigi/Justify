@@ -22,7 +22,7 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
   });
 
 // Identifiers are in snake-case to simplify exports (conversion is easy)
-const SIdentifier = z.string().regex(/^[a-z0-9_]$/);
+const SIdentifier = z.string().regex(/^[a-z0-9_]+$/);
 const STeXText = z.string();
 const STeXMath = z.string();
 const SFixity = z.enum(["infix", "prefix", "postfix", "none"]);
@@ -88,13 +88,12 @@ const SSystem = z.strictObject({
 
 export type SSystem = z.infer<typeof SSystem>;
 
-export function systemFromJSON(json: string): SSystem|null {
+export function systemFromJSON(json: string): SSystem | string {
   const result = jsonCodec(SSystem).safeDecode(json);
 
   if (result.success) {
     return result.data;
   } else {
-    console.log(result.error);
-    return null;
+    return z.prettifyError(result.error);
   }
 }

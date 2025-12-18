@@ -104,12 +104,12 @@
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "apply", "args": [ "e1", "e2" ] },
-            "ty": "B"
+            "ty": "b"
           },
           "premises": [
             {
               "relation": "judge",
-              "args": [ "ctx", "e1", { "tag": "arrow", "args": [ "A", "B" ] } ]
+              "args": [ "ctx", "e1", { "tag": "arrow", "args": [ "a", "b" ] } ]
             }
           ]
         },

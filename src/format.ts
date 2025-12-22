@@ -43,8 +43,14 @@ const STerm = z.union([
   z.strictObject({
     tag: SIdentifier,
     get args() { return z.array(STerm) }
+  }),
+  // Literal identifier
+  z.strictObject({
+    id: SIdentifier,
+    tex: STeXMath
   })
 ]);
+export type STerm = z.infer<typeof STerm>;
 
 const SRelationCall = z.strictObject({
   relation: SIdentifier,
@@ -79,10 +85,10 @@ const SSyntax = z.record(SIdentifier, z.strictObject({
   grammar: z.array(SGrammar),
 }));
 
-// (Relation name, Relation) pairs. Ensures uniqueness
 const SSystem = z.strictObject({
   description: STeXText,
   syntax: SSyntax,
+  // (Relation name, relation) pairs. Ensures uniqueness
   relations: z.record(SIdentifier, SRelation)
 });
 

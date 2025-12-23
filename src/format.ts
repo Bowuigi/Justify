@@ -75,6 +75,7 @@ const SRelation = z.strictObject({
 
 const SGrammar = z.strictObject({
   id: SIdentifier,
+  description: STeXText,
   texParts: z.array(STeXMath),
   fixity: SFixity,
   arguments: z.array(STypedArgument)
@@ -82,6 +83,7 @@ const SGrammar = z.strictObject({
 
 const SSyntax = z.record(SIdentifier, z.strictObject({
   description: STeXText,
+  suggestions: z.array(STeXMath),
   grammar: z.array(SGrammar),
 }));
 

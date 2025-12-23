@@ -3,9 +3,11 @@
   "syntax": {
     "term": {
       "description": "Terms",
+      "suggestions": ["e"],
       "grammar": [
         {
           "id": "variable",
+          "description": "Variable $x$",
           "texParts": [],
           "fixity": "none",
           "arguments": [
@@ -14,6 +16,7 @@
         },
         {
           "id": "lambda",
+          "description": "Binds the applied term of type $t$ to the variable $x$ inside $e$",
           "texParts": [ "\\lambda", ":", "." ],
           "fixity": "prefix",
           "arguments": [
@@ -24,6 +27,7 @@
         },
         {
           "id": "apply",
+          "description": "Applies $e_2$ to $e_1$, performing beta reduction",
           "texParts": [ "\\med" ],
           "fixity": "infix",
           "arguments": [
@@ -33,6 +37,7 @@
         },
         {
           "id": "star",
+          "description": "The only term of type $\\bold{1}$",
           "texParts": [ "\\star" ],
           "fixity": "none",
           "arguments": []
@@ -41,9 +46,11 @@
     },
     "type": {
       "description": "Types",
+      "suggestions": ["\\tau", "A", "B"],
       "grammar": [
         {
           "id": "arrow",
+          "description": "A function from $A$ to $B$",
           "texParts": [ "\\rightarrow" ],
           "fixity": "infix",
           "arguments": [
@@ -53,6 +60,7 @@
         },
         {
           "id": "unit",
+          "description": "A type with only one inhabitant, $\\star$",
           "texParts": [ "\\bold{1}" ],
           "fixity": "none",
           "arguments": []
@@ -61,15 +69,18 @@
     },
     "context": {
       "description": "Contexts",
+      "suggestions": ["\\Gamma"],
       "grammar": [
         {
           "id": "empty",
+          "description": "Empty context, empty environment",
           "texParts": [ "\\cdot" ],
           "fixity": "none",
           "arguments": []
         },
         {
           "id": "extend",
+          "description": "A cons operation for contexts (here, assoc lists)",
           "texParts": [ ",", ":" ],
           "fixity": "infix",
           "arguments": [

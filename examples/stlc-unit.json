@@ -105,13 +105,14 @@
       "rules": [
         {
           "rule": { "tex": "App", "id": "app" },
-          "variables": [
-            { "tex": "e_1", "id": "e1" },
-            { "tex": "e_2", "id": "e2" },
-            { "tex": "A", "id": "a" },
-            { "tex": "B", "id": "b" },
-            { "tex": "\\Gamma", "id": "ctx" }
-          ],
+          "variables": {
+            "e1": "e_1",
+            "e2": "e_2",
+            "a": "A",
+            "b": "B",
+            "ctx": "\\Gamma"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "apply", "args": [ "e1", "e2" ] },
@@ -126,13 +127,14 @@
         },
         {
           "rule": { "tex": "Lam", "id": "lam" },
-          "variables": [
-            { "tex": "\\Gamma", "id": "ctx" },
-            { "tex": "x", "id": "x" },
-            { "tex": "A", "id": "a" },
-            { "tex": "B", "id": "b" },
-            { "tex": "e", "id": "e" }
-          ],
+          "variables": {
+            "ctx": "\\Gamma",
+            "x": "x",
+            "a": "A",
+            "b": "B",
+            "e": "e"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "lam", "args": [ "x", "a", "e" ] },
@@ -147,9 +149,10 @@
         },
         {
           "rule": { "tex": "Unit", "id": "unit" },
-          "variables": [
-            { "tex": "\\Gamma", "id": "ctx" }
-          ],
+          "variables": {
+            "ctx": "\\Gamma"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "star", "args": [] },
@@ -159,11 +162,12 @@
         },
         {
           "rule": { "tex": "Var", "id": "var" },
-          "variables": [
-            { "tex": "\\Gamma", "id": "ctx" },
-            { "tex": "x", "id": "x" },
-            { "tex": "\\tau", "id": "t" }
-          ],
+          "variables": {
+            "ctx": "\\Gamma",
+            "x": "x",
+            "t": "\\tau"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "variable", "args": [ "x" ] },
@@ -190,11 +194,12 @@
       "rules": [
         {
           "rule": { "tex": "Found", "id": "found" },
-          "variables": [
-            { "tex": "x", "id": "x" },
-            { "tex": "\\tau", "id": "t" },
-            { "tex": "\\Gamma", "id": "ctx" }
-          ],
+          "variables": {
+            "x": "x",
+            "t": "\\tau",
+            "ctx": "\\Gamma"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": { "tag": "extend", "args": [ "ctx", "x", "t" ] },
             "ident": "x",
@@ -204,13 +209,14 @@
         },
         {
           "rule": { "tex": "Next", "id": "next" },
-          "variables": [
-            { "tex": "x", "id": "x" },
-            { "tex": "y", "id": "y" },
-            { "tex": "\\tau", "id": "t1" },
-            { "tex": "\\sigma", "id": "t2" },
-            { "tex": "\\Gamma", "id": "ctx" }
-          ],
+          "variables": {
+            "x": "x",
+            "y": "y",
+            "t1": "\\tau",
+            "t2": "\\sigma",
+            "ctx": "\\Gamma"
+          },
+          "identifiers": {},
           "patterns": {
             "ctx": { "tag": "extend", "args": [ "ctx", "y", "t2" ] },
             "ident": "x",

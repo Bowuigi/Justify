@@ -1,6 +1,6 @@
 // NOTE: Rules are ordered. Earlier ones are tried first
 import * as z from 'zod';
-import { SIdentifier, SIdentifierTeXMap as SIdentifierTeXMap, STeXMath, STeXText } from './common';
+import { SIdentifier, SIdentifierTeXMap as SIdentifierTeXMap, STerm, STeXMath, STeXText } from './common';
 
 const SFixity = z.enum(["infix", "prefix", "postfix", "none"]);
 
@@ -9,17 +9,6 @@ const STypedArgument = z.strictObject({
   id: SIdentifier,
   tex: STeXMath,
 });
-
-const STerm = z.union([
-  // Both variables and identifiers
-  SIdentifier,
-  // Constructors
-  z.strictObject({
-    tag: SIdentifier,
-    get args() { return z.array(STerm) }
-  }),
-]);
-export type STerm = z.infer<typeof STerm>;
 
 const SRelationCall = z.strictObject({
   relation: SIdentifier,

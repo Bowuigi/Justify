@@ -1,0 +1,17 @@
+{
+  "variables": {},
+  "identifiers": { "x": "x" },
+  "relation": "judge",
+  "args": [
+    "empty",
+    {
+      "tag": "lambda",
+      "args": [
+        "x",
+        "unit",
+        { "tag": "variable", "args": ["x"] }
+      ]
+    },
+    { "tag": "arrow", "args": ["unit", "unit"] }
+  ]
+}

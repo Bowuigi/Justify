@@ -1,5 +1,22 @@
 import * as z from 'zod';
 
+// Identifiers are in snake-case to simplify exports (conversion is easy)
+export const SIdentifier = z.string().regex(/^[a-z0-9_]+$/);
+export const STeXText = z.string();
+export const STeXMath = z.string();
+export const SIdentifierTeXMap = z.record(SIdentifier, STeXMath);
+
+export const STerm = z.union([
+  // Both variables and identifiers
+  SIdentifier,
+  // Constructors
+  z.strictObject({
+    tag: SIdentifier,
+    get args() { return z.array(STerm) }
+  }),
+]);
+export type STerm = z.infer<typeof STerm>;
+
 // From https://zod.dev/codecs#jsonschema
 const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
   z.codec(z.string(), schema, {
@@ -18,12 +35,6 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     },
     encode: (value: any): string => JSON.stringify(value),
   });
-
-// Identifiers are in snake-case to simplify exports (conversion is easy)
-export const SIdentifier = z.string().regex(/^[a-z0-9_]+$/);
-export const STeXText = z.string();
-export const STeXMath = z.string();
-export const SIdentifierTeXMap = z.record(SIdentifier, STeXMath);
 
 export function decodeFromJSON<T extends z.core.$ZodType>(codec: T, json: string): z.infer<T> | string {
   const result = jsonCodec(codec).safeDecode(json);

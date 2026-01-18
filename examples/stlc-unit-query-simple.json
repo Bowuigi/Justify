@@ -1,6 +1,6 @@
 {
   "variables": {},
-  "identifiers": { "x": "x" },
+  "literals": { "x": "x" },
   "relation": "judge",
   "args": [
     "empty",

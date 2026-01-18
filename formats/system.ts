@@ -18,7 +18,7 @@ const SRelationCall = z.strictObject({
 const SRule = z.strictObject({
   rule: z.strictObject({ tex: STeXText, id: SIdentifier }),
   variables: SIdentifierTeXMap,
-  identifiers: SIdentifierTeXMap,
+  literals: SIdentifierTeXMap,
   patterns: z.record(SIdentifier, STerm),
   premises: z.array(SRelationCall),
 });

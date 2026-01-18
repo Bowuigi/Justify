@@ -112,7 +112,7 @@
             "b": "B",
             "ctx": "\\Gamma"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "apply", "args": [ "e1", "e2" ] },
@@ -134,7 +134,7 @@
             "b": "B",
             "e": "e"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "lam", "args": [ "x", "a", "e" ] },
@@ -152,7 +152,7 @@
           "variables": {
             "ctx": "\\Gamma"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "star", "args": [] },
@@ -167,7 +167,7 @@
             "x": "x",
             "t": "\\tau"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": "ctx",
             "tm": { "tag": "variable", "args": [ "x" ] },
@@ -199,7 +199,7 @@
             "t": "\\tau",
             "ctx": "\\Gamma"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": { "tag": "extend", "args": [ "ctx", "x", "t" ] },
             "ident": "x",
@@ -216,7 +216,7 @@
             "t2": "\\sigma",
             "ctx": "\\Gamma"
           },
-          "identifiers": {},
+          "literals": {},
           "patterns": {
             "ctx": { "tag": "extend", "args": [ "ctx", "y", "t2" ] },
             "ident": "x",

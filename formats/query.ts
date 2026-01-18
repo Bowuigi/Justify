@@ -3,7 +3,7 @@ import { SIdentifier, SIdentifierTeXMap, STerm } from './common';
 
 export const SQuery = z.strictObject({
   variables: SIdentifierTeXMap,
-  identifiers: SIdentifierTeXMap,
+  literals: SIdentifierTeXMap,
   relation: SIdentifier,
   args: z.array(STerm),
 });

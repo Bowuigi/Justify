@@ -28,7 +28,7 @@
         {
           "id": "apply",
           "description": "Applies $e_2$ to $e_1$, performing beta reduction",
-          "texParts": [ "\\med" ],
+          "texParts": [ "\\;" ],
           "fixity": "infix",
           "arguments": [
             { "from": "term", "id": "e1", "tex": "e_1" },
@@ -37,7 +37,7 @@
         },
         {
           "id": "star",
-          "description": "The only term of type $\\bold{1}$",
+          "description": "The only term of type $\\mathbf{1}$",
           "texParts": [ "\\star" ],
           "fixity": "none",
           "arguments": []
@@ -61,7 +61,7 @@
         {
           "id": "unit",
           "description": "A type with only one inhabitant, $\\star$",
-          "texParts": [ "\\bold{1}" ],
+          "texParts": [ "\\mathbf{1}" ],
           "fixity": "none",
           "arguments": []
         }
@@ -122,6 +122,10 @@
             {
               "relation": "judge",
               "args": [ "ctx", "e1", { "tag": "arrow", "args": [ "a", "b" ] } ]
+            },
+            {
+              "relation": "judge",
+              "args": [ "ctx", "e2", "a" ]
             }
           ]
         },

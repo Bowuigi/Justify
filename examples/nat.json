@@ -1,0 +1,147 @@
+{
+  "description": "Peano arithmetic / natural number arithmetic",
+  "syntax": {
+    "number": {
+      "description": "Natural number",
+      "suggestions": ["n", "m", "k"],
+      "grammar": [
+        {
+          "id": "zero",
+          "description": "Number zero",
+          "texParts": ["0"],
+          "fixity": "none",
+          "arguments": []
+        },
+        {
+          "id": "succ",
+          "description": "Successor function, equivalent to $n \\mapsto n+1$",
+          "texParts": ["S"],
+          "fixity": "prefix",
+          "arguments": [
+            {"from": "number", "id": "n", "tex": "n"}
+          ]
+        }
+      ]
+    }
+  },
+  "relations": {
+    "equal": {
+      "description": "Natural number $n$ is syntactically equal to $m$",
+      "texParts": ["="],
+      "fixity": "infix",
+      "arguments": [
+        {"from": "number", "id": "n", "tex": "n"},
+        {"from": "number", "id": "m", "tex": "m"}
+      ],
+      "rules": [
+        {
+          "rule": {"tex": "Base", "id": "base"},
+          "variables": {},
+          "literals": {},
+          "patterns": {
+            "n": {"tag": "zero", "args": []},
+            "m": {"tag": "zero", "args": []}
+          },
+          "premises": []
+        },
+        {
+          "rule": {"tex": "Ind", "id": "ind"},
+          "variables": {"x": "x", "y": "y"},
+          "literals": {},
+          "patterns": {
+            "n": {"tag": "succ", "args": ["x"]},
+            "m": {"tag": "succ", "args": ["y"]}
+          },
+          "premises": [
+            {
+              "relation": "equal",
+              "args": ["x", "y"]
+            }
+          ]
+        }
+      ]
+    },
+    "add": {
+      "description": "Natural number $n$ plus $m$ is syntactically equal to $k$",
+      "texParts": ["+","="],
+      "fixity": "infix",
+      "arguments": [
+        {"from": "number", "tex": "n", "id": "n"},
+        {"from": "number", "tex": "m", "id": "m"},
+        {"from": "number", "tex": "k", "id": "k"}
+      ],
+      "rules": [
+        {
+          "rule": {"tex": "Base", "id": "base"},
+          "variables": {"x": "x"},
+          "literals": {},
+          "patterns": {
+            "n": "x",
+            "m": {"tag": "zero", "args": []},
+            "k": "x"
+          },
+          "premises": []
+        },
+        {
+          "rule": {"tex": "Ind", "id": "ind"},
+          "variables": {"x": "x", "y": "y", "z": "z"},
+          "literals": {},
+          "patterns": {
+            "n": "x",
+            "m": {"tag": "succ", "args": ["y"]},
+            "k": {"tag": "succ", "args": ["z"]}
+          },
+          "premises": [
+            {
+              "relation": "add",
+              "args": ["x", "y", "z"]
+            }
+          ]
+        }
+      ]
+    },
+    "multiply": {
+      "description": "Natural number $n$ times $m$ is syntactically equal to $k$",
+      "texParts": ["\\times", "="],
+      "fixity": "infix",
+      "arguments": [
+        {"from": "number", "tex": "n", "id": "n"},
+        {"from": "number", "tex": "m", "id": "m"},
+        {"from": "number", "tex": "k", "id": "k"}
+      ],
+      "rules": [
+        {
+          "rule": {"tex": "Base", "id": "base"},
+          "variables": {"x": "x"},
+          "literals": {},
+          "patterns": {
+            "n": "x",
+            "m": {"tag": "zero", "args": []},
+            "k": {"tag": "zero", "args": []}
+          },
+          "premises": []
+        },
+        {
+          "rule": {"tex": "Ind", "id": "ind"},
+          "variables": {"w": "w", "x": "x", "y": "y", "z": "z"},
+          "literals": {},
+          "patterns": {
+            "n": "x",
+            "m": {"tag": "succ", "args": ["y"]},
+            "k": "z"
+          },
+          "premises": [
+            {
+              "relation": "multiply",
+              "args": ["x", "y", "w"]
+            },
+            {
+              "relation": "add",
+              "args": ["w", "x", "z"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

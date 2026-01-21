@@ -1,15 +1,29 @@
+/*
+  MicroKanren implementation with the following augments:
+  - Simple-complete search
+  - N-ary conj, disj and fresh by default
+  - fresh supports identifiers for variables
+  - Occurs check
+  - Literal values
+  - Checked variables and literals
+  - STerm conversions
+  - Codegen for SSystem / inference rules (check src/mkCodegen.ts)
+  - Derivation tree generation (coming soon!)
+  - Triangular substitution output (coming soon!)
+*/
 import { AssocArray } from "./AssocArray";
-import { type STerm } from "./format";
+import { type STerm } from "../formats/common";
 
 // Identifiers and tags are used for rendering, note that equal labels means equal number of args (as they point to global defs)
 type Var = { kind: 'var', id: string, counter: number };
 type Constructor = { kind: 'constructor', tag: string, args: Array<Term> };
-type Identifier = { kind: 'identifier', id: string };
-export type Term = Var | Constructor | Identifier;
+type Literal = { kind: 'literal', id: string };
+export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
-type State = { subst: Substitution, counter: number };
+// type RuleLog = { rule: string, relation: string, args: Array<Term>, premises: Array<RuleLog> };
+type State = { subst: Substitution /*, log: RuleLog*/, counter: number };
 
 type ImmatureStream = { kind: 'delayed', force: () => Stream };
 type MatureStream = { kind: 'nil' } | { kind: 'cons', solution: State, next: Stream };
@@ -26,46 +40,65 @@ class OcurrsCheckFailedError extends Error {
 
   constructor(variable: Var, term: Term, subst: Substitution) {
     super(`Occurs check failed for variable ${variable.id}@${variable.counter}`);
-    this.name = "OccursCheckFailedError";
+    this.name = 'OccursCheckFailedError';
     this.variable = variable;
     this.term = term;
     this.subst = subst;
   }
 }
 
-export function convertTerm(sterm: STerm, counter: number): [term: Term, newCounter: number] {
+class UnboundIdentifierError extends Error {
+  public variable: string;
+  public variableList: Array<string>;
+  public literalList: Array<string>;
+
+  constructor(variable: string, variableList: Array<string>, literalList: Array<string>) {
+    super(`Unbound identifier '${variable}', not a bound variable or literal`);
+    this.name = 'UnboundIdentifierError';
+    this.variable = variable;
+    this.variableList = variableList;
+    this.literalList = literalList;
+  }
+}
+
+// TODO: Should this be used? convertTermWithPool + fresh is more fitting in most cases
+export function convertTerm(sterm: STerm, variables: Array<string>, literals: Array<string>, counter: number): [term: Term, newCounter: number] {
   if (typeof sterm === 'string') {
-    return [{ kind: 'var', id: sterm, counter }, counter + 1];
-  } if ('id' in sterm) { // Identifier
-    return [{ kind: 'identifier', id: sterm.id }, counter];
-  } if ('tag' in sterm) { // Constructor
+    if (variables.includes(sterm)) {
+      return [{ kind: 'var', id: sterm, counter }, counter + 1];
+    } else if (literals.includes(sterm)) {
+      return [{ kind: 'literal', id: sterm }, counter];
+    } else {
+      throw new UnboundIdentifierError(sterm, variables, literals);
+    }
+  } else { // Constructor
     let prevCounter = counter;
     let newArgs: Array<Term> = [];
     for (const arg of sterm.args) {
-      const [newSTerm, newCounter] = convertTerm(arg, prevCounter);
+      const [newSTerm, newCounter] = convertTerm(arg, variables, literals, prevCounter);
       newArgs.push(newSTerm);
       prevCounter = newCounter;
     }
-
     return [{ kind: 'constructor', tag: sterm.tag, args: newArgs }, prevCounter];
   }
-  return sterm; // Silences ts-2366 only if sterm is never
 }
 
-// Throws if a variable is unbound in the pool
-export function convertTermWithPool(sterm: STerm, pool: VarPool): Term {
+export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array<string>): Term {
   if (typeof sterm === 'string') {
-    return pool[sterm];
-  } if ('id' in sterm) {
-    return { kind: 'identifier', id: sterm.id };
-  } if ('tag' in sterm) {
+    if (literals.includes(sterm)) {
+      return { kind: 'literal', id: sterm };
+    } else if (pool[sterm] !== undefined) {
+      return pool[sterm];
+    } else {
+      throw new UnboundIdentifierError(sterm, Object.keys(pool), literals);
+    }
+  } else { // Constructor
     return {
       kind: 'constructor',
       tag: sterm.tag,
-      args: sterm.args.map(a => convertTermWithPool(a, pool)),
+      args: sterm.args.map(a => convertTermWithPool(a, pool, literals)),
     };
   }
-  return sterm; // Silences ts-2366 only if sterm is never
 }
 
 function varEq(a: Var, b: Var): boolean {
@@ -84,12 +117,13 @@ function walk(term: Term, subst: Substitution): Term {
 
 // Returns true if the substitution has recursive bindings
 function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
-  switch (term.kind) {
-    case "var":
-      return varEq(variable, term)
-    case "constructor":
-      return term.args.every(t => occursCheck(variable, walk(t, subst), subst));
-    case "identifier":
+  const steppedTerm = walk(term, subst);
+  switch (steppedTerm.kind) {
+    case 'var':
+      return varEq(variable, steppedTerm);
+    case 'constructor':
+      return steppedTerm.args.some(t => occursCheck(variable, t, subst));
+    case 'literal':
       return false;
   }
 }
@@ -108,7 +142,7 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
     return extendSubstitution(termA, termB, subst);
   } if (termB.kind === 'var') {
     return extendSubstitution(termB, termA, subst);
-  } if (termA.kind === 'identifier' && termB.kind === 'identifier') {
+  } if (termA.kind === 'literal' && termB.kind === 'literal') {
     return (termA.id === termB.id) ? subst : null;
   } if (termA.kind === 'constructor' && termB.kind === 'constructor' && termA.tag === termB.tag) {
     return unifyArray(termA.args, termB.args, subst);
@@ -128,23 +162,23 @@ function unifyArray(termsA: Array<Term>, termsB: Array<Term>, subst: Substitutio
 
 function appendStream(streamA: Stream, streamB: Stream): Stream {
   switch (streamA.kind) {
-    case "nil":
+    case 'nil':
       return streamB;
-    case "delayed":
+    case 'delayed':
       // Swapped appendStream arguments to make disj fair
       return { kind: 'delayed', force: () => appendStream(streamB, streamA.force()) };
-    case "cons":
+    case 'cons':
       return { kind: 'cons', solution: streamA.solution, next: appendStream(streamA.next, streamB) };
   }
 }
 
 function appendMapStream(goal: Goal, stream: Stream): Stream {
   switch (stream.kind) {
-    case "nil":
+    case 'nil':
       return stream;
-    case "delayed":
+    case 'delayed':
       return { kind: 'delayed', force: () => appendMapStream(goal, stream.force()) };
-    case "cons":
+    case 'cons':
       return appendStream(goal(stream.solution), appendMapStream(goal, stream.next));
   }
 }
@@ -207,14 +241,14 @@ export function eq(termA: Term, termB: Term): Goal {
 
 /// Relations and relation combinators
 
-export function disj(goalA: Goal, goalB: Goal): Goal {
-  return (st: State) => {
-    return appendStream(goalA(st), goalB(st));
-  };
+export function disjN(...goals: Array<Goal>): Goal {
+  return goals.reduceRight((prev, cur) =>
+    (st: State) => appendStream(cur(st), prev(st))
+  );
 }
 
-export function conj(goalA: Goal, goalB: Goal): Goal {
-  return (st: State) => {
-    return appendMapStream(goalB, goalA(st));
-  };
+export function conjN(...goals: Array<Goal>): Goal {
+  return goals.reduceRight((prev, cur) =>
+    (st: State) => appendMapStream(prev, cur(st))
+  );
 }

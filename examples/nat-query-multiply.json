@@ -1,0 +1,11 @@
+{
+  "variables": {"r": "r"},
+  "literals": {},
+  "max_results": 1,
+  "relation": "multiply",
+  "args": [
+    {"tag": "succ", "args": [{"tag": "succ", "args": [{"tag": "zero", "args": []}]}]},
+    {"tag": "succ", "args": [{"tag": "succ", "args": [{"tag": "succ", "args": [{"tag": "zero", "args": []}]}]}]},
+    "r"
+  ]
+}

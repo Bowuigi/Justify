@@ -1,17 +1,21 @@
 {
   "variables": {},
-  "literals": { "x": "x" },
+  "literals": {"x": "x"},
+  "max_results": 1,
   "relation": "judge",
   "args": [
-    "empty",
+    {"tag": "empty", "args": []},
     {
       "tag": "lambda",
       "args": [
         "x",
-        "unit",
-        { "tag": "variable", "args": ["x"] }
+        {"tag": "unit", "args": []},
+        {"tag": "variable", "args": ["x"]}
       ]
     },
-    { "tag": "arrow", "args": ["unit", "unit"] }
+    {"tag": "arrow", "args": [
+      {"tag": "unit", "args": []},
+      {"tag": "unit", "args": []}
+    ]}
   ]
 }

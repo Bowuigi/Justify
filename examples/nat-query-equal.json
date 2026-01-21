@@ -1,0 +1,13 @@
+{
+  "variables": {
+    "p": "p",
+    "q": "q"
+  },
+  "literals": {},
+  "max_results": 2,
+  "relation": "equal",
+  "args": [
+    "p",
+    "q"
+  ]
+}

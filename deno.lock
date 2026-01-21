@@ -1,9 +1,19 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@types/node@^25.0.9": "25.0.9",
     "npm:zod@^4.1.13": "4.2.1"
   },
   "npm": {
+    "@types/node@25.0.9": {
+      "integrity": "sha512-/rpCXHlCWeqClNBwUhDcusJxXYDjZTyE8v5oTO7WbL8eij2nKhUeU89/6xgjU7N4/Vh3He0BtyhJdQbDyhiXAw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "undici-types@7.16.0": {
+      "integrity": "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="
+    },
     "zod@4.2.1": {
       "integrity": "sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw=="
     }
@@ -11,6 +21,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@types/node@^25.0.9",
         "npm:zod@^4.1.13"
       ]
     }

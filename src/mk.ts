@@ -9,7 +9,7 @@
   - STerm conversions
   - Codegen for SSystem / inference rules (check src/mkCodegen.ts)
   - Derivation tree generation (coming soon!)
-  - Triangular substitution output (coming soon!)
+  - Idempotent substitution transformation
 */
 import { AssocArray } from "./AssocArray";
 import { type STerm } from "../formats/common";
@@ -199,6 +199,32 @@ function takeStream(solutions: number, stream: MatureStream): Array<State> {
   }
   return [stream.solution].concat(takeStream(solutions - 1, pullStream(stream.next)));
 }
+
+//// Presentation
+
+function walkAll(term: Term, subst: Substitution): Term {
+  const stepped = walk(term, subst);
+
+  switch (stepped.kind) {
+    case 'constructor':
+      return {
+        kind: stepped.kind,
+        tag: stepped.tag,
+        args: stepped.args.map(a => walkAll(a, subst)),
+      };
+    case 'var':
+      return stepped;
+    case 'literal':
+      return stepped;
+  }
+}
+
+export function toIdempotent(subst: Substitution): Substitution {
+  return new AssocArray(
+    subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) }))
+  );
+}
+
 
 //// DSL primitives
 

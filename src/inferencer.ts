@@ -56,7 +56,9 @@ async function main() {
     const toRender = {
       amount: results.length,
       results: results.map(
-        r => Object.fromEntries(r.subst.data.map(({ key, value }) => [`${key.id}@${key.counter}`, prettyTerm(value)]))
+        r => Object.fromEntries(
+          MK.toIdempotent(r.subst).data.map(({ key, value }) => [`${key.id}@${key.counter}`, prettyTerm(value)])
+        )
       )
     };
 

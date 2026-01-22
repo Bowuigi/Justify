@@ -8,7 +8,7 @@
   - Checked variables and literals
   - STerm conversions
   - Codegen for SSystem / inference rules (check src/mkCodegen.ts)
-  - Derivation tree generation (coming soon!)
+  - Derivation tree generation (WIP)
   - Idempotent substitution transformation
 */
 import { AssocArray } from "./AssocArray";
@@ -22,8 +22,8 @@ export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
-// type RuleLog = { rule: string, relation: string, args: Array<Term>, premises: Array<RuleLog> };
-type State = { subst: Substitution /*, log: RuleLog*/, counter: number };
+export type RuleLog = { rule: string, relation: string, args: Array<Term>, premises: Array<RuleLog> };
+type State = { subst: Substitution, log: Array<RuleLog>, counter: number };
 
 type ImmatureStream = { kind: 'delayed', force: () => Stream };
 type MatureStream = { kind: 'nil' } | { kind: 'cons', solution: State, next: Stream };
@@ -183,6 +183,17 @@ function appendMapStream(goal: Goal, stream: Stream): Stream {
   }
 }
 
+function mapStream(stream: Stream, fn: (st: State) => State): Stream {
+  switch (stream.kind) {
+    case 'nil':
+      return stream;
+    case 'delayed':
+      return { kind: 'delayed', force: () => mapStream(stream.force(), fn) }
+    case 'cons':
+      return { kind: 'cons', solution: fn(stream.solution), next: mapStream(stream.next, fn) };
+  }
+}
+
 function pullStream(stream: Stream): MatureStream {
   if (stream.kind === 'delayed') {
     return pullStream(stream.force());
@@ -225,6 +236,15 @@ export function toIdempotent(subst: Substitution): Substitution {
   );
 }
 
+// The substitution should be idempotent for efficiency
+export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
+  return {
+    rule: log.rule,
+    relation: log.relation,
+    args: log.args.map(a => walkAll(a, subst)),
+    premises: log.premises.map(p => walkLog(p, subst))
+  };
+}
 
 //// DSL primitives
 
@@ -239,8 +259,16 @@ export function fresh(ids: Array<string>, block: (pool: VarPool) => Goal): Goal 
       count++;
     }
 
-    return block(pool)({ subst: st.subst, counter: count });
+    return block(pool)({ subst: st.subst, log: st.log, counter: count });
   };
+}
+
+export function wrapLogs(rule: string, relation: string, args: Array<Term>, goal: Goal) {
+  return (st: State) => {
+    return mapStream(goal(st), sol =>
+      ({ ...sol, log: [{ rule, relation, args, premises: sol.log }] })
+    );
+  }
 }
 
 // Use this for every relation you expect to be recursive
@@ -251,7 +279,7 @@ export function delay(goal: Goal): Goal {
 }
 
 export function run(solutions: number, goal: Goal): Array<State> {
-  return takeStream(solutions, pullStream(goal({ subst: new AssocArray([]), counter: 0 })));
+  return takeStream(solutions, pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })));
 }
 
 /// Constraints
@@ -261,7 +289,7 @@ export function eq(termA: Term, termB: Term): Goal {
     const newSubst = unify(walk(termA, st.subst), walk(termB, st.subst), st.subst);
 
     if (newSubst === null) return { kind: 'nil' };
-    return { kind: 'cons', solution: { subst: newSubst, counter: st.counter }, next: { kind: 'nil' } };
+    return { kind: 'cons', solution: { subst: newSubst, log: st.log, counter: st.counter }, next: { kind: 'nil' } };
   };
 }
 

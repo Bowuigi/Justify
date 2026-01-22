@@ -19,6 +19,15 @@ function prettyTerm(term: MK.Term): string {
   }
 }
 
+type PrettyLog = { where: string, args: Array<string>, premises: Array<PrettyLog> };
+function prettyLog(log: MK.RuleLog): PrettyLog {
+  return {
+    where: `[${log.relation}/${log.rule}]`,
+    args: log.args.map(prettyTerm),
+    premises: log.premises.map(prettyLog),
+  };
+}
+
 async function parseFile<T extends z.core.$ZodType>(schema: T, schemaName: string, filename: string): Promise<z.infer<typeof schema>> {
   const result = decodeFromJSON(schema, await fs.readFile(filename, { encoding: 'utf-8' }));
 
@@ -56,13 +65,22 @@ async function main() {
     const toRender = {
       amount: results.length,
       results: results.map(
-        r => Object.fromEntries(
-          MK.toIdempotent(r.subst).data.map(({ key, value }) => [`${key.id}@${key.counter}`, prettyTerm(value)])
-        )
+        rslt => {
+          if (rslt.log.length !== 1) {
+            throw new Error(`Impossible: Log length ${rslt.log.length}`);
+          }
+          const subst = MK.toIdempotent(rslt.subst);
+          return {
+            subst: Object.fromEntries(
+              subst.data.map(({ key, value }) => [`${key.id}@${key.counter}`, prettyTerm(value)])
+            ),
+            derivation: prettyLog(MK.walkLog(rslt.log[0], subst)),
+          };
+        }
       )
     };
 
-    console.log(util.inspect(toRender, false, null, true));
+    console.log(util.inspect(toRender, { compact: false, colors: true, depth: null }));
   } catch (err) {
     if (err instanceof Error) {
       console.error(`Fatal error on execution (${err.name}):\n` + err.message);

@@ -36,16 +36,18 @@ export function toRelationStore(system: SSystem): Record<string, (relArgs: Array
       return MK.delay(
         MK.disjN(
           ...relData.rules.map(rule =>
-            MK.fresh(Object.keys(rule.variables), pool =>
-              MK.conjN(
-                ...Object.entries(rule.patterns).map(
-                  ([argVar, poolValue]) => MK.eq(argPool[argVar], MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals)))
-                ),
-                ...rule.premises.map(
-                  ({ relation, args }) => relStore[relation](args.map(a => MK.convertTermWithPool(a, pool, Object.keys(rule.literals))))
-                )
-              ) // conjN
-            ) // fresh
+            MK.wrapLogs(rule.rule.id, relName, relArgs,
+              MK.fresh(Object.keys(rule.variables), pool =>
+                MK.conjN(
+                  ...Object.entries(rule.patterns).map(
+                    ([argVar, poolValue]) => MK.eq(argPool[argVar], MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals)))
+                  ),
+                  ...rule.premises.map(
+                    ({ relation, args }) => relStore[relation](args.map(a => MK.convertTermWithPool(a, pool, Object.keys(rule.literals))))
+                  )
+                ) // conjN
+              ) // fresh
+            ) // wrapLogs
           ) // rules.map
         ) // disjN
       ) // delay

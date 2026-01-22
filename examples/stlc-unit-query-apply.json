@@ -1,0 +1,11 @@
+{
+  "variables": {"f": "f", "x": "x"},
+  "literals": {},
+  "max_results": 1,
+  "relation": "judge",
+  "args": [
+    {"tag": "empty", "args": []},
+    {"tag": "apply", "args": ["f", "x"]},
+    {"tag": "unit", "args": []}
+  ]
+}

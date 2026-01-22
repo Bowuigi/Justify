@@ -8,7 +8,7 @@
   - Checked variables and literals
   - STerm conversions
   - Codegen for SSystem / inference rules (check src/mkCodegen.ts)
-  - Derivation tree generation (WIP)
+  - Derivation tree generation
   - Idempotent substitution transformation
 */
 import { AssocArray } from "./AssocArray";
@@ -39,7 +39,7 @@ class OcurrsCheckFailedError extends Error {
   public subst: Substitution;
 
   constructor(variable: Var, term: Term, subst: Substitution) {
-    super(`Occurs check failed for variable ${variable.id}@${variable.counter}`);
+    super(`Occurs check failed for variable ${variable.id}@${variable.counter}. In term ${Deno.inspect(term)}, subst ${Deno.inspect(subst)}`);
     this.name = 'OccursCheckFailedError';
     this.variable = variable;
     this.term = term;
@@ -265,8 +265,11 @@ export function fresh(ids: Array<string>, block: (pool: VarPool) => Goal): Goal 
 
 export function wrapLogs(rule: string, relation: string, args: Array<Term>, goal: Goal) {
   return (st: State) => {
-    return mapStream(goal(st), sol =>
-      ({ ...sol, log: [{ rule, relation, args, premises: sol.log }] })
+    // Not isolating the state results in duplicated logs
+    const isolatedState = { ...st, log: [] };
+
+    return mapStream(goal(isolatedState), sol =>
+      ({ ...sol, log: [...st.log, { rule, relation, args, premises: sol.log }] })
     );
   }
 }

@@ -1,0 +1,7 @@
+{
+  "variables": {"ctx": "\\Gamma", "x": "x", "t": "\\tau"},
+  "literals": {},
+  "max_results": 2,
+  "relation": "member",
+  "args": ["ctx", "x", "t"]
+}

@@ -141,7 +141,7 @@
           "literals": {},
           "patterns": {
             "ctx": "ctx",
-            "tm": { "tag": "lam", "args": [ "x", "a", "e" ] },
+            "tm": { "tag": "lambda", "args": [ "x", "a", "e" ] },
             "ty": { "tag": "arrow", "args": [ "a", "b" ] }
           },
           "premises": [
@@ -191,9 +191,9 @@
       "texParts": [ ":", "\\in" ],
       "fixity": "infix",
       "arguments": [
+        { "from": "context", "tex": "\\Gamma", "id": "ctx" },
         { "from": "identifier", "tex": "x", "id": "ident" },
-        { "from": "type", "tex": "\\tau", "id": "ty" },
-        { "from": "context", "tex": "\\Gamma", "id": "ctx" }
+        { "from": "type", "tex": "\\tau", "id": "ty" }
       ],
       "rules": [
         {

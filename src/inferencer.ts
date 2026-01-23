@@ -11,21 +11,29 @@ import * as z from 'zod';
 function prettyTerm(term: MK.Term): string {
   switch (term.kind) {
     case 'var':
-      return `${term.id}@${term.counter}`;
+      return util.styleText('magenta', `${term.id}@${term.counter}`);
     case 'literal':
-      return `!${term.id}`;
+      return util.styleText('yellow', `!${term.id}`);
     case 'constructor':
-      return `${term.tag}(${term.args.map(prettyTerm)})`;
+      return (
+        util.styleText('blue', term.tag)
+        + '(' + term.args.map(prettyTerm).join(util.styleText('bold', ', ')) + ')'
+      );
   }
 }
 
-type PrettyLog = { where: string, args: Array<string>, premises: Array<PrettyLog> };
-function prettyLog(log: MK.RuleLog): PrettyLog {
-  return {
-    where: `[${log.relation}/${log.rule}]`,
-    args: log.args.map(prettyTerm),
-    premises: log.premises.map(prettyLog),
-  };
+function prettyLog(log: MK.RuleLog): string {
+  const single = (indent: number, l: MK.RuleLog): string => (
+    util.styleText('gray', '│ ').repeat(indent)
+    + '[' + util.styleText('green', l.rule) + '] '
+    + util.styleText('cyan', l.relation)
+    + '(' + l.args.map(prettyTerm).join(util.styleText('bold', ', ')) + ')'
+  );
+
+  const loop = (indent: number, l: MK.RuleLog): string =>
+    `${single(indent, l)}\n${l.premises.map(p => loop(indent + 1, p)).join('')}`;
+
+  return loop(0, log);
 }
 
 async function parseFile<T extends z.core.$ZodType>(schema: T, schemaName: string, filename: string): Promise<z.infer<typeof schema>> {
@@ -62,25 +70,16 @@ async function main() {
       )
     );
 
-    const toRender = {
-      amount: results.length,
-      results: results.map(
+    console.log(
+      results.map(
         rslt => {
           if (rslt.log.length !== 1) {
             throw new Error(`Impossible: Log length ${rslt.log.length}`);
           }
-          const subst = MK.toIdempotent(rslt.subst);
-          return {
-            subst: Object.fromEntries(
-              subst.data.map(({ key, value }) => [`${key.id}@${key.counter}`, prettyTerm(value)])
-            ),
-            derivation: prettyLog(MK.walkLog(rslt.log[0], subst)),
-          };
+          return prettyLog(MK.walkLog(rslt.log[0], MK.toIdempotent(rslt.subst)));
         }
-      )
-    };
-
-    console.log(util.inspect(toRender, { compact: false, colors: true, depth: null }));
+      ).join('\n')
+    );
   } catch (err) {
     if (err instanceof Error) {
       console.error(`Fatal error on execution (${err.name}):\n` + err.message);

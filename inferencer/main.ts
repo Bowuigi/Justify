@@ -1,9 +1,8 @@
-import * as fs from 'node:fs/promises';
 import * as util from 'node:util';
 import * as process from 'node:process';
 import { SSystem } from '../formats/system';
 import { SQuery } from '../formats/query';
-import { decodeFromJSON } from '../formats/common';
+import { parseFile } from '../formats/common';
 import * as MK from './mk';
 import * as MKC from './mkCodegen';
 import * as z from 'zod';
@@ -34,17 +33,6 @@ function prettyLog(log: MK.RuleLog): string {
     `${single(indent, l)}\n${l.premises.map(p => loop(indent + 1, p)).join('')}`;
 
   return loop(0, log);
-}
-
-async function parseFile<T extends z.core.$ZodType>(schema: T, schemaName: string, filename: string): Promise<z.infer<typeof schema>> {
-  const result = decodeFromJSON(schema, await fs.readFile(filename, { encoding: 'utf-8' }));
-
-  if (typeof result === 'string') {
-    console.error(`Error while parsing ${schemaName}:\n${result}`);
-    process.exit(1);
-  }
-
-  return result;
 }
 
 async function main() {

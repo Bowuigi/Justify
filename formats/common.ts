@@ -1,4 +1,6 @@
 import * as z from 'zod';
+import { readFile } from 'node:fs/promises';
+import { exit } from 'node:process';
 
 // Identifiers are in snake-case to simplify exports (conversion is easy)
 export const SIdentifier = z.string().regex(/^[a-z0-9_]+$/);
@@ -36,7 +38,7 @@ const jsonCodec = <T extends z.core.$ZodType>(schema: T) =>
     encode: (value: any): string => JSON.stringify(value),
   });
 
-export function decodeFromJSON<T extends z.core.$ZodType>(codec: T, json: string): z.infer<T> | string {
+function decodeFromJSON<T extends z.core.$ZodType>(codec: T, json: string): z.infer<T> | string {
   const result = jsonCodec(codec).safeDecode(json);
 
   if (result.success) {
@@ -44,4 +46,15 @@ export function decodeFromJSON<T extends z.core.$ZodType>(codec: T, json: string
   } else {
     return z.prettifyError(result.error);
   }
+}
+
+export async function parseFile<T extends z.core.$ZodType>(schema: T, schemaName: string, filename: string): Promise<z.infer<typeof schema>> {
+  const result = decodeFromJSON(schema, await readFile(filename, { encoding: 'utf-8' }));
+
+  if (typeof result === 'string') {
+    console.error(`Error while parsing ${schemaName}:\n${result}`);
+    exit(1);
+  }
+
+  return result;
 }

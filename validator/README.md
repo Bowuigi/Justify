@@ -4,7 +4,7 @@ Validator for the various formats included in [Justify](https://github.com/Bowui
 
 Validation passes:
 
-- (WIP) JSON schema checking
+- JSON schema checking
 - (WIP) Valid TeX checking
 - (WIP) Correct operator definition checking (fixity, texParts count and argument count)
 - (WIP) Pattern coverage
@@ -14,4 +14,4 @@ Validation passes:
 - (WIP) Using only defined relations
 - (WIP) Constructor type checking
 - (WIP) Relation type checking
-- (WIP) Check that relations have at least one parameter (the lang is purely functional, otherwise they'd be useless aside from log filling)
+- (WIP) Check that relations have at least one parameter (the lang is pure, single argument relations are useless aside from log filling)

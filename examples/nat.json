@@ -8,14 +8,14 @@
         {
           "id": "zero",
           "description": "Number zero",
-          "texParts": ["0"],
+          "tex_parts": ["0"],
           "fixity": "none",
           "arguments": []
         },
         {
           "id": "succ",
           "description": "Successor function, equivalent to $n \\mapsto n+1$",
-          "texParts": ["S"],
+          "tex_parts": ["S"],
           "fixity": "prefix",
           "arguments": [
             {"from": "number", "id": "n", "tex": "n"}
@@ -27,7 +27,7 @@
   "relations": {
     "equal": {
       "description": "Natural number $n$ is syntactically equal to $m$",
-      "texParts": ["="],
+      "tex_parts": ["="],
       "fixity": "infix",
       "arguments": [
         {"from": "number", "id": "n", "tex": "n"},
@@ -39,8 +39,8 @@
           "variables": {},
           "literals": {},
           "patterns": {
-            "n": {"tag": "zero", "args": []},
-            "m": {"tag": "zero", "args": []}
+            "n": {"is": "con", "tag": "zero", "args": []},
+            "m": {"is": "con", "tag": "zero", "args": []}
           },
           "premises": []
         },
@@ -49,13 +49,16 @@
           "variables": {"x": "x", "y": "y"},
           "literals": {},
           "patterns": {
-            "n": {"tag": "succ", "args": ["x"]},
-            "m": {"tag": "succ", "args": ["y"]}
+            "n": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "x"}]},
+            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]}
           },
           "premises": [
             {
               "relation": "equal",
-              "args": ["x", "y"]
+              "args": [
+                {"is": "ref", "to": "x"},
+                {"is": "ref", "to": "y"}
+              ]
             }
           ]
         }
@@ -63,7 +66,7 @@
     },
     "add": {
       "description": "Natural number $n$ plus $m$ is syntactically equal to $k$",
-      "texParts": ["+","="],
+      "tex_parts": ["+","="],
       "fixity": "infix",
       "arguments": [
         {"from": "number", "tex": "n", "id": "n"},
@@ -76,9 +79,9 @@
           "variables": {"x": "x"},
           "literals": {},
           "patterns": {
-            "n": "x",
-            "m": {"tag": "zero", "args": []},
-            "k": "x"
+            "n": {"is": "ref", "to": "x"},
+            "m": {"is": "con", "tag": "zero", "args": []},
+            "k": {"is": "ref", "to": "x"}
           },
           "premises": []
         },
@@ -87,14 +90,18 @@
           "variables": {"x": "x", "y": "y", "z": "z"},
           "literals": {},
           "patterns": {
-            "n": "x",
-            "m": {"tag": "succ", "args": ["y"]},
-            "k": {"tag": "succ", "args": ["z"]}
+            "n": {"is": "ref", "to": "x"},
+            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
+            "k": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "z"}]}
           },
           "premises": [
             {
               "relation": "add",
-              "args": ["x", "y", "z"]
+              "args": [
+                {"is": "ref", "to": "x"},
+                {"is": "ref", "to": "y"},
+                {"is": "ref", "to": "z"}
+              ]
             }
           ]
         }
@@ -102,7 +109,7 @@
     },
     "multiply": {
       "description": "Natural number $n$ times $m$ is syntactically equal to $k$",
-      "texParts": ["\\times", "="],
+      "tex_parts": ["\\times", "="],
       "fixity": "infix",
       "arguments": [
         {"from": "number", "tex": "n", "id": "n"},
@@ -115,9 +122,9 @@
           "variables": {"x": "x"},
           "literals": {},
           "patterns": {
-            "n": "x",
-            "m": {"tag": "zero", "args": []},
-            "k": {"tag": "zero", "args": []}
+            "n": {"is": "ref", "to": "x"},
+            "m": {"is": "con", "tag": "zero", "args": []},
+            "k": {"is": "con", "tag": "zero", "args": []}
           },
           "premises": []
         },
@@ -126,18 +133,26 @@
           "variables": {"w": "w", "x": "x", "y": "y", "z": "z"},
           "literals": {},
           "patterns": {
-            "n": "x",
-            "m": {"tag": "succ", "args": ["y"]},
-            "k": "z"
+            "n": {"is": "ref", "to": "x"},
+            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
+            "k": {"is": "ref", "to": "z"}
           },
           "premises": [
             {
               "relation": "multiply",
-              "args": ["x", "y", "w"]
+              "args": [
+                {"is": "ref", "to": "x"},
+                {"is": "ref", "to": "y"},
+                {"is": "ref", "to": "w"}
+              ]
             },
             {
               "relation": "add",
-              "args": ["w", "x", "z"]
+              "args": [
+                {"is": "ref", "to": "w"},
+                {"is": "ref", "to": "x"},
+                {"is": "ref", "to": "z"}
+              ]
             }
           ]
         }

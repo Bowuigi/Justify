@@ -4,8 +4,8 @@
   "max_results": 1,
   "relation": "judge",
   "args": [
-    {"tag": "empty", "args": []},
-    {"tag": "apply", "args": ["f", "x"]},
-    {"tag": "unit", "args": []}
+    {"is": "con", "tag": "empty", "args": []},
+    {"is": "con", "tag": "apply", "args": [{"is": "ref", "to": "f"}, {"is": "ref", "to": "x"}]},
+    {"is": "con", "tag": "unit", "args": []}
   ]
 }

@@ -4,18 +4,15 @@
   "max_results": 1,
   "relation": "judge",
   "args": [
-    {"tag": "empty", "args": []},
-    {
-      "tag": "lambda",
-      "args": [
-        "x",
-        {"tag": "unit", "args": []},
-        {"tag": "variable", "args": ["x"]}
-      ]
-    },
-    {"tag": "arrow", "args": [
-      {"tag": "unit", "args": []},
-      {"tag": "unit", "args": []}
+    {"is": "con", "tag": "empty", "args": []},
+    {"is": "con", "tag": "lambda", "args": [
+      {"is": "ref", "to": "x"},
+      {"is": "con", "tag": "unit", "args": []},
+      {"is": "con", "tag": "variable", "args": [{"is": "ref", "to": "x"}]}
+    ]},
+    {"is": "con", "tag": "arrow", "args": [
+      {"is": "con", "tag": "unit", "args": []},
+      {"is": "con", "tag": "unit", "args": []}
     ]}
   ]
 }

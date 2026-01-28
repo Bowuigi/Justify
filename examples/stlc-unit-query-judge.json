@@ -4,11 +4,8 @@
   "max_results": 5,
   "relation": "judge",
   "args": [
-    {
-      "tag": "empty",
-      "args": []
-    },
-    "e",
-    "t"
+    {"is": "con", "tag": "empty", "args": []},
+    {"is": "ref", "to": "e"},
+    {"is": "ref", "to": "t"}
   ]
 }

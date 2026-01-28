@@ -3,5 +3,9 @@
   "literals": {},
   "max_results": 2,
   "relation": "member",
-  "args": ["ctx", "x", "t"]
+  "args": [
+    {"is": "ref", "to": "ctx"},
+    {"is": "ref", "to": "x"},
+    {"is": "ref", "to": "t"}
+  ]
 }

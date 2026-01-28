@@ -1,0 +1,101 @@
+{
+  "definitions": {
+    "fixity": {
+      "enum": ["infix", "prefix", "postfix", "none"]
+    },
+    "tex_math": {
+      "type": "string"
+    },
+    "tex_text": {
+      "type": "string"
+    },
+    "identifier": {
+      "type": "string"
+    },
+    "tex_math_parts": {
+      "elements": {
+        "ref": "tex_math"
+      }
+    },
+    "arguments": {
+      "elements": {
+        "properties": {
+          "from": {"ref": "identifier"},
+          "id": {"ref": "identifier"},
+          "tex": {"ref": "tex_math"}
+        }
+      }
+    },
+    "term": {
+      "discriminator": "is",
+      "mapping": {
+        "con": {
+          "properties": {
+            "tag": {"ref": "identifier"},
+            "args": {"elements": {"ref": "term"}}
+          }
+        },
+        "ref": {
+          "properties": {
+            "to": {"ref": "identifier"}
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "description": {"ref": "tex_text"},
+    "syntax": {
+      "values": {
+        "properties": {
+          "description": {"ref": "tex_text"},
+          "suggestions": {"elements": {"ref": "tex_math"}},
+          "grammar": {
+            "elements": {
+              "properties": {
+                "id": {"ref": "identifier"},
+                "description": {"ref": "tex_text"},
+                "tex_parts": {"ref": "tex_math_parts"},
+                "fixity": {"ref": "fixity"},
+                "arguments": {"ref": "arguments"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "relations": {
+      "values": {
+        "properties": {
+          "description": {"ref": "tex_text"},
+          "tex_parts": {"ref": "tex_math_parts"},
+          "fixity": {"ref": "fixity"},
+          "arguments": {"ref": "arguments"},
+          "rules": {
+            "elements": {
+              "properties": {
+                "rule": {
+                  "properties": {
+                    "tex": {"ref": "tex_text"},
+                    "id": {"ref": "identifier"}
+                  }
+                },
+                "variables": {"values": {"ref": "tex_math"}},
+                "literals": {"values": {"ref": "tex_math"}},
+                "patterns": {"values": {"ref": "term"}},
+                "premises": {
+                  "elements": {
+                    "properties": {
+                      "relation": {"ref": "identifier"},
+                      "args": {"elements": {"ref": "term"}}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

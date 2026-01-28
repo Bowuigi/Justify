@@ -1,0 +1,33 @@
+{
+  "definitions": {
+    "tex_math": {
+      "type": "string"
+    },
+    "identifier": {
+      "type": "string"
+    },
+    "term": {
+      "discriminator": "is",
+      "mapping": {
+        "con": {
+          "properties": {
+            "tag": {"ref": "identifier"},
+            "args": {"elements": {"ref": "term"}}
+          }
+        },
+        "ref": {
+          "properties": {
+            "to": {"ref": "identifier"}
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "relation": {"ref": "identifier"},
+    "max_results": {"type": "uint16"},
+    "variables": {"values": {"ref": "tex_math"}},
+    "literals": {"values": {"ref": "tex_math"}},
+    "args": {"elements": {"ref": "term"}}
+  }
+}

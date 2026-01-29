@@ -1,8 +1,12 @@
 {
+  "scripts": {
+    "codegen": "sh scripts/codegen.sh"
+  },
   "dependencies": {
-    "zod": "^4.1.13"
+    "better-ajv-errors": "^2.0.3"
   },
   "devDependencies": {
-    "@types/node": "^25.0.9"
+    "@types/node": "^25.0.9",
+    "ajv-cli": "^5.0.0"
   }
 }

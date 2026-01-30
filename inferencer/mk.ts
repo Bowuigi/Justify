@@ -11,8 +11,8 @@
   - Derivation tree generation
   - Idempotent substitution transformation
 */
-import { AssocArray } from "./AssocArray";
-import { type STerm } from "../formats/common";
+import { AssocArray } from './AssocArray.ts';
+import type { Term as STerm } from '../formats/driver.ts';
 
 // Identifiers and tags are used for rendering, note that equal labels means equal number of args (as they point to global defs)
 type Var = { kind: 'var', id: string, counter: number };
@@ -39,7 +39,7 @@ class OcurrsCheckFailedError extends Error {
   public subst: Substitution;
 
   constructor(variable: Var, term: Term, subst: Substitution) {
-    super(`Occurs check failed for variable ${variable.id}@${variable.counter}. In term ${Deno.inspect(term)}, subst ${Deno.inspect(subst)}`);
+    super(`Occurs check failed for variable ${variable.id}@${variable.counter}.`);
     this.name = 'OccursCheckFailedError';
     this.variable = variable;
     this.term = term;
@@ -63,17 +63,17 @@ class UnboundIdentifierError extends Error {
 
 // TODO: Should this be used? convertTermWithPool + fresh is more fitting in most cases
 export function convertTerm(sterm: STerm, variables: Array<string>, literals: Array<string>, counter: number): [term: Term, newCounter: number] {
-  if (typeof sterm === 'string') {
-    if (variables.includes(sterm)) {
-      return [{ kind: 'var', id: sterm, counter }, counter + 1];
-    } else if (literals.includes(sterm)) {
-      return [{ kind: 'literal', id: sterm }, counter];
+  if (sterm.is === 'ref') {
+    if (variables.includes(sterm.to)) {
+      return [{ kind: 'var', id: sterm.to, counter }, counter + 1];
+    } else if (literals.includes(sterm.to)) {
+      return [{ kind: 'literal', id: sterm.to }, counter];
     } else {
-      throw new UnboundIdentifierError(sterm, variables, literals);
+      throw new UnboundIdentifierError(sterm.to, variables, literals);
     }
   } else { // Constructor
     let prevCounter = counter;
-    let newArgs: Array<Term> = [];
+    const newArgs: Array<Term> = [];
     for (const arg of sterm.args) {
       const [newSTerm, newCounter] = convertTerm(arg, variables, literals, prevCounter);
       newArgs.push(newSTerm);
@@ -84,19 +84,19 @@ export function convertTerm(sterm: STerm, variables: Array<string>, literals: Ar
 }
 
 export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array<string>): Term {
-  if (typeof sterm === 'string') {
-    if (literals.includes(sterm)) {
-      return { kind: 'literal', id: sterm };
-    } else if (pool[sterm] !== undefined) {
-      return pool[sterm];
+  if (sterm.is === 'ref') {
+    if (literals.includes(sterm.to)) {
+      return { kind: 'literal', id: sterm.to };
+    } else if (pool[sterm.to] !== undefined) {
+      return pool[sterm.to];
     } else {
-      throw new UnboundIdentifierError(sterm, Object.keys(pool), literals);
+      throw new UnboundIdentifierError(sterm.to, Object.keys(pool), literals);
     }
   } else { // Constructor
     return {
       kind: 'constructor',
       tag: sterm.tag,
-      args: sterm.args.map(a => convertTermWithPool(a, pool, literals)),
+      args: sterm.args.map((a) => convertTermWithPool(a, pool, literals)),
     };
   }
 }
@@ -122,7 +122,7 @@ function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
     case 'var':
       return varEq(variable, steppedTerm);
     case 'constructor':
-      return steppedTerm.args.some(t => occursCheck(variable, t, subst));
+      return steppedTerm.args.some((t) => occursCheck(variable, t, subst));
     case 'literal':
       return false;
   }
@@ -153,7 +153,7 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
 function unifyArray(termsA: Array<Term>, termsB: Array<Term>, subst: Substitution): Substitution | null {
   let oldSubst = subst;
   for (const [ix, term] of termsA.entries()) {
-    let newSubst = unify(walk(term, oldSubst), walk(termsB[ix], oldSubst), oldSubst);
+    const newSubst = unify(walk(term, oldSubst), walk(termsB[ix], oldSubst), oldSubst);
     if (newSubst === null) return null;
     oldSubst = newSubst;
   }
@@ -188,7 +188,7 @@ function mapStream(stream: Stream, fn: (st: State) => State): Stream {
     case 'nil':
       return stream;
     case 'delayed':
-      return { kind: 'delayed', force: () => mapStream(stream.force(), fn) }
+      return { kind: 'delayed', force: () => mapStream(stream.force(), fn) };
     case 'cons':
       return { kind: 'cons', solution: fn(stream.solution), next: mapStream(stream.next, fn) };
   }
@@ -242,7 +242,7 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
     rule: log.rule,
     relation: log.relation,
     args: log.args.map(a => walkAll(a, subst)),
-    premises: log.premises.map(p => walkLog(p, subst))
+    premises: log.premises.map(p => walkLog(p, subst)),
   };
 }
 
@@ -252,7 +252,7 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
 
 export function fresh(ids: Array<string>, block: (pool: VarPool) => Goal): Goal {
   return (st: State) => {
-    let pool: VarPool = {};
+    const pool: VarPool = {};
     let count = st.counter;
     for (const id of ids) {
       pool[id] = { kind: 'var', id, counter: count };

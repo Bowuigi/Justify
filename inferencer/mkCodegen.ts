@@ -1,5 +1,5 @@
-import * as MK from './mk';
-import { type SSystem } from '../formats/system';
+import * as MK from './mk.ts';
+import type { System } from '../formats/driver.ts';
 
 /*
 Every relation in inference-rule style
@@ -28,8 +28,8 @@ defrel relationName(args...) {
 }
 ```
 */
-export function toRelationStore(system: SSystem): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
-  let relStore: Record<string, (relArgs: Array<MK.Term>) => MK.Goal> = {};
+export function toRelationStore(system: System): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
+  const relStore: Record<string, (relArgs: Array<MK.Term>) => MK.Goal> = {};
   for (const [relName, relData] of Object.entries(system.relations)) {
     relStore[relName] = (relArgs: Array<MK.Term>) => {
       const argPool = Object.fromEntries(relData.arguments.map((arg, ix) => [arg.id, relArgs[ix]]));

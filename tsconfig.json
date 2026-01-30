@@ -12,6 +12,7 @@
     "strictNullChecks": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "esModuleInterop": false,
     "noFallthroughCasesInSwitch": true,
     "target": "es2020",
     "module": "es2020",

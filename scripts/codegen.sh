@@ -3,19 +3,30 @@
 # jtd-codegen always asks for a dir and generates an index.ts file on it
 
 mkdir -p formats/codegen/ts
+cd formats || exit 1
 
-echo 'Generating types for System...'
-jtd-codegen --typescript-out formats/codegen/ts/ formats/system.jtd.json
-mv formats/codegen/ts/index.ts formats/codegen/ts/system-types.ts
+for schema_file in *.jtd.json; do
+  schema="$(basename "$schema_file" .jtd.json)"
 
-echo 'Generating types for Query...'
-jtd-codegen --typescript-out formats/codegen/ts/ formats/query.jtd.json
-mv formats/codegen/ts/index.ts formats/codegen/ts/query-types.ts
+  echo "--- Generating types for ${schema} ---"
+  jtd-codegen --typescript-out codegen/ts/ "$schema_file"
+  mv codegen/ts/index.ts "codegen/ts/${schema}-types.d.ts"
 
-echo 'Generating JSON validator for System...'
-./node_modules/.bin/ajv compile --spec=jtd -s formats/system.jtd.json -o formats/codegen/ts/system-validator.cjs --code-optimize=5
+  echo "--- Generating JSON validator for ${schema} ---"
+  ../node_modules/.bin/ajv compile --spec=jtd -s "$schema_file" -o "codegen/ts/${schema}-validator.cjs" --code-optimize=5
+done
 
-echo 'Generating JSON validator for Query...'
-./node_modules/.bin/ajv compile --spec=jtd -s formats/query.jtd.json -o formats/codegen/ts/query-validator.cjs --code-optimize=5
+echo '--- Generating barrel file for types ---'
 
-echo 'Done!'
+cd codegen/ts || exit 1
+rm -f types.d.ts
+awk '
+/^export (type|enum|interface)/ {
+  typedefs[$3] = FILENAME
+}
+
+END {
+  for (def in typedefs)
+    printf "export type { %s } from \"%s\";\n", def, typedefs[def]
+}
+' ./*.d.ts > types.d.ts

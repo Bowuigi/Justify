@@ -4,8 +4,8 @@
   "max_results": 1,
   "relation": "multiply",
   "args": [
-    {"is": "con", "tag": "succ", "args": [{"is": "con", "tag": "succ", "args": [{"is": "con", "tag": "zero", "args": []}]}]},
-    {"is": "con", "tag": "succ", "args": [{"is": "con", "tag": "succ", "args": [{"is": "con", "tag": "succ", "args": [{"is": "con", "tag": "zero", "args": []}]}]}]},
+    {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "zero", "args": []}]}]},
+    {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "zero", "args": []}]}]}]},
     {"is": "ref", "to": "r"}
   ]
 }

@@ -1,11 +1,38 @@
 {
-  "variables": {"f": "f", "x": "x"},
+  "variables": {
+    "f": "f",
+    "x": "x"
+  },
   "literals": {},
   "max_results": 1,
   "relation": "judge",
   "args": [
-    {"is": "con", "tag": "empty", "args": []},
-    {"is": "con", "tag": "apply", "args": [{"is": "ref", "to": "f"}, {"is": "ref", "to": "x"}]},
-    {"is": "con", "tag": "unit", "args": []}
+    {
+      "is": "con",
+      "from": "context",
+      "tag": "empty",
+      "args": []
+    },
+    {
+      "is": "con",
+      "from": "term",
+      "tag": "apply",
+      "args": [
+        {
+          "is": "ref",
+          "to": "f"
+        },
+        {
+          "is": "ref",
+          "to": "x"
+        }
+      ]
+    },
+    {
+      "is": "con",
+      "from": "type",
+      "tag": "unit",
+      "args": []
+    }
   ]
 }

@@ -115,7 +115,7 @@
           "literals": {},
           "patterns": {
             "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "tag": "apply", "args": [{"is": "ref", "to": "e1"}, {"is": "ref", "to": "e2"}]},
+            "tm": {"is": "con", "from": "term", "tag": "apply", "args": [{"is": "ref", "to": "e1"}, {"is": "ref", "to": "e2"}]},
             "ty": {"is": "ref", "to": "b"}
           },
           "premises": [
@@ -124,7 +124,7 @@
               "args": [
                 {"is": "ref", "to": "ctx"},
                 {"is": "ref", "to": "e1"},
-                {"is": "con", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
+                {"is": "con", "from": "type", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
               ]
             },
             {
@@ -149,14 +149,14 @@
           "literals": {},
           "patterns": {
             "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "tag": "lambda", "args": [{"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}, {"is": "ref", "to": "e"}]},
-            "ty": {"is": "con", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
+            "tm": {"is": "con", "from": "term", "tag": "lambda", "args": [{"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}, {"is": "ref", "to": "e"}]},
+            "ty": {"is": "con", "from": "type", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
           },
           "premises": [
             {
               "relation": "judge",
               "args": [
-                {"is": "con", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}]},
+                {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}]},
                 {"is": "ref", "to": "e"},
                 {"is": "ref", "to": "b"}
               ]
@@ -171,8 +171,8 @@
           "literals": {},
           "patterns": {
             "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "tag": "star", "args": []},
-            "ty": {"is": "con", "tag": "unit", "args": []}
+            "tm": {"is": "con", "from": "term", "tag": "star", "args": []},
+            "ty": {"is": "con", "from": "type", "tag": "unit", "args": []}
           },
           "premises": []
         },
@@ -186,7 +186,7 @@
           "literals": {},
           "patterns": {
             "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "tag": "variable", "args": [{"is": "ref", "to": "x"}]},
+            "tm": {"is": "con", "from": "term", "tag": "variable", "args": [{"is": "ref", "to": "x"}]},
             "ty": {"is": "ref", "to": "t"}
           },
           "premises": [
@@ -221,7 +221,7 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "con", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "t"}]},
+            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "t"}]},
             "ident": {"is": "ref", "to": "x"},
             "ty": {"is": "ref", "to": "t"}
           },
@@ -238,7 +238,7 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "con", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "y"}, {"is": "ref", "to": "t2"}]},
+            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "y"}, {"is": "ref", "to": "t2"}]},
             "ident": {"is": "ref", "to": "x"},
             "ty": {"is": "ref", "to": "t1"}
           },

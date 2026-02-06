@@ -31,6 +31,7 @@
       "mapping": {
         "con": {
           "properties": {
+            "from": {"ref": "identifier"},
             "tag": {"ref": "identifier"},
             "args": {"elements": {"ref": "term"}}
           }

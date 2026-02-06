@@ -16,7 +16,7 @@ import type { Term as STerm } from '../formats/driver.ts';
 
 // Identifiers and tags are used for rendering, note that equal labels means equal number of args (as they point to global defs)
 type Var = { kind: 'var', id: string, counter: number };
-type Constructor = { kind: 'constructor', tag: string, args: Array<Term> };
+type Constructor = { kind: 'constructor', from: string, tag: string, args: Array<Term> };
 type Literal = { kind: 'literal', id: string };
 export type Term = Var | Constructor | Literal;
 
@@ -79,7 +79,7 @@ export function convertTerm(sterm: STerm, variables: Array<string>, literals: Ar
       newArgs.push(newSTerm);
       prevCounter = newCounter;
     }
-    return [{ kind: 'constructor', tag: sterm.tag, args: newArgs }, prevCounter];
+    return [{ kind: 'constructor', from: sterm.from, tag: sterm.tag, args: newArgs }, prevCounter];
   }
 }
 
@@ -95,6 +95,7 @@ export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array
   } else { // Constructor
     return {
       kind: 'constructor',
+      from: sterm.from,
       tag: sterm.tag,
       args: sterm.args.map((a) => convertTermWithPool(a, pool, literals)),
     };
@@ -220,6 +221,7 @@ function walkAll(term: Term, subst: Substitution): Term {
     case 'constructor':
       return {
         kind: stepped.kind,
+        from: stepped.from,
         tag: stepped.tag,
         args: stepped.args.map(a => walkAll(a, subst)),
       };

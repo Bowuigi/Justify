@@ -15,6 +15,7 @@ export type Term = TermCon | TermRef;
 export interface TermCon {
   is: "con";
   args: Term[];
+  from: Identifier;
   tag: Identifier;
 }
 

@@ -39,8 +39,8 @@
           "variables": {},
           "literals": {},
           "patterns": {
-            "n": {"is": "con", "tag": "zero", "args": []},
-            "m": {"is": "con", "tag": "zero", "args": []}
+            "n": {"is": "con", "from": "number", "tag": "zero", "args": []},
+            "m": {"is": "con", "from": "number", "tag": "zero", "args": []}
           },
           "premises": []
         },
@@ -49,8 +49,8 @@
           "variables": {"x": "x", "y": "y"},
           "literals": {},
           "patterns": {
-            "n": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "x"}]},
-            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]}
+            "n": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "x"}]},
+            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]}
           },
           "premises": [
             {
@@ -80,7 +80,7 @@
           "literals": {},
           "patterns": {
             "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "tag": "zero", "args": []},
+            "m": {"is": "con", "from": "number", "tag": "zero", "args": []},
             "k": {"is": "ref", "to": "x"}
           },
           "premises": []
@@ -91,8 +91,8 @@
           "literals": {},
           "patterns": {
             "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
-            "k": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "z"}]}
+            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
+            "k": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "z"}]}
           },
           "premises": [
             {
@@ -123,8 +123,8 @@
           "literals": {},
           "patterns": {
             "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "tag": "zero", "args": []},
-            "k": {"is": "con", "tag": "zero", "args": []}
+            "m": {"is": "con", "from": "number", "tag": "zero", "args": []},
+            "k": {"is": "con", "from": "number", "tag": "zero", "args": []}
           },
           "premises": []
         },
@@ -134,7 +134,7 @@
           "literals": {},
           "patterns": {
             "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
+            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
             "k": {"is": "ref", "to": "z"}
           },
           "premises": [

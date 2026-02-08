@@ -193,9 +193,9 @@
             {
               "relation": "member",
               "args": [
-                {"is": "ref", "to": "ctx"},
                 {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "t"}
+                {"is": "ref", "to": "t"},
+                {"is": "ref", "to": "ctx"}
               ]
             }
           ]
@@ -207,9 +207,9 @@
       "tex_parts": [":", "\\in"],
       "fixity": "infix",
       "arguments": [
-        {"from": "context", "tex": "\\Gamma", "id": "ctx"},
         {"from": "identifier", "tex": "x", "id": "ident"},
-        {"from": "type", "tex": "\\tau", "id": "ty"}
+        {"from": "type", "tex": "\\tau", "id": "ty"},
+        {"from": "context", "tex": "\\Gamma", "id": "ctx"}
       ],
       "rules": [
         {
@@ -221,9 +221,9 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "t"}]},
             "ident": {"is": "ref", "to": "x"},
-            "ty": {"is": "ref", "to": "t"}
+            "ty": {"is": "ref", "to": "t"},
+            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "t"}]}
           },
           "premises": []
         },
@@ -238,17 +238,17 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "y"}, {"is": "ref", "to": "t2"}]},
             "ident": {"is": "ref", "to": "x"},
-            "ty": {"is": "ref", "to": "t1"}
+            "ty": {"is": "ref", "to": "t1"},
+            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "y"}, {"is": "ref", "to": "t2"}]}
           },
           "premises": [
             {
               "relation": "member",
               "args": [
-                {"is": "ref", "to": "ctx"},
                 {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "t1"}
+                {"is": "ref", "to": "t1"},
+                {"is": "ref", "to": "ctx"}
               ]
             }
           ]

@@ -1,7 +1,7 @@
-import { Fixity, parseSystem, System, TexMathParts } from "../../formats/driver.ts";
+import { Fixity, parseSystem, System, Term, TexMath, TexMathParts } from "../../formats/driver.ts";
 import { default as process } from "node:process";
 
-type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription';
+type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription' | 'relationRule';
 
 function snakeToCamel(s: string): string {
   return s.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -16,9 +16,10 @@ function interleave<T>(arr1: T[], arr2: T[]): T[] {
   return result;
 }
 
-function commandOf(namespace: TeXNamespace, invocation: string) {
-  const mappings: Record<TeXNamespace, string> = { system: 'y', grammar: 'g', relation: 'r', relationDescription: 'rd' };
-  return '\\' + snakeToCamel(`j${mappings[namespace]}_${invocation}`);
+function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<string>) {
+  const mappings: Record<TeXNamespace, string> = { system: 'y', grammar: 'g', relation: 'r', relationDescription: 'rd', relationRule: 'rr' };
+  const renderedArgs = (args === undefined) ? '' : ('{' + args.join('}{') + '}');
+  return '\\' + snakeToCamel(`j${mappings[namespace]}_${invocation}`) + renderedArgs;
 }
 
 function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string>): string {
@@ -36,6 +37,19 @@ function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string
   }
 }
 
+function renderTerm(term: Term, variables: Record<string, TexMath>, literals: Record<string, TexMath>): string {
+  switch (term.is) {
+    case 'ref':
+      return variables[term.to] || literals[term.to] || `<Ref ${term.to} unbound>`
+    case 'con':
+      return commandOf(
+        'grammar',
+        `${term.from}_${term.tag}`,
+        term.args.map(a => renderTerm(a, variables, literals))
+      );
+  }
+}
+
 function extractTeX(system: System) {
   // Mutable store for type safety and centralization
   let definedCommands: Record<TeXNamespace, Record<string, { arguments: number, definition: string }>> = {
@@ -43,6 +57,7 @@ function extractTeX(system: System) {
     grammar: {},
     relation: {},
     relationDescription: {},
+    relationRule: {},
   };
 
   // jyDescription
@@ -57,7 +72,7 @@ function extractTeX(system: System) {
     const categorySpacing = grammarDef.length === 0 ? '' : '\\\\[-5pt]';
     grammarDef.push(`${categorySpacing} && \\textbf{${definition.description}} \\\\ `);
 
-    for (const [index, grammar] of Object.entries(definition.grammar)) {
+    for (const [index, grammar] of definition.grammar.entries()) {
       definedCommands.grammar[`${category}_${grammar.id}`] = {
         arguments: grammar.arguments.length,
         definition: renderMixfix(
@@ -67,18 +82,16 @@ function extractTeX(system: System) {
         ),
       };
 
-      if (index === '0') {
+      if (index === 0) {
         grammarDef.push(
           `${definition.suggestions.join(' , ')} \\mathrel{::=} ` +
-          `& ${commandOf('grammar', `${category}_${grammar.id}`)}` +
-          `{${grammar.arguments.map(a => a.tex).join('}{')}} ` +
+          `& ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
           `& \\text{${grammar.description}} \\\\`
         );
       } else {
         grammarDef.push(
           '\\mid ' +
-          `& ${commandOf('grammar', `${category}_${grammar.id}`)}` +
-          `{${grammar.arguments.map(a => a.tex).join('}{')}} ` +
+          `& ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
           `& \\text{${grammar.description}} \\\\`
         );
       }
@@ -110,11 +123,35 @@ function extractTeX(system: System) {
       definition: `
       \\boxed{
         \\begin{array}{c}
-        ${commandOf('relation', relation)}{${definition.arguments.map(a => a.tex).join('}{')}} \\\\
+        ${commandOf('relation', relation, definition.arguments.map(a => a.tex))} \\\\
         \\text{${definition.description}}
         \\end{array}
       }`
     };
+
+    for (const rule of definition.rules) {
+      definedCommands.relationRule[`${relation}_${rule.rule.id}`] = {
+        arguments: 0,
+        definition: `
+        \\dfrac{
+          \\begin{array}{l}
+          ${rule.premises.map(p =>
+          commandOf(
+            'relation',
+            p.relation,
+            p.args.map(a => renderTerm(a, rule.variables, rule.literals))
+          )
+        ).join(' \\\\ ')}
+          \\end{array}
+        }{
+          ${commandOf(
+            'relation',
+            relation,
+            definition.arguments.map(a => renderTerm(rule.patterns[a.id], rule.variables, rule.literals))
+          )}
+        } \\, \\text{[${rule.rule.tex}]}`,
+      }
+    }
   }
 
   /// Render defined commands

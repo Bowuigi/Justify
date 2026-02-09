@@ -16,8 +16,8 @@
         },
         {
           "id": "lambda",
-          "description": "Binds the applied term of type $t$ to the variable $x$ inside $e$",
-          "tex_parts": ["\\lambda", ":", "."],
+          "description": "Binds the applied term of type $t$ to the variable $x$ in $e$",
+          "tex_parts": ["\\lambda", ":", ".\\,"],
           "fixity": "prefix",
           "arguments": [
             {"from": "identifier", "id": "x", "tex": "x"},
@@ -203,7 +203,7 @@
       ]
     },
     "member": {
-      "description": "Term $e$ inside context $\\Gamma$ has type $\\tau$",
+      "description": "Identifier $x$ inside context $\\Gamma$ has type $\\tau$",
       "tex_parts": [":", "\\in"],
       "fixity": "infix",
       "arguments": [

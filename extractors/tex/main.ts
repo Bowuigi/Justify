@@ -1,7 +1,7 @@
 import { Fixity, parseSystem, System, Term, TexMath, TexMathParts } from "../../formats/driver.ts";
 import { default as process } from "node:process";
 
-type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription' | 'relationRule';
+type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription' | 'relationRule' | 'relationRuleset';
 
 function snakeToCamel(s: string): string {
   return s.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -17,7 +17,7 @@ function interleave<T>(arr1: T[], arr2: T[]): T[] {
 }
 
 function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<string>) {
-  const mappings: Record<TeXNamespace, string> = { system: 'y', grammar: 'g', relation: 'r', relationDescription: 'rd', relationRule: 'rr' };
+  const mappings: Record<TeXNamespace, string> = { system: 'y', grammar: 'g', relation: 'r', relationDescription: 'rd', relationRule: 'rr', relationRuleset: 'rrs' };
   const renderedArgs = (args === undefined) ? '' : ('{' + args.join('}{') + '}');
   return '\\' + snakeToCamel(`j${mappings[namespace]}_${invocation}`) + renderedArgs;
 }
@@ -50,6 +50,8 @@ function renderTerm(term: Term, variables: Record<string, TexMath>, literals: Re
   }
 }
 
+// TODO: Refactor this into a bunch of `.map()` calls
+//       If the asymptotic complexity becomes a problem, those maps can be fused. 
 function extractTeX(system: System) {
   // Mutable store for type safety and centralization
   let definedCommands: Record<TeXNamespace, Record<string, { arguments: number, definition: string }>> = {
@@ -58,6 +60,7 @@ function extractTeX(system: System) {
     relation: {},
     relationDescription: {},
     relationRule: {},
+    relationRuleset: {},
   };
 
   // jyDescription
@@ -129,6 +132,13 @@ function extractTeX(system: System) {
       }`
     };
 
+    definedCommands.relationRuleset[relation] = {
+      arguments: 0,
+      definition: definition.rules.map(r =>
+        commandOf('relationRule', `${relation}_${r.rule.id}`)
+      ).join(' \\allowbreak \\qquad '),
+    };
+
     for (const rule of definition.rules) {
       definedCommands.relationRule[`${relation}_${rule.rule.id}`] = {
         arguments: 0,
@@ -150,7 +160,7 @@ function extractTeX(system: System) {
             definition.arguments.map(a => renderTerm(rule.patterns[a.id], rule.variables, rule.literals))
           )}
         } \\, \\text{[${rule.rule.tex}]}`,
-      }
+      };
     }
   }
 

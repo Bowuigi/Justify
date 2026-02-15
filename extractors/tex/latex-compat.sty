@@ -12,14 +12,14 @@
 % OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 % This file should be `\input{...}` if the output is intended to be used in LaTeX.
-% Wrap `\jrrs<relation>`/`jrr<relation><rule>` macros in a `jyRule` environment, possibly separating them using `\and`.
+% Wrap `\jrrs<relation>`/`jrr<relation><rule>` macros in the `jyRules` environment, possibly separating them using `\and`.
 
-\newenvironment{jyRule}{
+\newenvironment{jyRules}{
   \begingroup
   % `\allowbreak` is `\penalty 0`, which is exactly what we want
   % `\qquad` is redefined here because the generator uses it for KaTeX compatibility
   \renewcommand{\qquad}{\hspace{2em plus 1em minus 2em}}
-  % Separates two inference rules
+  % Separates two inference rules, note that `\qquad` was redefined
   \renewcommand{\and}{\allowbreak \qquad}
   % Make rules nicer to read
   \begin{center}

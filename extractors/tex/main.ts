@@ -54,131 +54,136 @@ function renderTerm(term: Term, variables: Record<string, TexMath>, literals: Re
 //       If the asymptotic complexity becomes a problem, those maps can be fused. 
 function extractTeX(system: System) {
   // Mutable store for type safety and centralization
-  let definedCommands: Record<TeXNamespace, Record<string, { arguments: number, definition: string }>> = {
-    system: {},
-    grammar: {},
-    relation: {},
-    relationDescription: {},
-    relationRule: {},
-    relationRuleset: {},
+  let definedCommands: Record<TeXNamespace, Array<readonly [string, { readonly arguments: number, readonly definition: string }]>> = {
+    grammar: [],
+    relation: [],
+    relationDescription: [],
+    relationRule: [],
+    relationRuleset: [],
+    system: [
+      // \jyDescription
+      ['description', {
+        arguments: 0,
+        definition: `\\text{${system.description}}`,
+      }],
+      // \jyInfer{rule name}{premise1 \\ premise2 \\ ...}{conclusion}
+      ['infer', {
+        arguments: 3,
+        definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
+      }],
+    ],
   };
 
-  // jyDescription
-  definedCommands.system.description = {
-    arguments: 0,
-    definition: `\\text{${system.description}}`,
-  };
+  // jg<category><constructor>{...}{...}... macros
+  definedCommands.grammar =
+    Object.entries(system.syntax).flatMap(([category, definition]) =>
+      definition.grammar.map(grammar => [
+        `${category}_${grammar.id}`, {
+          arguments: grammar.arguments.length,
+          definition: renderMixfix(
+            grammar.fixity,
+            grammar.tex_parts,
+            Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
+          ),
+        }
+      ] as const)
+    );
 
-  /// jyGrammar formatting and jg... constructors
-  const grammarDef: Array<string> = [];
-  for (const [category, definition] of Object.entries(system.syntax)) {
-    const categorySpacing = grammarDef.length === 0 ? '' : '\\\\[-5pt]';
-    grammarDef.push(`${categorySpacing} && \\textbf{${definition.description}} \\\\ `);
-
-    for (const [index, grammar] of definition.grammar.entries()) {
-      definedCommands.grammar[`${category}_${grammar.id}`] = {
-        arguments: grammar.arguments.length,
-        definition: renderMixfix(
-          grammar.fixity,
-          grammar.tex_parts,
-          Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
-        ),
-      };
-
-      if (index === 0) {
-        grammarDef.push(
-          `${definition.suggestions.join(' , ')} \\mathrel{::=} ` +
-          `& ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
-          `& \\text{${grammar.description}} \\\\`
-        );
-      } else {
-        grammarDef.push(
-          '\\mid ' +
-          `& ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
-          `& \\text{${grammar.description}} \\\\`
-        );
-      }
+  /// jyGrammar formatting
+  const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) => [
+    // e ::= & constructor(...args) & description \\
+    // On title lines it inserts an extra line with -5pt line spacing
+    (ix === 0 ? '' : '\\\\[-5pt] ') + `& & \\textbf{${definition.description}}`,
+    ...definition.grammar.map((grammar, ix) =>
+      ((ix === 0) ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : '\\mid') +
+      ` & ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
+      ` & \\text{${grammar.description}}`
+    )
+  ]);
+  definedCommands.system.push([
+    'grammar', {
+      arguments: 0,
+      definition:
+        '\n  \\begin{array}{rll}\n    ' +
+        grammarDef.join(' \\\\\n    ') +
+        '\n  \\end{array}',
     }
-  }
-  grammarDef.push()
-  definedCommands.system.grammar = {
-    arguments: 0,
-    definition:
-      '\n  \\begin{array}{rll}\n    ' +
-      grammarDef.join('\n    ') +
-      '\n  \\end{array}',
-  };
+  ]);
 
-  /// TODO: Render relations (requires term rendering)
-  for (const [relation, definition] of Object.entries(system.relations)) {
-    definedCommands.relation[relation] = {
-      arguments: definition.arguments.length,
-      definition: renderMixfix(
-        definition.fixity,
-        definition.tex_parts,
-        Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
-      ),
-    };
+  // jr<relation>{...}{...}... macros
+  definedCommands.relation =
+    Object.entries(system.relations).map(([relation, definition]) => [
+      relation, {
+        arguments: definition.arguments.length,
+        definition: renderMixfix(
+          definition.fixity,
+          definition.tex_parts,
+          Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
+        ),
+      }
+    ]);
 
-    // Relation showcase with description
-    definedCommands.relationDescription[relation] = {
-      arguments: 0,
-      definition: `
-      \\boxed{
-        \\begin{array}{c}
-        ${commandOf('relation', relation, definition.arguments.map(a => a.tex))} \\\\
-        \\text{${definition.description}}
-        \\end{array}
-      }`
-    };
-
-    definedCommands.relationRuleset[relation] = {
-      arguments: 0,
-      definition: definition.rules.map(r =>
-        commandOf('relationRule', `${relation}_${r.rule.id}`)
-      ).join(' \\allowbreak \\qquad '),
-    };
-
-    for (const rule of definition.rules) {
-      definedCommands.relationRule[`${relation}_${rule.rule.id}`] = {
+  // \jrd<relation> macros
+  definedCommands.relationDescription =
+    Object.entries(system.relations).map(([relation, definition]) => [
+      relation, {
         arguments: 0,
         definition: `
-        \\dfrac{
-          \\begin{array}{l}
-          ${rule.premises.map(p =>
-          commandOf(
-            'relation',
-            p.relation,
-            p.args.map(a => renderTerm(a, rule.variables, rule.literals))
-          )
-        ).join(' \\\\ ')}
+        \\boxed{
+          \\begin{array}{c}
+          ${commandOf('relation', relation, definition.arguments.map(a => a.tex))} \\\\
+          \\text{${definition.description}}
           \\end{array}
-        }{
-          ${commandOf(
-            'relation',
-            relation,
-            definition.arguments.map(a => renderTerm(rule.patterns[a.id], rule.variables, rule.literals))
-          )}
-        } \\, \\text{[${rule.rule.tex}]}`,
-      };
-    }
-  }
+        }`,
+      }
+    ]);
+
+  // \jrrs<relation> macros
+  definedCommands.relationRuleset =
+    Object.entries(system.relations).map(([relation, definition]) => [
+      relation, {
+        arguments: 0,
+        definition: definition.rules.map(r =>
+          commandOf('relationRule', `${relation}_${r.rule.id}`)
+        ).join(' \\allowbreak \\qquad '),
+      }
+    ]);
+
+  // \jrr<relation><rule> macros
+  definedCommands.relationRule =
+    Object.entries(system.relations).flatMap(([relation, definition]) =>
+      definition.rules.map(rule => [
+        `${relation}_${rule.rule.id}`, {
+          arguments: 0,
+          definition: commandOf('system', 'infer', [
+            rule.rule.tex,
+            rule.premises.map(p =>
+              commandOf('relation', p.relation, p.args.map(a => renderTerm(a, rule.variables, rule.literals)))
+            ).join(' \\\\ '),
+            commandOf('relation', relation, definition.arguments.map(a => renderTerm(rule.patterns[a.id], rule.variables, rule.literals))),
+          ]),
+        }
+      ])
+    );
 
   /// Render defined commands
   let output = '';
   for (const [namespace, commands] of Object.entries(definedCommands)) {
-    for (const [command, macro] of Object.entries(commands)) {
-      output += `\\newcommand{${commandOf(namespace as TeXNamespace, command)}}[${macro.arguments}]{${macro.definition}}\n`;
-    }
+    output += `% Bindings from namespace '${namespace}'\n`;
+    output += commands.map(([command, macro]) =>
+      '\\newcommand{' +
+      commandOf(namespace as TeXNamespace, command) +
+      '}[' + macro.arguments + ']{' +
+      macro.definition +
+      '}\n'
+    ).join('');
   }
   return output;
 }
 
 async function main() {
   if (process.argv.length !== 3) {
-    console.error(
-      `Wrong number of arguments.\nUsage: ${process.argv[1]} filename`,
-    );
+    console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} filename`);
     process.exitCode = 1;
     return;
   }

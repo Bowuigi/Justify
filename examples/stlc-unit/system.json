@@ -98,13 +98,13 @@
       "tex_parts": ["\\vdash", ":"],
       "fixity": "infix",
       "arguments": [
-        {"from": "context", "tex": "\\Gamma", "id": "ctx"},
-        {"from": "term", "tex": "e", "id": "tm"},
-        {"from": "type", "tex": "\\tau", "id": "ty"}
+        {"from": "context", "id": "ctx", "tex": "\\Gamma"},
+        {"from": "term", "id": "tm", "tex": "e"},
+        {"from": "type", "id": "ty", "tex": "\\tau"}
       ],
       "rules": [
         {
-          "rule": {"tex": "App", "id": "app"},
+          "rule": {"id": "app", "tex": "App"},
           "variables": {
             "e1": "e_1",
             "e2": "e_2",
@@ -138,7 +138,7 @@
           ]
         },
         {
-          "rule": {"tex": "Lam", "id": "lam"},
+          "rule": {"id": "lam", "tex": "Lam"},
           "variables": {
             "ctx": "\\Gamma",
             "x": "x",
@@ -164,7 +164,7 @@
           ]
         },
         {
-          "rule": {"tex": "Unit", "id": "unit"},
+          "rule": {"id": "unit", "tex": "Unit"},
           "variables": {
             "ctx": "\\Gamma"
           },
@@ -177,7 +177,7 @@
           "premises": []
         },
         {
-          "rule": {"tex": "Var", "id": "var"},
+          "rule": {"id": "var", "tex": "Var"},
           "variables": {
             "ctx": "\\Gamma",
             "x": "x",
@@ -207,13 +207,13 @@
       "tex_parts": [":", "\\in"],
       "fixity": "infix",
       "arguments": [
-        {"from": "identifier", "tex": "x", "id": "ident"},
-        {"from": "type", "tex": "\\tau", "id": "ty"},
-        {"from": "context", "tex": "\\Gamma", "id": "ctx"}
+        {"from": "identifier", "id": "ident", "tex": "x"},
+        {"from": "type", "id": "ty", "tex": "\\tau"},
+        {"from": "context", "id": "ctx", "tex": "\\Gamma"}
       ],
       "rules": [
         {
-          "rule": {"tex": "Found", "id": "found"},
+          "rule": {"id": "found", "tex": "Found"},
           "variables": {
             "x": "x",
             "t": "\\tau",
@@ -228,7 +228,7 @@
           "premises": []
         },
         {
-          "rule": {"tex": "Next", "id": "next"},
+          "rule": {"id": "next", "tex": "Next"},
           "variables": {
             "x": "x",
             "y": "y",

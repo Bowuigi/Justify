@@ -35,7 +35,7 @@
       ],
       "rules": [
         {
-          "rule": {"tex": "Base", "id": "base"},
+          "rule": {"id": "base", "tex": "Base"},
           "variables": {},
           "literals": {},
           "patterns": {
@@ -45,7 +45,7 @@
           "premises": []
         },
         {
-          "rule": {"tex": "Ind", "id": "ind"},
+          "rule": {"id": "ind", "tex": "Ind"},
           "variables": {"x": "x", "y": "y"},
           "literals": {},
           "patterns": {
@@ -69,13 +69,13 @@
       "tex_parts": ["+","="],
       "fixity": "infix",
       "arguments": [
-        {"from": "number", "tex": "n", "id": "n"},
-        {"from": "number", "tex": "m", "id": "m"},
-        {"from": "number", "tex": "k", "id": "k"}
+        {"from": "number", "id": "n", "tex": "n"},
+        {"from": "number", "id": "m", "tex": "m"},
+        {"from": "number", "id": "k", "tex": "k"}
       ],
       "rules": [
         {
-          "rule": {"tex": "Base", "id": "base"},
+          "rule": {"id": "base", "tex": "Base"},
           "variables": {"x": "x"},
           "literals": {},
           "patterns": {
@@ -86,7 +86,7 @@
           "premises": []
         },
         {
-          "rule": {"tex": "Ind", "id": "ind"},
+          "rule": {"id": "ind", "tex": "Ind"},
           "variables": {"x": "x", "y": "y", "z": "z"},
           "literals": {},
           "patterns": {
@@ -112,13 +112,13 @@
       "tex_parts": ["\\times", "="],
       "fixity": "infix",
       "arguments": [
-        {"from": "number", "tex": "n", "id": "n"},
-        {"from": "number", "tex": "m", "id": "m"},
-        {"from": "number", "tex": "k", "id": "k"}
+        {"from": "number", "id": "n", "tex": "n"},
+        {"from": "number", "id": "m", "tex": "m"},
+        {"from": "number", "id": "k", "tex": "k"}
       ],
       "rules": [
         {
-          "rule": {"tex": "Base", "id": "base"},
+          "rule": {"id": "base", "tex": "Base"},
           "variables": {"x": "x"},
           "literals": {},
           "patterns": {
@@ -129,7 +129,7 @@
           "premises": []
         },
         {
-          "rule": {"tex": "Ind", "id": "ind"},
+          "rule": {"id": "ind", "tex": "Ind"},
           "variables": {"w": "w", "x": "x", "y": "y", "z": "z"},
           "literals": {},
           "patterns": {

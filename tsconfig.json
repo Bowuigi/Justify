@@ -14,9 +14,11 @@
     "allowUnusedLabels": false,
     "esModuleInterop": false,
     "noFallthroughCasesInSwitch": true,
-    "target": "es2020",
-    "module": "es2020",
-    "moduleResolution": "node"
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": [
+      "esnext"
+    ]
   },
   "include": [
     "src/*"

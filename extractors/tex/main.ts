@@ -50,44 +50,9 @@ function renderTerm(term: Term, variables: Record<string, TexMath>, literals: Re
   }
 }
 
-// TODO: Refactor this into a bunch of `.map()` calls
-//       If the asymptotic complexity becomes a problem, those maps can be fused. 
 function extractTeX(system: System) {
-  // Mutable store for type safety and centralization
-  let definedCommands: Record<TeXNamespace, Array<readonly [string, { readonly arguments: number, readonly definition: string }]>> = {
-    grammar: [],
-    relation: [],
-    relationDescription: [],
-    relationRule: [],
-    relationRuleset: [],
-    system: [
-      // \jyDescription
-      ['description', {
-        arguments: 0,
-        definition: `\\text{${system.description}}`,
-      }],
-      // \jyInfer{rule name}{premise1 \\ premise2 \\ ...}{conclusion}
-      ['infer', {
-        arguments: 3,
-        definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
-      }],
-    ],
-  };
-
-  // jg<category><constructor>{...}{...}... macros
-  definedCommands.grammar =
-    Object.entries(system.syntax).flatMap(([category, definition]) =>
-      definition.grammar.map(grammar => [
-        `${category}_${grammar.id}`, {
-          arguments: grammar.arguments.length,
-          definition: renderMixfix(
-            grammar.fixity,
-            grammar.tex_parts,
-            Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
-          ),
-        }
-      ] as const)
-    );
+  const mapEntries: <S, T>(obj: Record<string, S>, callback: (value: [string, S], index: number) => T) => T[]
+    = (obj, callback) => Object.entries(obj).map(callback);
 
   /// jyGrammar formatting
   const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) => [
@@ -100,19 +65,23 @@ function extractTeX(system: System) {
       ` & \\text{${grammar.description}}`
     )
   ]);
-  definedCommands.system.push([
-    'grammar', {
-      arguments: 0,
-      definition:
-        '\n  \\begin{array}{rll}\n    ' +
-        grammarDef.join(' \\\\\n    ') +
-        '\n  \\end{array}',
-    }
-  ]);
 
-  // jr<relation>{...}{...}... macros
-  definedCommands.relation =
-    Object.entries(system.relations).map(([relation, definition]) => [
+  const definedCommands: Record<TeXNamespace, Array<readonly [string, { readonly arguments: number, readonly definition: string }]>> = {
+    // jg<category><constructor>{...}{...}... macros
+    grammar: Object.entries(system.syntax).flatMap(([category, definition]) =>
+      definition.grammar.map(grammar => [
+        `${category}_${grammar.id}`, {
+          arguments: grammar.arguments.length,
+          definition: renderMixfix(
+            grammar.fixity,
+            grammar.tex_parts,
+            Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
+          ),
+        }
+      ] as const)
+    ),
+    // jr<relation>{...}{...}... macros
+    relation: mapEntries(system.relations, ([relation, definition]) => [
       relation, {
         arguments: definition.arguments.length,
         definition: renderMixfix(
@@ -121,11 +90,9 @@ function extractTeX(system: System) {
           Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
         ),
       }
-    ]);
-
-  // \jrd<relation> macros
-  definedCommands.relationDescription =
-    Object.entries(system.relations).map(([relation, definition]) => [
+    ]),
+    // \jrd<relation> macros
+    relationDescription: mapEntries(system.relations, ([relation, definition]) => [
       relation, {
         arguments: 0,
         definition: `
@@ -136,22 +103,9 @@ function extractTeX(system: System) {
           \\end{array}
         }`,
       }
-    ]);
-
-  // \jrrs<relation> macros
-  definedCommands.relationRuleset =
-    Object.entries(system.relations).map(([relation, definition]) => [
-      relation, {
-        arguments: 0,
-        definition: definition.rules.map(r =>
-          commandOf('relationRule', `${relation}_${r.rule.id}`)
-        ).join(' \\allowbreak \\qquad '),
-      }
-    ]);
-
-  // \jrr<relation><rule> macros
-  definedCommands.relationRule =
-    Object.entries(system.relations).flatMap(([relation, definition]) =>
+    ]),
+    // \jrr<relation><rule> macros
+    relationRule: Object.entries(system.relations).flatMap(([relation, definition]) =>
       definition.rules.map(rule => [
         `${relation}_${rule.rule.id}`, {
           arguments: 0,
@@ -164,7 +118,33 @@ function extractTeX(system: System) {
           ]),
         }
       ])
-    );
+    ),
+    // \jrrs<relation> macros
+    relationRuleset: mapEntries(system.relations, ([relation, definition]) => [
+      relation, {
+        arguments: 0,
+        definition: definition.rules.map(r =>
+          commandOf('relationRule', `${relation}_${r.rule.id}`)
+        ).join(' \\allowbreak \\qquad '),
+      }
+    ]),
+    system: [
+      // \jyDescription
+      ['description', {
+        arguments: 0,
+        definition: `\\text{${system.description}}`,
+      }],
+      // \jyInfer{rule name}{premise1 \\ premise2 \\ ...}{conclusion}
+      ['infer', {
+        arguments: 3,
+        definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
+      }],
+      ['grammar', {
+        arguments: 0,
+        definition: `\n  \\begin{array}{rll}\n    ${grammarDef.join(' \\\\\n    ')}\n  \\end{array}`,
+      }]
+    ],
+  };
 
   /// Render defined commands
   let output = '';

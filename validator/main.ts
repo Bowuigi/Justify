@@ -1,6 +1,24 @@
 import { parseQuery, parseSystem, Query, System } from "../formats/driver.ts";
 import { default as process } from 'node:process';
 import { validateSystem, validateQuery } from './driver.ts';
+import { ModuleErrorInfo } from "./module-common.ts";
+import { styleText } from 'node:util';
+
+function renderMEI(mei: ModuleErrorInfo) {
+  const fromPath = (p: Array<unknown>): string => styleText('yellow', '/' + p.join('/'));
+  let output = `Error: ${mei.message}\n`;
+  output += `  In ${fromPath(mei.location)}\n`;
+
+  if (mei.sourceOfTruthLocation !== null) {
+    output += `  Conflicts with ${fromPath(mei.sourceOfTruthLocation)}\n`
+  }
+
+  for (const hint of mei.hints) {
+    output += `  ${hint}\n`
+  }
+
+  return output;
+}
 
 async function main() {
   if (process.argv.length < 3) {
@@ -37,7 +55,7 @@ async function main() {
         process.exitCode = 1;
         return;
       }
-      console.log(Deno.inspect(validateSystem(system)));
+      console.log(validateSystem(system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
     case "query": {
@@ -52,7 +70,7 @@ async function main() {
         process.exitCode = 1;
         return;
       }
-      console.log(Deno.inspect(validateQuery(query, system)));
+      console.log(validateQuery(query, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
     case "derivation-tree": {

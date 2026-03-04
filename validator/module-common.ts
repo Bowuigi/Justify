@@ -1,3 +1,5 @@
+import { styleText } from 'node:util';
+
 export type SourceOfTruthPath =
   | ['system', 'relations']
   | ['system', 'relations', string, 'arguments']
@@ -34,8 +36,11 @@ export interface ModuleErrorInfo {
   sourceOfTruthLocation: SourceOfTruthPath | null,
 };
 
+export const highlight = (str: string) => styleText(['bold', 'green'], str);
+export const highlightWrong = (str: string) => styleText(['bold', 'red'], str);
+
 export function displayIterable(singular: string, plural: string, item: Iterable<string>) {
-  const itemAsArray = [...item];
+  const itemAsArray = [...item].map(highlight);
 
   switch (itemAsArray.length) {
     case 0:

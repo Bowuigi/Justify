@@ -76,21 +76,21 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'ODS-S':
       return {
-        message: `Undefined syntax category '${err.syncatId}'`,
+        message: `Undefined syntax category ${C.highlightWrong(err.syncatId)}`,
         hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
       };
     case 'ODS-C':
       return {
-        message: `Undefined constructor '${err.conId}' in syntax category '${err.syncatId}'`,
+        message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${C.highlight(err.syncatId)}`,
         hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
       };
     case 'ODS-P':
       return {
-        message: `Primitive '${err.syncatId}' not allowed here`,
+        message: `Primitive ${C.highlightWrong(err.syncatId)} not allowed here`,
         hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,

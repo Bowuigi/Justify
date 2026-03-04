@@ -52,14 +52,14 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     case 'PMA-M':
       return {
         message: `Missing ${C.displayIterable('argument', 'arguments', err.missingPatterns)}`,
-        hints: [`The relation expects the following ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
+        hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
       };
     case 'PMA-E':
       return {
         message: `Extra ${C.displayIterable('argument', 'arguments', err.extraPatterns)}`,
-        hints: [`The relation expects the following ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
+        hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
       };

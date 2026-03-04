@@ -5,7 +5,7 @@ package require Tcl 8.5.9
 package require json::write
 
 namespace eval justify {
-  namespace export system
+  namespace export system query
 
   proc proc-refs {proc_name proc_args var_names block} {
     uplevel 1 "
@@ -94,7 +94,7 @@ namespace eval justify {
 
   proc system {name block} {
     json::write aligned false
-    json::write indented true
+    json::write indented false
 
     # Overriden by functions below
     set sys_description ""
@@ -202,6 +202,43 @@ namespace eval justify {
         syntax [json::write object {*}$sys_syncats] \
         relations [json::write object {*}$sys_relations]
     ]
+  }
+
+  proc query {system name block} {
+    json::write aligned false
+    json::write indented true
+
+    set q_max_results 1
+    set q_relation {}
+    set q_vars "{}"
+    set q_lits "{}"
+    set q_args [list]
+
+    proc-refs max-results {value} {q_max_results} { set q_max_results $value }
+    proc-refs relation {value} {q_relation} { set q_relation $value }
+    proc-refs vars args {q_vars} {set q_vars [process-ident-map $args]}
+    proc-refs lits args {q_lits} {set q_lits [process-ident-map $args]}
+    proc-refs arg {tm} {q_args} {lappend q_args [convert-term $tm]}
+
+    eval $block
+    rename max-results ""
+    rename relation ""
+    rename vars ""
+    rename lits ""
+    rename arg ""
+
+    set rendered [
+      json::write object \
+        variables $q_vars \
+        literals $q_lits \
+        relation [json::write string $q_relation] \
+        max_results $q_max_results \
+        args [json::write array {*}$q_args]
+    ]
+
+    set fd [open "query-${name}.json" w]
+    puts $fd $rendered
+    close $fd
   }
 }
 

@@ -46,7 +46,7 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
     });
   }
 
-  if (system.syntax[term.from].grammar.findIndex(g => g.id === term.tag) === -1) {
+  if (system.syntax[term.from]?.grammar.findIndex(g => g.id === term.tag) === -1) {
     errors.push({
       moduleId: 'ODS',
       id: 'ODS-C',

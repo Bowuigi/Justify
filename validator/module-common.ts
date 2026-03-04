@@ -1,8 +1,21 @@
-export type Path =
+export type SourceOfTruthPath =
   | ['system', 'relations']
   | ['system', 'relations', string, 'arguments']
   | ['system', 'relations', string, 'rules', number]
+  | ['system', 'syntax']
+  | ['system', 'syntax', string]
   | ['query', 'relation']
+  ;
+
+export type LocationPath =
+  | ['system', 'syntax', string, 'grammar', string, 'arguments', string]
+  | ['system', 'relations', string, 'arguments', string]
+  | ['system', 'relations', string, 'rules', string, 'patterns']
+  | ['system', 'relations', string, 'rules', string, 'patterns', string]
+  | ['system', 'relations', string, 'rules', string, 'premises']
+  | ['system', 'relations', string, 'rules', string, 'premises', number]
+  | ['query']
+  | ['query', 'args', number]
   ;
 
 export type ErrorStack<T> = { push: (error: T) => void };
@@ -10,15 +23,15 @@ export type ErrorStack<T> = { push: (error: T) => void };
 export interface ModuleError<ModId extends string, ErrId extends string> {
   moduleId: ModId,
   id: `${ModId}-${ErrId}`
-  location: Path,
-  sourceOfTruthLocation: Path | null,
+  location: LocationPath,
+  sourceOfTruthLocation: SourceOfTruthPath | null,
 }
 
 export interface ModuleErrorInfo {
   message: string,
   hints: Array<string>,
-  location: Path,
-  sourceOfTruthLocation: Path | null,
+  location: LocationPath,
+  sourceOfTruthLocation: SourceOfTruthPath | null,
 };
 
 export function displayIterable(singular: string, plural: string, item: Iterable<string>) {
@@ -30,6 +43,6 @@ export function displayIterable(singular: string, plural: string, item: Iterable
     case 1:
       return `${singular}: ${itemAsArray[0]}`;
     default:
-      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} and ${itemAsArray[itemAsArray.length - 1]}`
+      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} or ${itemAsArray[itemAsArray.length - 1]}`
   }
 }

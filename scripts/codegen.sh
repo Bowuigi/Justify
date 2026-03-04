@@ -30,3 +30,52 @@ END {
     printf "export type { %s } from \"%s\";\n", def, typedefs[def]
 }
 ' ./*.d.ts > types.d.ts
+
+cd ../../../
+echo '--- Generating fused file for validator modules ---'
+
+cd validator/codegen || exit 1
+rm -f fused.ts
+awk '
+/export const managedError/ {
+  fnameMap[FILENAME] = gensub(/'\''/, "", "g", $5)
+}
+
+/export function on/ {
+  fun = gensub(/\(.*/, "", "1", $3)
+  on[fun][fnameMap[FILENAME]] = 1
+  signatureMap[fun] = $0
+}
+
+END {
+  print "import type * as T from \"../../formats/driver.ts\""
+  print "import type * as C from \"../module-common.ts\""
+
+  for (fname in fnameMap) {
+    printf "import * as %s from \"%s\"\n", fnameMap[fname], fname
+  }
+
+  printf "\nexport type PushedError ="
+  for (fname in fnameMap) {
+    printf " | %s.PushedError", fnameMap[fname]
+  }
+  print ";"
+
+  for (fun in on) {
+    print ""
+    print signatureMap[fun]
+    for (fname in on[fun]) {
+      printf "  %s.%s(...arguments);\n", fname, fun
+    }
+    print "}"
+  }
+
+  print "\nexport function formatError(err: PushedError): C.ModuleErrorInfo {"
+  print "  switch (err.moduleId) {"
+  for (fname in fnameMap) {
+    printf "    case \"%s\": return %s.formatError(err);\n", fnameMap[fname], fnameMap[fname]
+  }
+  print "  }"
+  print "}"
+}
+' ../modules/*.ts > fused.ts

@@ -1,6 +1,6 @@
-import { Query, System, Term, TexMath } from '../formats/driver.ts';
+import type { Query, System, Term, TexMath } from '../formats/driver.ts';
 import * as Fused from './codegen/fused.ts'
-import { ErrorStack, LocationPath, ModuleErrorInfo } from './module-common.ts';
+import type { ErrorStack, LocationPath, ModuleErrorInfo } from './module-common.ts';
 
 function onTerm(errors: ErrorStack<any>, path: LocationPath, variables: Record<string, TexMath>, literals: Record<string, TexMath>, term: Term, system: System) {
   switch (term.is) {
@@ -37,10 +37,10 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
       for (const [patternVar, patternBody] of Object.entries(rule.patterns)) {
         onTerm(errors, ['system', 'relations', relId, 'rules', rule.rule.id, 'patterns', patternVar], rule.variables, rule.literals, patternBody, system);
       }
-      for (const premise of rule.premises) {
-        Fused.onPremise(errors, ['system', 'relations', relId, 'rules', rule.rule.id, 'premises'], premise, system);
+      for (const [premiseIx, premise] of rule.premises.entries()) {
+        Fused.onPremise(errors, ['system', 'relations', relId, 'rules', rule.rule.id, 'premises', premiseIx], premise, system);
         for (const [argIx, arg] of premise.args.entries()) {
-          onTerm(errors, ['system', 'relations', relId, 'rules', rule.rule.id, 'premises', argIx], rule.variables, rule.literals, arg, system);
+          onTerm(errors, ['system', 'relations', relId, 'rules', rule.rule.id, 'premises', premiseIx, 'arguments', argIx], rule.variables, rule.literals, arg, system);
         }
       }
     }

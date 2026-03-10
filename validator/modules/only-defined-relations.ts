@@ -49,6 +49,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('relation','relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
     case 'ODR-Q':
       return {
@@ -56,6 +57,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('relation','relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
   }
 }

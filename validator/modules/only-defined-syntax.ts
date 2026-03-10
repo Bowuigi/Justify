@@ -80,6 +80,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
     case 'ODS-C':
       return {
@@ -87,6 +88,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
     case 'ODS-P':
       return {
@@ -94,6 +96,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
   }
 }

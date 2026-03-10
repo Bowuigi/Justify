@@ -6,6 +6,7 @@ export type SourceOfTruthPath =
   | ['system', 'relations', string, 'rules', number]
   | ['system', 'syntax']
   | ['system', 'syntax', string]
+  | ['system', 'syntax', string, string, 'arguments']
   | ['query', 'relation']
   ;
 
@@ -14,8 +15,8 @@ export type LocationPath =
   | ['system', 'relations', string, 'arguments', string]
   | ['system', 'relations', string, 'rules', string, 'patterns']
   | ['system', 'relations', string, 'rules', string, 'patterns', string]
-  | ['system', 'relations', string, 'rules', string, 'premises']
   | ['system', 'relations', string, 'rules', string, 'premises', number]
+  | ['system', 'relations', string, 'rules', string, 'premises', number, 'arguments', number]
   | ['query']
   | ['query', 'args', number]
   ;
@@ -30,6 +31,7 @@ export interface ModuleError<ModId extends string, ErrId extends string> {
 }
 
 export interface ModuleErrorInfo {
+  id: string,
   message: string,
   hints: Array<string>,
   location: LocationPath,

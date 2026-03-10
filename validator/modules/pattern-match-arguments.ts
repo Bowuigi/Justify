@@ -51,17 +51,19 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'PMA-M':
       return {
-        message: `Missing ${C.displayIterable('argument', 'arguments', err.missingPatterns)}`,
+        message: `Missing ${C.displayIterable('pattern', 'patterns', err.missingPatterns)}`,
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
     case 'PMA-E':
       return {
-        message: `Extra ${C.displayIterable('argument', 'arguments', err.extraPatterns)}`,
+        message: `Extra ${C.displayIterable('pattern', 'patterns', err.extraPatterns)}`,
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
       };
   }
 }

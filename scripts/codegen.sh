@@ -65,6 +65,7 @@ END {
     print ""
     print signatureMap[fun]
     for (fname in on[fun]) {
+      printf "  // @ts-ignore: 2741 - `arguments` here is known to be the correct type\n"
       printf "  %s.%s(...arguments);\n", fname, fun
     }
     print "}"

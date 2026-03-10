@@ -9,7 +9,7 @@ Validation passes (NYI is "not yet implemented"):
 - Using only defined syntax categories on constructors
 - Using only defined constructors
 - Using only defined relations
-- (NYI) Passing the correct number of arguments
+- Passing the correct number of arguments
 - (NYI) Valid TeX checking
 - (NYI) Correct operator definition checking (fixity, texParts count and argument count)
 - (NYI) Scope check for relation variables

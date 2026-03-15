@@ -1,8 +1,11 @@
 import { Query, System } from '../formats/driver.ts';
 import * as MK from './mk.ts';
+import type { RuleLog, Term } from './mk.ts';
 import { toRelationStore } from './mkCodegen.ts';
 
-export function performQuery(system: System, query: Query): Array<MK.RuleLog> | string {
+export { Query, System, RuleLog, Term };
+
+export function performQuery(system: System, query: Query): Array<RuleLog> | string {
   const systemRelations = toRelationStore(system);
 
   try {

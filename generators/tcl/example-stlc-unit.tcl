@@ -9,17 +9,17 @@ justify::system stlc-unit {
     variable {
       description {Variable $x$}
       fixity none
-      arg identifier x
+      arg literal x
     }
     lambda {
       description {Binds the applied term of type $t$ to the variable $x$ in $e$}
       # Alternative syntax (and an example of how Tcl macros can be useful) subsuming arg, part and fixity:
       # > syn {\\lambda x : \\tau .\\, e} \
       # >     {_ x _ t _ e} \
-      # >     {_ identifier _ type _ term}
+      # >     {_ literal _ type _ term}
       fixity prefix
       part \\lambda
-      arg identifier x
+      arg literal x
       part :
       arg type t \\tau
       part {.\,}
@@ -63,7 +63,7 @@ justify::system stlc-unit {
       fixity infix
       arg context ctx \\Gamma
       part ,
-      arg identifier x
+      arg literal x
       part :
       arg type t \\tau
     }
@@ -121,7 +121,7 @@ justify::system stlc-unit {
   	  description {Identifier $x$ inside context $\Gamma$ has type $\tau$}
 
   	  fixity infix
-  	  arg identifier ident x
+  	  arg literal ident x
   	  part :
   	  arg type ty \\tau
   	  part \\in

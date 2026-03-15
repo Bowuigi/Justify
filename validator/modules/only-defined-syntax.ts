@@ -21,7 +21,7 @@ export interface PrimitiveDisallowedHere extends C.ModuleError<'ODS', 'P'> {
 export type PushedError = UndefinedSynCat | UndefinedConstructor | PrimitiveDisallowedHere;
 
 function isPrimitive(id: string) {
-  return id === 'identifier';
+  return id === 'literal';
 }
 
 export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System) {

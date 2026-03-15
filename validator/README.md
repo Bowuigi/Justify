@@ -13,7 +13,7 @@ Validation passes (NYI is "not yet implemented"):
 - (NYI) Valid TeX checking
 - (NYI) Correct operator definition checking (fixity, texParts count and argument count)
 - (NYI) Scope check for relation variables
-- (NYI) Scope check for rule variables and identifiers
+- (NYI) Scope check for rule variables and literals
 - (NYI) Variables and literals in a rule or query must not overlap
 - (NYI) Constructor type checking
 - (NYI) Relation type checking

@@ -11,7 +11,7 @@
           "tex_parts": [],
           "fixity": "none",
           "arguments": [
-            {"from": "identifier", "id": "x", "tex": "x"}
+            {"from": "literal", "id": "x", "tex": "x"}
           ]
         },
         {
@@ -20,7 +20,7 @@
           "tex_parts": ["\\lambda", ":", ".\\,"],
           "fixity": "prefix",
           "arguments": [
-            {"from": "identifier", "id": "x", "tex": "x"},
+            {"from": "literal", "id": "x", "tex": "x"},
             {"from": "type", "id": "t", "tex": "\\tau"},
             {"from": "term", "id": "e", "tex": "e"}
           ]
@@ -85,7 +85,7 @@
           "fixity": "infix",
           "arguments": [
             {"from": "context", "id": "ctx", "tex": "\\Gamma"},
-            {"from": "identifier", "id": "x", "tex": "x"},
+            {"from": "literal", "id": "x", "tex": "x"},
             {"from": "type", "id": "t", "tex": "\\tau"}
           ]
         }
@@ -207,7 +207,7 @@
       "tex_parts": [":", "\\in"],
       "fixity": "infix",
       "arguments": [
-        {"from": "identifier", "id": "ident", "tex": "x"},
+        {"from": "literal", "id": "ident", "tex": "x"},
         {"from": "type", "id": "ty", "tex": "\\tau"},
         {"from": "context", "id": "ctx", "tex": "\\Gamma"}
       ],

@@ -9,7 +9,7 @@ const sharedSyntax: System['syntax'] = {
       {
         id: 'one',
         description: 'Test harness, takes exactly one argument',
-        arguments: [{ from: 'identifier', id: 'x', tex: 'x' }],
+        arguments: [{ from: 'literal', id: 'x', tex: 'x' }],
         tex_parts: [],
         fixity: 'none' as Fixity,
       }

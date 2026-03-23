@@ -1,7 +1,7 @@
-import { parseQuery, parseSystem, Query, System } from "../formats/driver.ts";
+import { parseQuery, parseSystem, type Query, type System } from "../formats/driver.ts";
 import { default as process } from 'node:process';
 import { validateSystem, validateQuery } from './driver.ts';
-import { ModuleErrorInfo } from "./module-common.ts";
+import type { ModuleErrorInfo } from "./module-common.ts";
 import { styleText } from 'node:util';
 
 function renderMEI(mei: ModuleErrorInfo) {

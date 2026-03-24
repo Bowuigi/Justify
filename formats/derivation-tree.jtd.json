@@ -1,0 +1,43 @@
+{
+  "definitions": {
+    "identifier": {
+      "type": "string"
+    },
+    "derivation-term": {
+      "discriminator": "is",
+      "mapping": {
+        "con": {
+          "properties": {
+            "from": {"ref": "identifier"},
+            "tag": {"ref": "identifier"},
+            "args": {"elements": {"ref": "derivation-term"}}
+          }
+        },
+        "lit": {
+          "properties": {
+            "id": {"ref": "identifier"}
+          }
+        },
+        "var": {
+          "properties": {
+            "id": {"ref": "identifier"},
+            "counter": {"type": "uint32"}
+          }
+        }
+      }
+    },
+    "derivation": {
+      "properties": {
+        "relation": {"ref": "identifier"},
+        "rule": {"ref": "identifier"},
+        "args": {
+          "elements": {"ref": "derivation-term"}
+        },
+        "premises": {
+          "elements": {"ref": "derivation"}
+        }
+      }
+    }
+  },
+  "elements": {"ref": "derivation"}
+}

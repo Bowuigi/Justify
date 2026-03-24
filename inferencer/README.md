@@ -4,19 +4,21 @@ A type system query engine for [Justify](https://github.com/Bowuigi/Justify) bas
 
 - Simple-complete search
 - N-ary conj, disj and fresh by default
-- fresh supports identifiers for variables
+- `fresh` supports identifiers for variables
 - Occurs check
 - Literal values
 - Checked variables and literals
-- Conversion from System/Query terms
-- Codegen for System / inference rules (check `mkCodegen.ts`)
+- Conversion from **System**/**Query** terms
+- Codegen for **System** / inference rules (check `mkCodegen.ts`)
 - Derivation tree generation
 - Idempotent substitution transformation
 
 ## Usage
 
-Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported)
+Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported):
 
 ```shell
-deno run --allow-read --allow-env inferencer/main.ts <system file> <query file>
+deno run --allow-read --allow-env inferencer/main.ts [-m] <System file> <Query file>
 ```
+
+The `-m` flag switches on machine-readable output, generating a **DerivationTree** file from the **System** and **Query** ones.

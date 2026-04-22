@@ -18,6 +18,7 @@ This project also is meant to contain basic tools:
   - A Tcl DSL that generates **System** and **Query** files.
 - Various **extractors** that turn those formats into other formats for external uses.
   - A LaTeX and KaTeX compatible TeX extractor (WIP, MVP ready that extracts from a **System** file).
+- A **web editor** (along with reusable components) that can work with various formats (WIP).
 
 The subproject folders have separate README and example files documenting their usage.
 

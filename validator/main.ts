@@ -1,6 +1,6 @@
-import { parseQuery, parseSystem, type Query, type System } from "../formats/driver.ts";
+import { parseDerivationTree, parseQuery, parseSystem } from '../formats/driver.ts';
 import { default as process } from 'node:process';
-import { validateSystem, validateQuery } from './driver.ts';
+import { validateSystem, validateQuery, validateDerivationTree } from './driver.ts';
 import type { ModuleErrorInfo } from "./module-common.ts";
 import { styleText } from 'node:util';
 
@@ -23,8 +23,7 @@ function renderMEI(mei: ModuleErrorInfo) {
 async function main() {
   if (process.argv.length < 3) {
     console.error(
-      `Wrong number of arguments.\nUsage: ${
-        process.argv[1]
+      `Wrong number of arguments.\nUsage: ${process.argv[1]
       } {system|query|derivation-tree} filenames...`,
     );
     process.exitCode = 1;
@@ -35,8 +34,7 @@ async function main() {
 
   if (!["system", "query", "derivation-tree"].includes(format)) {
     console.error(
-      `Unknown format specifier '${format}'.\nUsage: ${
-        process.argv[1]
+      `Unknown format specifier '${format}'.\nUsage: ${process.argv[1]
       } {system|query|derivation-tree} filename`,
     );
     process.exitCode = 1;
@@ -46,7 +44,7 @@ async function main() {
   switch (format) {
     case "system": {
       if (rest.length !== 1) {
-        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} system filename`)
+        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} system filename`);
         process.exitCode = 1;
         return;
       }
@@ -60,7 +58,7 @@ async function main() {
     }
     case "query": {
       if (rest.length !== 2) {
-        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} query system-filename query-filename`)
+        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} query system-filename query-filename`);
         process.exitCode = 1;
         return;
       }
@@ -74,8 +72,19 @@ async function main() {
       break;
     }
     case "derivation-tree": {
-      console.error("Derivation tree format not implemented.");
-      process.exitCode = 1;
+      if (rest.length !== 2) {
+        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} derivation-tree system-filename derivation-tree-filename`);
+        process.exitCode = 1;
+        return;
+      }
+      const system = await parseSystem(rest[0]);
+      const drvTree = await parseDerivationTree(rest[1]);
+      if (system === null || drvTree === null) {
+        process.exitCode = 1;
+        return;
+      }
+      console.log(validateDerivationTree(drvTree, system).map(renderMEI).join('\n') || 'All good!');
+      break;
     }
     // every other case is unreachable
   }

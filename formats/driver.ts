@@ -2,11 +2,13 @@
 import { readFile } from "node:fs/promises";
 import betterAjvErrors from "better-ajv-errors";
 // For reexports
-import type { Query, System } from "./codegen/ts/types.d.ts";
+import type { DerivationTree, Query, System } from "./codegen/ts/types.d.ts";
 import VSystem from "./codegen/ts/system-validator.cjs";
 import VQuery from "./codegen/ts/query-validator.cjs";
+import VDerivationTree from "./codegen/ts/derivation-tree-validator.cjs";
 import systemSchema from "./system.jtd.json" with { type: 'json' };
 import querySchema from "./query.jtd.json" with { type: 'json' };
+import derivationTreeSchema from "./derivation-tree.jtd.json" with { type: 'json' };
 
 // Common function across various schemas
 async function parseFile<T>(
@@ -40,3 +42,5 @@ export const parseSystem = (filename: string) =>
   parseFile<System>(systemSchema, VSystem, filename);
 export const parseQuery = (filename: string) =>
   parseFile<Query>(querySchema, VQuery, filename);
+export const parseDerivationTree = (filename: string) =>
+  parseFile<DerivationTree>(derivationTreeSchema, VDerivationTree, filename);

@@ -11,15 +11,28 @@ export type SourceOfTruthPath =
   ;
 
 export type LocationPath =
-  | ['system', 'syntax', string, 'grammar', string, 'arguments', string]
+  | ['system', 'relations', string]
   | ['system', 'relations', string, 'arguments', string]
+  | ['system', 'relations', string, 'rules', string]
+  | ['system', 'relations', string, 'rules', string, 'literals']
   | ['system', 'relations', string, 'rules', string, 'patterns']
   | ['system', 'relations', string, 'rules', string, 'patterns', string]
   | ['system', 'relations', string, 'rules', string, 'premises', number]
   | ['system', 'relations', string, 'rules', string, 'premises', number, 'arguments', number]
+  | ['system', 'relations', string, 'rules', string, 'variables']
+  | ['system', 'syntax', string]
+  | ['system', 'syntax', string, 'grammar', string]
+  | ['system', 'syntax', string, 'grammar', string, 'arguments']
+  | ['system', 'syntax', string, 'grammar', string, 'arguments', string]
   | ['query']
   | ['query', 'args', number]
-  ;
+  | ['query', 'literals']
+  | ['query', 'variables']
+  | ['derivation-tree', number]
+  | DTLocationPath;
+
+export type DTLocationPath =
+  | ['derivation-tree', number, ...Array<number | 'premises' | 'arguments'>];
 
 export type ErrorStack<T> = { push: (error: T) => void };
 

@@ -1,39 +1,47 @@
-import { Signal } from "@preact/signals";
-import { useRef, useState } from "preact/hooks";
+// TODO: Identifier validation via an input validator wrapper (that works for both DynamicInput and input)
+import { EditableList } from './EditableList';
+import { Identifier, TexMath } from '../../../formats/codegen/ts/types';
+import { Signal } from '@preact/signals';
+import { DynamicInput } from './DynamicInput';
 
 type IdentifierMapProps = {
   title: string,
-  signal: Signal<Record<string, string>>,
-}
+  identifiers: Record<Identifier, TexMath>,
+  onInput: (newIdents: Record<Identifier, TexMath>) => void,
+  onDuplicateIdentifiers: () => void,
+};
 
+/// `onInput` is only called when the input does not include duplicate identifiers
 export function IdentifierMap(props: IdentifierMapProps) {
-  const newIdElem = useRef<HTMLInputElement>();
-  const newTeXElem = useRef<HTMLInputElement>();
-
   return (
     <div>
       <p>{props.title}</p>
-      <div>
-        {Object.entries(props.signal.value).map(([id, tex], ix) => {
-          return (
-            <div key={ix}>
-              <input type='text' value={id} />
-              <input type='text' value={tex} />
-              <button onClick={() => {
-                // TODO: Correctly filter this
-                props.signal.value = { ...props.signal.value, [newIdElem.current.value]: newTeXElem.current.value };
-              }}>-</button>
-            </div>
-          );
-        })}
-        <div>
-          <input type='text' ref={newIdElem} />
-          <input type='text' ref={newTeXElem} />
-          <button onClick={() => {
-            props.signal.value = { ...props.signal.value, [newIdElem.current.value]: newTeXElem.current.value };
-          }}>+</button>
-        </div>
-      </div>
+      <EditableList<[Identifier, TexMath]>
+        items={Object.entries(props.identifiers)}
+        onInput={(items) => {
+          if (items.length === new Map(items).size) {
+            props.onInput(Object.fromEntries(items));
+          } else {
+            props.onDuplicateIdentifiers();
+          }
+        }}
+        createEmptyItem={() => ['x', 'x']}
+        renderItem={(entry, ix, update) => (
+          <div>
+            <span>{ix}</span>
+            <DynamicInput
+              value={entry[0]}
+              onInput={s => update([s, entry[1]])}
+              placeholder='t'
+            />
+            <DynamicInput
+              value={entry[1]}
+              onInput={s => update([entry[0], s])}
+              placeholder='\\tau'
+            />
+          </div>
+        )}
+      />
     </div>
   );
 }

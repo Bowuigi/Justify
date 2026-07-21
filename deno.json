@@ -1,0 +1,73 @@
+{
+  "workspace": [
+    "./packages/*"
+  ],
+  "minimumDependencyAge": {
+    "age": "P3D",
+    "exclude": [
+      "jsr:@bowuigi/jtd-validator-generator"
+    ]
+  },
+  "imports": {
+    "@bowuigi/jtd-validator-generator": "jsr:@bowuigi/jtd-validator-generator@^1.0.0"
+  },
+  "lint": {
+    "include": [
+      "./packages/*/"
+    ],
+    "rules": {
+      "tags": [
+        "recommended",
+        "jsr"
+      ],
+      "include": [
+        "explicit-function-return-type",
+        "explicit-module-boundary-types",
+        "no-await-in-loop",
+        "no-console",
+        "no-eval",
+        "no-external-import",
+        "no-inferrable-types",
+        "no-node-globals",
+        "no-non-null-asserted-optional-chain",
+        "no-non-null-assertion",
+        "no-process-global",
+        "no-self-compare",
+        "no-sync-fn-in-async-fn",
+        "no-undef",
+        "no-useless-rename",
+        "prefer-ascii",
+        "single-var-declarator",
+        "triple-slash-reference",
+        "no-throw-literal",
+        "eqeqeq",
+        "no-sparse-arrays",
+        "default-param-last"
+      ]
+    }
+  },
+  "fmt": {
+    "include": [
+      "./packages/*/"
+    ],
+    "useTabs": false,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "lineWidth": 100,
+    "semiColons": true,
+    "trailingCommas": "never",
+    "typeLiteral.separatorKind": "comma"
+  },
+  "compilerOptions": {
+    "lib": [
+      "esnext.full"
+    ],
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true
+  }
+}

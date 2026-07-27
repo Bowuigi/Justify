@@ -35,52 +35,53 @@ cd ../../.. || exit 1
 
 ### @justify/validator ###
 
-# echo '--- Generating fused file for validator modules ---'
+echo '--- Generating fused file for validator modules ---'
 
-# cd packages/validator/codegen || exit 1
-# rm -f fused.ts
-# awk '
-# /export const managedError/ {
-#   fnameMap[FILENAME] = gensub(/'\''/, "", "g", $5)
-# }
+cd packages/validator/codegen || exit 1
+rm -f fused.ts
+awk '
+/export const managedError/ {
+  fnameMap[FILENAME] = gensub(/'\''/, "", "g", $5)
+}
 
-# /export function on/ {
-#   fun = gensub(/\(.*/, "", "1", $3)
-#   on[fun][fnameMap[FILENAME]] = 1
-#   signatureMap[fun] = $0
-# }
+/export function on/ {
+  fun = gensub(/\(.*/, "", "1", $3)
+  on[fun][fnameMap[FILENAME]] = 1
+  signatureMap[fun] = $0
+}
 
-# END {
-#   print "import type * as T from \"@justify/core../../formats/driver.ts\""
-#   print "import type * as C from \"../module-common.ts\""
+END {
+  print "import type * as T from \"@justify/core\""
+  print "import type * as C from \"../module-common.ts\""
 
-#   for (fname in fnameMap) {
-#     printf "import * as %s from \"%s\"\n", fnameMap[fname], fname
-#   }
+  for (fname in fnameMap) {
+    printf "import * as %s from \"%s\"\n", fnameMap[fname], fname
+  }
 
-#   printf "\nexport type PushedError ="
-#   for (fname in fnameMap) {
-#     printf " | %s.PushedError", fnameMap[fname]
-#   }
-#   print ";"
+  printf "\nexport type PushedError ="
+  for (fname in fnameMap) {
+    printf " | %s.PushedError", fnameMap[fname]
+  }
+  print ";"
 
-#   for (fun in on) {
-#     print ""
-#     print signatureMap[fun]
-#     for (fname in on[fun]) {
-#       printf "  // @ts-ignore: 2741 - `arguments` here is known to be the correct type\n"
-#       printf "  %s.%s(...arguments);\n", fname, fun
-#     }
-#     print "}"
-#   }
+  for (fun in on) {
+    print ""
+    print "// @ts-ignore 6133 - `arguments` is not handled by Typescript"
+    print signatureMap[fun]
+    for (fname in on[fun]) {
+      printf "  // @ts-ignore 2741 - `arguments` here is known to be the correct type\n"
+      printf "  %s.%s(...arguments);\n", fname, fun
+    }
+    print "}"
+  }
 
-#   print "\nexport function formatError(err: PushedError): C.ModuleErrorInfo {"
-#   print "  switch (err.moduleId) {"
-#   for (fname in fnameMap) {
-#     printf "    case \"%s\": return %s.formatError(err);\n", fnameMap[fname], fnameMap[fname]
-#   }
-#   print "  }"
-#   print "}"
-# }
-# ' ../modules/*.ts > fused.ts
-# cd ../../.. || exit 1
+  print "\nexport function formatError(err: PushedError): C.ModuleErrorInfo {"
+  print "  switch (err.moduleId) {"
+  for (fname in fnameMap) {
+    printf "    case \"%s\": return %s.formatError(err);\n", fnameMap[fname], fnameMap[fname]
+  }
+  print "  }"
+  print "}"
+}
+' ../modules/*.ts > fused.ts
+cd ../../.. || exit 1

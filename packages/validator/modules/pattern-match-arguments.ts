@@ -5,21 +5,27 @@ import * as C from '../module-common.ts';
 export const managedError = 'PMA' as const;
 
 interface MissingPatterns extends C.ModuleError<typeof managedError, 'M'> {
-  expectedPatterns: Set<string>,
-  missingPatterns: Set<string>,
+  expectedPatterns: Set<string>;
+  missingPatterns: Set<string>;
 }
 
 interface ExtraPatterns extends C.ModuleError<typeof managedError, 'E'> {
-  expectedPatterns: Set<string>,
-  extraPatterns: Set<string>,
+  expectedPatterns: Set<string>;
+  extraPatterns: Set<string>;
 }
 
 // Used to type stuff later
 export type PushedError = MissingPatterns | ExtraPatterns;
 
 // One of the various possible handlers
-export function onPatterns(errors: C.ErrorStack<PushedError>, path: C.LocationPath, relationId: string, patterns: T.SystemRelationRule['patterns'], system: T.System): void {
-  const expectedPatterns = new Set(system.relations[relationId]?.arguments.map(a => a.id));
+export function onPatterns(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  relationId: string,
+  patterns: T.SystemRelationRule['patterns'],
+  system: T.System
+): void {
+  const expectedPatterns = new Set(system.relations[relationId]?.arguments.map((a) => a.id));
   const providedPatterns = new Set(Object.keys(patterns));
   const missingPatterns: Set<string> = expectedPatterns.difference(providedPatterns);
   const extraPatterns: Set<string> = providedPatterns.difference(expectedPatterns);
@@ -55,7 +61,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
     case 'PMA-E':
       return {
@@ -63,7 +69,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
   }
 }

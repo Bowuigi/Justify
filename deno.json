@@ -43,12 +43,18 @@
         "eqeqeq",
         "no-sparse-arrays",
         "default-param-last"
+      ],
+      "exclude": [
+        "no-unused-vars"
       ]
     }
   },
   "fmt": {
     "include": [
       "./packages/*/"
+    ],
+    "exclude": [
+      "./**/*.md"
     ],
     "useTabs": false,
     "indentWidth": 2,

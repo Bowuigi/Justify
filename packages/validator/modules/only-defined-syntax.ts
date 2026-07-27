@@ -4,35 +4,42 @@ import * as C from '../module-common.ts';
 export const managedError = 'ODS' as const;
 
 export interface UndefinedSynCat extends C.ModuleError<'ODS', 'S'> {
-  syncatId: string,
-  allSynCatIds: Array<string>,
+  syncatId: string;
+  allSynCatIds: Array<string>;
 }
 
 export interface UndefinedConstructor extends C.ModuleError<'ODS', 'C'> {
-  syncatId: string,
-  conId: string,
-  allConIds: Array<string>,
+  syncatId: string;
+  conId: string;
+  allConIds: Array<string>;
 }
 
 export interface PrimitiveDisallowedHere extends C.ModuleError<'ODS', 'P'> {
-  syncatId: string,
+  syncatId: string;
 }
 
 export type PushedError = UndefinedSynCat | UndefinedConstructor | PrimitiveDisallowedHere;
 
-function isPrimitive(id: string): id is "literal" {
+function isPrimitive(id: string): id is 'literal' {
   return id === 'literal';
 }
 
 // @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
-export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System): void {
+export function onTermCon(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  variables: Record<string, T.TexMath>,
+  literals: Record<string, T.TexMath>,
+  term: T.TermCon,
+  system: T.System
+): void {
   if (isPrimitive(term.from)) {
     errors.push({
       moduleId: 'ODS',
       id: 'ODS-P',
       sourceOfTruthLocation: null,
       location: path,
-      syncatId: term.from,
+      syncatId: term.from
     });
   }
 
@@ -43,11 +50,11 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       sourceOfTruthLocation: ['system', 'syntax'],
       location: path,
       syncatId: term.from,
-      allSynCatIds: Object.keys(system.syntax),
+      allSynCatIds: Object.keys(system.syntax)
     });
   }
 
-  if (system.syntax[term.from]?.grammar.findIndex(g => g.id === term.tag) === -1) {
+  if (system.syntax[term.from]?.grammar.findIndex((g) => g.id === term.tag) === -1) {
     errors.push({
       moduleId: 'ODS',
       id: 'ODS-C',
@@ -55,12 +62,17 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       location: path,
       syncatId: term.from,
       conId: term.tag,
-      allConIds: system.syntax[term.from]?.grammar.map(g => g.id) || [],
+      allConIds: system.syntax[term.from]?.grammar.map((g) => g.id) || []
     });
   }
 }
 
-export function onArgument(errors: C.ErrorStack<PushedError>, path: C.LocationPath, arg: T.Argument, system: T.System): void {
+export function onArgument(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  arg: T.Argument,
+  system: T.System
+): void {
   if (!(arg.from in system.syntax) && !isPrimitive(arg.from)) {
     errors.push({
       moduleId: 'ODS',
@@ -68,7 +80,7 @@ export function onArgument(errors: C.ErrorStack<PushedError>, path: C.LocationPa
       sourceOfTruthLocation: ['system', 'syntax'],
       location: path,
       syncatId: arg.from,
-      allSynCatIds: Object.keys(system.syntax),
+      allSynCatIds: Object.keys(system.syntax)
     });
   }
 }
@@ -78,18 +90,24 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     case 'ODS-S':
       return {
         message: `Undefined syntax category ${C.highlightWrong(err.syncatId)}`,
-        hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`],
+        hints: [
+          `Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`
+        ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
     case 'ODS-C':
       return {
-        message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${C.highlight(err.syncatId)}`,
-        hints: [`Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`],
+        message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${
+          C.highlight(err.syncatId)
+        }`,
+        hints: [
+          `Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`
+        ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
     case 'ODS-P':
       return {
@@ -97,7 +115,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
   }
 }

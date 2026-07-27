@@ -3,7 +3,7 @@ import * as MK from './mk.ts';
 import type { RuleLog, Term } from './mk.ts';
 import { toRelationStore } from './mkCodegen.ts';
 
-export type { Query, System, RuleLog, Term };
+export type { Query, RuleLog, System, Term };
 
 export function performQuery(system: System, query: Query): Array<RuleLog> | string {
   const systemRelations = toRelationStore(system);
@@ -11,16 +11,15 @@ export function performQuery(system: System, query: Query): Array<RuleLog> | str
   try {
     const results = MK.run(
       query.max_results,
-      MK.fresh(Object.keys(query.variables), pool =>
+      MK.fresh(Object.keys(query.variables), (pool) =>
         // Catched by validator
         // deno-lint-ignore no-non-null-assertion
         systemRelations[query.relation]!(
-          query.args.map(a => MK.convertTermWithPool(a, pool, Object.keys(query.literals)))
-        )
-      )
+          query.args.map((a) => MK.convertTermWithPool(a, pool, Object.keys(query.literals)))
+        ))
     );
 
-    return results.map(rslt => {
+    return results.map((rslt) => {
       if (rslt.log.length !== 1) {
         throw new Error(`Impossible: Log length ${rslt.log.length}`);
       }
@@ -36,4 +35,3 @@ export function performQuery(system: System, query: Query): Array<RuleLog> | str
     }
   }
 }
-

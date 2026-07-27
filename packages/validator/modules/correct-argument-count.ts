@@ -4,18 +4,25 @@ import * as C from '../module-common.ts';
 export const managedError = 'CAC' as const;
 
 interface MissingArguments extends C.ModuleError<typeof managedError, 'M'> {
-  expectedArgumentIds: Array<string>,
+  expectedArgumentIds: Array<string>;
 }
 
 interface ExtraArguments extends C.ModuleError<typeof managedError, 'E'> {
-  expectedArgumentIds: Array<string>,
+  expectedArgumentIds: Array<string>;
 }
 
 export type PushedError = MissingArguments | ExtraArguments;
 
 // @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
-export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System): void {
-  const expectedArgs = system.syntax[term.from]?.grammar.find(g => g.id === term.tag)?.arguments;
+export function onTermCon(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  variables: Record<string, T.TexMath>,
+  literals: Record<string, T.TexMath>,
+  term: T.TermCon,
+  system: T.System
+): void {
+  const expectedArgs = system.syntax[term.from]?.grammar.find((g) => g.id === term.tag)?.arguments;
 
   // Error flagged by another module
   if (expectedArgs === undefined) return;
@@ -26,7 +33,7 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       id: 'CAC-M',
       location: path,
       sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
+      expectedArgumentIds: expectedArgs.map((a) => a.id)
     });
   } else if (term.args.length > expectedArgs.length) {
     errors.push({
@@ -34,12 +41,17 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       id: 'CAC-E',
       location: path,
       sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
+      expectedArgumentIds: expectedArgs.map((a) => a.id)
     });
   }
 }
 
-export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System): void {
+export function onPremise(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  premise: T.SystemRelationRulePremise,
+  system: T.System
+): void {
   const expectedArgs = system.relations[premise.relation]?.arguments;
 
   // Error flagged by another module
@@ -51,7 +63,7 @@ export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       id: 'CAC-M',
       location: path,
       sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
+      expectedArgumentIds: expectedArgs.map((a) => a.id)
     });
   } else if (premise.args.length > expectedArgs.length) {
     errors.push({
@@ -59,7 +71,7 @@ export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       id: 'CAC-E',
       location: path,
       sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
+      expectedArgumentIds: expectedArgs.map((a) => a.id)
     });
   }
 }
@@ -72,7 +84,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
     case 'CAC-E':
       return {
@@ -80,7 +92,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
   }
 }

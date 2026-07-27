@@ -4,18 +4,23 @@ import * as C from '../module-common.ts';
 export const managedError = 'ODR' as const;
 
 export interface UndefinedRelationInPremise extends C.ModuleError<'ODR', 'P'> {
-  relationId: string,
-  allRelationIds: Array<string>,
+  relationId: string;
+  allRelationIds: Array<string>;
 }
 
 export interface UndefinedRelationInQuery extends C.ModuleError<'ODR', 'Q'> {
-  relationId: string,
-  allRelationIds: Array<string>,
+  relationId: string;
+  allRelationIds: Array<string>;
 }
 
 export type PushedError = UndefinedRelationInPremise | UndefinedRelationInQuery;
 
-export function onQuery(errors: C.ErrorStack<PushedError>, path: C.LocationPath, query: T.Query, system: T.System): void {
+export function onQuery(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  query: T.Query,
+  system: T.System
+): void {
   if (!(query.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',
@@ -23,12 +28,17 @@ export function onQuery(errors: C.ErrorStack<PushedError>, path: C.LocationPath,
       sourceOfTruthLocation: ['system', 'relations'],
       location: path,
       relationId: query.relation,
-      allRelationIds: Object.keys(system.relations),
+      allRelationIds: Object.keys(system.relations)
     });
   }
 }
 
-export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System): void {
+export function onPremise(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  premise: T.SystemRelationRulePremise,
+  system: T.System
+): void {
   if (!(premise.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',
@@ -36,7 +46,7 @@ export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       sourceOfTruthLocation: ['system', 'relations'],
       location: path,
       relationId: premise.relation,
-      allRelationIds: Object.keys(system.relations),
+      allRelationIds: Object.keys(system.relations)
     });
   }
 }
@@ -46,18 +56,18 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     case 'ODR-P':
       return {
         message: `Undefined relation in premise: ${C.highlightWrong(err.relationId)}`,
-        hints: [`Expected ${C.displayIterable('relation','relations', err.allRelationIds)}`],
+        hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
     case 'ODR-Q':
       return {
         message: `Undefined relation in query: ${C.highlightWrong(err.relationId)}`,
-        hints: [`Expected ${C.displayIterable('relation','relations', err.allRelationIds)}`],
+        hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
+        id: err.id
       };
   }
 }

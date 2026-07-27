@@ -28,34 +28,46 @@ defrel relationName(args...) {
 }
 ```
 */
-export function toRelationStore(system: System): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
+export function toRelationStore(
+  system: System
+): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
   const relStore: Record<string, (relArgs: Array<MK.Term>) => MK.Goal> = {};
   for (const [relName, relData] of Object.entries(system.relations)) {
     relStore[relName] = (relArgs: Array<MK.Term>) => {
       const argPool = Object.fromEntries(relData.arguments.map((arg, ix) => [arg.id, relArgs[ix]]));
       return MK.delay(
         MK.disjN(
-          ...relData.rules.map(rule =>
-            MK.wrapLogs(rule.rule.id, relName, relArgs,
-              MK.fresh(Object.keys(rule.variables), pool =>
+          ...relData.rules.map((rule) =>
+            MK.wrapLogs(
+              rule.rule.id,
+              relName,
+              relArgs,
+              MK.fresh(Object.keys(rule.variables), (pool) =>
                 MK.conjN(
                   ...Object.entries(rule.patterns).map(
                     // Catched by validator
                     // deno-lint-ignore no-non-null-assertion
-                    ([argVar, poolValue]) => MK.eq(argPool[argVar]!, MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals)))
+                    ([argVar, poolValue]) =>
+                      MK.eq(
+                        argPool[argVar]!,
+                        MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals))
+                      )
                   ),
                   ...rule.premises.map(
                     // Catched by validator
                     // deno-lint-ignore no-non-null-assertion
-                    ({ relation, args }) => relStore[relation]!(args.map(a => MK.convertTermWithPool(a, pool, Object.keys(rule.literals))))
+                    ({ relation, args }) =>
+                      relStore[relation]!(
+                        args.map((a) => MK.convertTermWithPool(a, pool, Object.keys(rule.literals)))
+                      )
                   )
                 ) // conjN
               ) // fresh
             ) // wrapLogs
           ) // rules.map
         ) // disjN
-      ) // delay
-    } // relStore[relName]
+      ); // delay
+    }; // relStore[relName]
   } // for
   return relStore;
 }

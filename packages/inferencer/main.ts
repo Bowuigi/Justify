@@ -13,7 +13,9 @@ function machineTerm(term: Term): string {
     case 'lit':
       return `{"is":"lit","id":"${term.id}"}`;
     case 'con':
-      return `{"is":"con","from":"${term.from}","tag":"${term.tag}","args":[${term.args.map(machineTerm).join(',')}]}`;
+      return `{"is":"con","from":"${term.from}","tag":"${term.tag}","args":[${
+        term.args.map(machineTerm).join(',')
+      }]}`;
   }
 }
 
@@ -49,14 +51,16 @@ function prettyLog(log: RuleLog): string {
   );
 
   const loop = (indent: number, l: RuleLog): string =>
-    `${single(indent, l)}\n${l.premises.map((p) => loop(indent + 1, p)).join("")}`;
+    `${single(indent, l)}\n${l.premises.map((p) => loop(indent + 1, p)).join('')}`;
 
   return loop(0, log);
 }
 
 async function main(): Promise<void> {
   if (process.argv.length !== 4 && process.argv.length !== 5) {
-    console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`);
+    console.error(
+      `Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`
+    );
     process.exitCode = 1;
     return;
   }
@@ -70,7 +74,13 @@ async function main(): Promise<void> {
     [_node, _source, systemFile, queryFile] = process.argv as [string, string, string, string];
   } else {
     // Cast added due to deno-lsp complaints
-    [_node, _source, flags, systemFile, queryFile] = process.argv as [string, string, string, string, string];
+    [_node, _source, flags, systemFile, queryFile] = process.argv as [
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
     if (flags.includes('m')) {
       machineReadable = true;
     }
@@ -92,7 +102,7 @@ async function main(): Promise<void> {
     return;
   } else {
     if (machineReadable) {
-      console.log('['+queryResult.map(machineLog).join(',')+']')
+      console.log('[' + queryResult.map(machineLog).join(',') + ']');
     } else {
       console.log(queryResult.map(prettyLog).join('\n'));
     }

@@ -22,7 +22,12 @@ export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
-export type RuleLog = { rule: string, relation: string, args: Array<Term>, premises: Array<RuleLog> };
+export type RuleLog = {
+  rule: string,
+  relation: string,
+  args: Array<Term>,
+  premises: Array<RuleLog>
+};
 type State = { subst: Substitution, log: Array<RuleLog>, counter: number };
 
 type ImmatureStream = { is: 'delayed', force: () => Stream };
@@ -62,7 +67,12 @@ class UnboundIdentifierError extends Error {
 }
 
 // TODO: Should this be used? convertTermWithPool + fresh is more fitting in most cases
-export function convertTerm(sterm: STerm, variables: Array<string>, literals: Array<string>, counter: number): [term: Term, newCounter: number] {
+export function convertTerm(
+  sterm: STerm,
+  variables: Array<string>,
+  literals: Array<string>,
+  counter: number
+): [term: Term, newCounter: number] {
   if (sterm.is === 'ref') {
     if (variables.includes(sterm.to)) {
       return [{ is: 'var', id: sterm.to, counter }, counter + 1];
@@ -98,7 +108,7 @@ export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array
       is: 'con',
       from: sterm.from,
       tag: sterm.tag,
-      args: sterm.args.map((a) => convertTermWithPool(a, pool, literals)),
+      args: sterm.args.map((a) => convertTermWithPool(a, pool, literals))
     };
   }
 }
@@ -109,7 +119,7 @@ function varEq(a: Var, b: Var): boolean {
 
 function walk(term: Term, subst: Substitution): Term {
   if (term.is === 'var') {
-    const stepped = subst.lastKey(varN => varEq(term, varN));
+    const stepped = subst.lastKey((varN) => varEq(term, varN));
     if (stepped === null) return term;
     return walk(stepped, subst);
   } else {
@@ -140,20 +150,28 @@ function extendSubstitution(variable: Var, term: Term, subst: Substitution): Sub
 function unify(termA: Term, termB: Term, subst: Substitution): Substitution | null {
   if (termA.is === 'var' && termB.is === 'var' && varEq(termA, termB)) {
     return subst;
-  } if (termA.is === 'var') {
+  }
+  if (termA.is === 'var') {
     return extendSubstitution(termA, termB, subst);
-  } if (termB.is === 'var') {
+  }
+  if (termB.is === 'var') {
     return extendSubstitution(termB, termA, subst);
-  } if (termA.is === 'lit' && termB.is === 'lit') {
+  }
+  if (termA.is === 'lit' && termB.is === 'lit') {
     return (termA.id === termB.id) ? subst : null;
-  } if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
+  }
+  if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
     return unifyArray(termA.args, termB.args, subst);
   }
   return null;
 }
 
 /** Assumes termsA and termsB are of the same length */
-function unifyArray(termsA: Array<Term>, termsB: Array<Term>, subst: Substitution): Substitution | null {
+function unifyArray(
+  termsA: Array<Term>,
+  termsB: Array<Term>,
+  subst: Substitution
+): Substitution | null {
   let oldSubst = subst;
   for (const [ix, term] of termsA.entries()) {
     // deno-lint-ignore no-non-null-assertion
@@ -226,7 +244,7 @@ function walkAll(term: Term, subst: Substitution): Term {
         is: stepped.is,
         from: stepped.from,
         tag: stepped.tag,
-        args: stepped.args.map(a => walkAll(a, subst)),
+        args: stepped.args.map((a) => walkAll(a, subst))
       };
     case 'var':
       return stepped;
@@ -237,7 +255,7 @@ function walkAll(term: Term, subst: Substitution): Term {
 
 export function toIdempotent(subst: Substitution): Substitution {
   return new AssocArray(
-    subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) }))
+    subst.data.map((v) => ({ key: v.key, value: walkAll(v.value, subst) }))
   );
 }
 
@@ -246,8 +264,8 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   return {
     rule: log.rule,
     relation: log.relation,
-    args: log.args.map(a => walkAll(a, subst)),
-    premises: log.premises.map(p => walkLog(p, subst)),
+    args: log.args.map((a) => walkAll(a, subst)),
+    premises: log.premises.map((p) => walkLog(p, subst))
   };
 }
 
@@ -273,21 +291,25 @@ export function wrapLogs(rule: string, relation: string, args: Array<Term>, goal
     // Not isolating the state results in duplicated logs
     const isolatedState = { ...st, log: [] };
 
-    return mapStream(goal(isolatedState), sol =>
-      ({ ...sol, log: [...st.log, { rule, relation, args, premises: sol.log }] })
+    return mapStream(
+      goal(isolatedState),
+      (sol) => ({ ...sol, log: [...st.log, { rule, relation, args, premises: sol.log }] })
     );
-  }
+  };
 }
 
 // Use this for every relation you expect to be recursive
 export function delay(goal: Goal): Goal {
   return (st: State) => {
     return { is: 'delayed', force: () => goal(st) };
-  }
+  };
 }
 
 export function run(solutions: number, goal: Goal): Array<State> {
-  return takeStream(solutions, pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })));
+  return takeStream(
+    solutions,
+    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 }))
+  );
 }
 
 /// Constraints
@@ -297,20 +319,20 @@ export function eq(termA: Term, termB: Term): Goal {
     const newSubst = unify(walk(termA, st.subst), walk(termB, st.subst), st.subst);
 
     if (newSubst === null) return { is: 'nil' };
-    return { is: 'cons', solution: { subst: newSubst, log: st.log, counter: st.counter }, next: { is: 'nil' } };
+    return {
+      is: 'cons',
+      solution: { subst: newSubst, log: st.log, counter: st.counter },
+      next: { is: 'nil' }
+    };
   };
 }
 
 /// Relations and relation combinators
 
 export function disjN(...goals: Array<Goal>): Goal {
-  return goals.reduceRight((prev, cur) =>
-    (st: State) => appendStream(cur(st), prev(st))
-  );
+  return goals.reduceRight((prev, cur) => (st: State) => appendStream(cur(st), prev(st)));
 }
 
 export function conjN(...goals: Array<Goal>): Goal {
-  return goals.reduceRight((prev, cur) =>
-    (st: State) => appendMapStream(prev, cur(st))
-  );
+  return goals.reduceRight((prev, cur) => (st: State) => appendMapStream(prev, cur(st)));
 }

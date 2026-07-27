@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-console
 import { parseDerivationTree, parseQuery, parseSystem } from '@justify/core';
-import { validateSystem, validateQuery, validateDerivationTree } from './driver.ts';
-import type { ModuleErrorInfo } from "./module-common.ts";
+import { validateDerivationTree, validateQuery, validateSystem } from './driver.ts';
+import type { ModuleErrorInfo } from './module-common.ts';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
 // deno-lint-ignore no-external-import
@@ -13,11 +13,11 @@ function renderMEI(mei: ModuleErrorInfo): string {
   output += `  In ${fromPath(mei.location)}\n`;
 
   if (mei.sourceOfTruthLocation !== null) {
-    output += `  Conflicts with ${fromPath(mei.sourceOfTruthLocation)}\n`
+    output += `  Conflicts with ${fromPath(mei.sourceOfTruthLocation)}\n`;
   }
 
   for (const hint of mei.hints) {
-    output += `  ${hint}\n`
+    output += `  ${hint}\n`;
   }
 
   return output;
@@ -26,27 +26,34 @@ function renderMEI(mei: ModuleErrorInfo): string {
 async function main(): Promise<void> {
   if (process.argv.length < 3) {
     console.error(
-      `Wrong number of arguments.\nUsage: ${process.argv[1]
-      } {system|query|derivation-tree} filenames...`,
+      `Wrong number of arguments.\nUsage: ${
+        process.argv[1]
+      } {system|query|derivation-tree} filenames...`
     );
     process.exitCode = 1;
     return;
   }
 
   // This cast depends on the check above
-  const [_node, _source, format, ...rest] = process.argv as [string, string, string, ...Array<string>];
+  const [_node, _source, format, ...rest] = process.argv as [
+    string,
+    string,
+    string,
+    ...Array<string>
+  ];
 
-  if (!["system", "query", "derivation-tree"].includes(format)) {
+  if (!['system', 'query', 'derivation-tree'].includes(format)) {
     console.error(
-      `Unknown format specifier '${format}'.\nUsage: ${process.argv[1]
-      } {system|query|derivation-tree} filename`,
+      `Unknown format specifier '${format}'.\nUsage: ${
+        process.argv[1]
+      } {system|query|derivation-tree} filename`
     );
     process.exitCode = 1;
     return;
   }
 
   switch (format) {
-    case "system": {
+    case 'system': {
       if (rest.length !== 1) {
         console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} system filename`);
         process.exitCode = 1;
@@ -60,9 +67,13 @@ async function main(): Promise<void> {
       console.log(validateSystem(system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
-    case "query": {
+    case 'query': {
       if (rest.length !== 2) {
-        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} query system-filename query-filename`);
+        console.error(
+          `Wrong number of arguments.\nUsage: ${
+            process.argv[1]
+          } query system-filename query-filename`
+        );
         process.exitCode = 1;
         return;
       }
@@ -75,9 +86,13 @@ async function main(): Promise<void> {
       console.log(validateQuery(query, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
-    case "derivation-tree": {
+    case 'derivation-tree': {
       if (rest.length !== 2) {
-        console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} derivation-tree system-filename derivation-tree-filename`);
+        console.error(
+          `Wrong number of arguments.\nUsage: ${
+            process.argv[1]
+          } derivation-tree system-filename derivation-tree-filename`
+        );
         process.exitCode = 1;
         return;
       }
@@ -90,7 +105,7 @@ async function main(): Promise<void> {
       console.log(validateDerivationTree(drvTree, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
-    // every other case is unreachable
+      // every other case is unreachable
   }
 }
 main();

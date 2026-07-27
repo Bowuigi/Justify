@@ -1,6 +1,6 @@
 export class AssocArray<K, V> {
-  data: Array<{ key: K; value: V }> = [];
-  constructor(data: Array<{ key: K; value: V }>) {
+  data: Array<{ key: K, value: V }> = [];
+  constructor(data: Array<{ key: K, value: V }>) {
     this.data = data;
   }
 

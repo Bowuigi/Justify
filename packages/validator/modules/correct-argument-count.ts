@@ -1,4 +1,4 @@
-import type * as T from '../../formats/driver.ts';
+import type * as T from '@justify/core';
 import * as C from '../module-common.ts';
 
 export const managedError = 'CAC' as const;
@@ -13,7 +13,8 @@ interface ExtraArguments extends C.ModuleError<typeof managedError, 'E'> {
 
 export type PushedError = MissingArguments | ExtraArguments;
 
-export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System) {
+// @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
+export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System): void {
   const expectedArgs = system.syntax[term.from]?.grammar.find(g => g.id === term.tag)?.arguments;
 
   // Error flagged by another module
@@ -27,7 +28,7 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
       expectedArgumentIds: expectedArgs.map(a => a.id),
     });
-  } else if (term.args.length < expectedArgs.length) {
+  } else if (term.args.length > expectedArgs.length) {
     errors.push({
       moduleId: 'CAC',
       id: 'CAC-E',
@@ -38,7 +39,7 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
   }
 }
 
-export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System) {
+export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System): void {
   const expectedArgs = system.relations[premise.relation]?.arguments;
 
   // Error flagged by another module
@@ -52,7 +53,7 @@ export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
       expectedArgumentIds: expectedArgs.map(a => a.id),
     });
-  } else if (premise.args.length < expectedArgs.length) {
+  } else if (premise.args.length > expectedArgs.length) {
     errors.push({
       moduleId: 'CAC',
       id: 'CAC-E',

@@ -17,7 +17,7 @@ const sharedSyntax: System['syntax'] = {
   }
 };
 
-function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>) {
+function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
   testSystem(`CAC-${kind} in constructor`, {
     description: '',
     syntax: sharedSyntax,
@@ -49,7 +49,7 @@ testConstructorCAC('ok', [{ is: 'ref', to: 'x' }]);
 testConstructorCAC('M', []);
 testConstructorCAC('E', [{ is: 'ref', to: 'x' }, { is: 'ref', to: 'x' }]);
 
-function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>) {
+function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
   testSystem(`CAC-${kind} in premise`, {
     description: '',
     syntax: sharedSyntax,

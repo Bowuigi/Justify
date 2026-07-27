@@ -1,8 +1,8 @@
-import type { Derivation, DerivationTerm, DerivationTree, Query, System, Term, TexMath } from '../formats/driver.ts';
+import type { Derivation, DerivationTerm, DerivationTree, Query, System, Term, TexMath } from '@justify/core';
 import * as Fused from './codegen/fused.ts'
 import type { DTLocationPath, ErrorStack, LocationPath, ModuleErrorInfo } from './module-common.ts';
 
-function onTerm(errors: ErrorStack<Fused.PushedError>, path: LocationPath, variables: Record<string, TexMath>, literals: Record<string, TexMath>, term: Term, system: System) {
+function onTerm(errors: ErrorStack<Fused.PushedError>, path: LocationPath, variables: Record<string, TexMath>, literals: Record<string, TexMath>, term: Term, system: System): void {
   switch (term.is) {
     case 'ref':
       return Fused.onTermRef(errors, path, variables, literals, term, system);
@@ -15,7 +15,7 @@ function onTerm(errors: ErrorStack<Fused.PushedError>, path: LocationPath, varia
   }
 }
 
-function onDerivationTerm(errors: ErrorStack<Fused.PushedError>, path: DTLocationPath, drvTerm: DerivationTerm, system: System) {
+function onDerivationTerm(errors: ErrorStack<Fused.PushedError>, path: DTLocationPath, drvTerm: DerivationTerm, system: System): void {
   switch (drvTerm.is) {
     case 'lit':
       Fused.onDerivationTermLit(errors, path, drvTerm, system);
@@ -32,7 +32,7 @@ function onDerivationTerm(errors: ErrorStack<Fused.PushedError>, path: DTLocatio
   }
 }
 
-function onDerivation(errors: ErrorStack<Fused.PushedError>, path: DTLocationPath, derivation: Derivation, system: System) {
+function onDerivation(errors: ErrorStack<Fused.PushedError>, path: DTLocationPath, derivation: Derivation, system: System): void {
   Fused.onDerivation(errors, path, derivation, system);
 
   for (const [premIx, prem] of derivation.premises.entries()) {
@@ -45,8 +45,7 @@ function onDerivation(errors: ErrorStack<Fused.PushedError>, path: DTLocationPat
 }
 
 export function validateSystem(system: System): Array<ModuleErrorInfo> {
-  // Disallow operations other than single-item push
-  let errors: ErrorStack<Fused.PushedError> = [] as any;
+  const errors: Array<Fused.PushedError> = [];
 
   for (const [syncatId, syncatDef] of Object.entries(system.syntax)) {
     Fused.onSynCat(errors, ['system', 'syntax', syncatId], syncatId, syncatDef, system);
@@ -83,8 +82,7 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
 }
 
 export function validateQuery(query: Query, system: System): Array<ModuleErrorInfo> {
-  // Disallow operations other than single-item push
-  let errors: ErrorStack<Fused.PushedError> = [] as any;
+  const errors: Array<Fused.PushedError> = [];
 
   Fused.onQuery(errors, ['query'], query, system);
   Fused.onIdentifierMap(errors, ['query', 'literals'], query.literals);
@@ -98,8 +96,7 @@ export function validateQuery(query: Query, system: System): Array<ModuleErrorIn
 }
 
 export function validateDerivationTree(drvTree: DerivationTree, system: System): Array<ModuleErrorInfo> {
-  // Disallow operations other than single-item push
-  let errors: ErrorStack<Fused.PushedError> = [] as any;
+  const errors: Array<Fused.PushedError> = [];
 
   // Fused.onDerivationTree(errors, ['derivation-tree'], drvTree, system);
   for (const [drvIx, drv] of drvTree.entries()) {

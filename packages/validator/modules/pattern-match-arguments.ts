@@ -1,4 +1,4 @@
-import type * as T from '../../formats/driver.ts';
+import type * as T from '@justify/core';
 import * as C from '../module-common.ts';
 
 // Used to create a mapping (moduleId -> formatError)
@@ -18,8 +18,8 @@ interface ExtraPatterns extends C.ModuleError<typeof managedError, 'E'> {
 export type PushedError = MissingPatterns | ExtraPatterns;
 
 // One of the various possible handlers
-export function onPatterns(errors: C.ErrorStack<PushedError>, path: C.LocationPath, relationId: string, patterns: T.SystemRelationRule['patterns'], system: T.System) {
-  const expectedPatterns = new Set(system.relations[relationId].arguments.map(a => a.id));
+export function onPatterns(errors: C.ErrorStack<PushedError>, path: C.LocationPath, relationId: string, patterns: T.SystemRelationRule['patterns'], system: T.System): void {
+  const expectedPatterns = new Set(system.relations[relationId]?.arguments.map(a => a.id));
   const providedPatterns = new Set(Object.keys(patterns));
   const missingPatterns: Set<string> = expectedPatterns.difference(providedPatterns);
   const extraPatterns: Set<string> = providedPatterns.difference(expectedPatterns);

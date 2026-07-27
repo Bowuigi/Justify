@@ -1,10 +1,13 @@
-import { parseDerivationTree, parseQuery, parseSystem } from '../formats/driver.ts';
-import { default as process } from 'node:process';
+// deno-lint-ignore-file no-console
+import { parseDerivationTree, parseQuery, parseSystem } from '@justify/core';
 import { validateSystem, validateQuery, validateDerivationTree } from './driver.ts';
 import type { ModuleErrorInfo } from "./module-common.ts";
+// deno-lint-ignore no-external-import
+import { default as process } from 'node:process';
+// deno-lint-ignore no-external-import
 import { styleText } from 'node:util';
 
-function renderMEI(mei: ModuleErrorInfo) {
+function renderMEI(mei: ModuleErrorInfo): string {
   const fromPath = (p: Array<unknown>): string => styleText('yellow', '/' + p.join('/'));
   let output = `Error: ${mei.message}\n`;
   output += `  In ${fromPath(mei.location)}\n`;
@@ -20,7 +23,7 @@ function renderMEI(mei: ModuleErrorInfo) {
   return output;
 }
 
-async function main() {
+async function main(): Promise<void> {
   if (process.argv.length < 3) {
     console.error(
       `Wrong number of arguments.\nUsage: ${process.argv[1]
@@ -30,7 +33,8 @@ async function main() {
     return;
   }
 
-  const [_node, _source, format, ...rest] = process.argv;
+  // This cast depends on the check above
+  const [_node, _source, format, ...rest] = process.argv as [string, string, string, ...Array<string>];
 
   if (!["system", "query", "derivation-tree"].includes(format)) {
     console.error(

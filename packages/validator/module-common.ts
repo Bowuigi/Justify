@@ -1,3 +1,4 @@
+// deno-lint-ignore no-external-import
 import { styleText } from 'node:util';
 
 export type SourceOfTruthPath =
@@ -51,10 +52,10 @@ export interface ModuleErrorInfo {
   sourceOfTruthLocation: SourceOfTruthPath | null,
 };
 
-export const highlight = (str: string) => styleText(['bold', 'green'], str);
-export const highlightWrong = (str: string) => styleText(['bold', 'red'], str);
+export const highlight = (str: string): string => styleText(['bold', 'green'], str);
+export const highlightWrong = (str: string): string => styleText(['bold', 'red'], str);
 
-export function displayIterable(singular: string, plural: string, item: Iterable<string>) {
+export function displayIterable(singular: string, plural: string, item: Iterable<string>): string {
   const itemAsArray = [...item].map(highlight);
 
   switch (itemAsArray.length) {

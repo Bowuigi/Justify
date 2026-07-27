@@ -1,4 +1,4 @@
-import type * as T from '../../formats/driver.ts';
+import type * as T from '@justify/core';
 import * as C from '../module-common.ts';
 
 export const managedError = 'ODR' as const;
@@ -15,7 +15,7 @@ export interface UndefinedRelationInQuery extends C.ModuleError<'ODR', 'Q'> {
 
 export type PushedError = UndefinedRelationInPremise | UndefinedRelationInQuery;
 
-export function onQuery(errors: C.ErrorStack<PushedError>, path: C.LocationPath, query: T.Query, system: T.System) {
+export function onQuery(errors: C.ErrorStack<PushedError>, path: C.LocationPath, query: T.Query, system: T.System): void {
   if (!(query.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',
@@ -28,7 +28,7 @@ export function onQuery(errors: C.ErrorStack<PushedError>, path: C.LocationPath,
   }
 }
 
-export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System) {
+export function onPremise(errors: C.ErrorStack<PushedError>, path: C.LocationPath, premise: T.SystemRelationRulePremise, system: T.System): void {
   if (!(premise.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',

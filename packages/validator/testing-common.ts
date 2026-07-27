@@ -1,10 +1,11 @@
+// deno-lint-ignore no-external-import
 import { default as assert } from 'node:assert';
+// deno-lint-ignore no-external-import
 import test from 'node:test';
 import { validateQuery, validateSystem } from './driver.ts';
-import type { ModuleErrorInfo } from './module-common.ts';
-import type { Query, System } from '../formats/driver.ts';
+import type { Query, System } from '@justify/core';
 
-export function testSystem(name: string, system: System, expectedErrors: Array<Record<string, unknown>>) {
+export function testSystem(name: string, system: System, expectedErrors: Array<Record<string, unknown>>): void {
   test(name, () => {
     const givenErrors = validateSystem(system);
     const completeExpectedErrors = givenErrors.map((gerr, ix) => ({...gerr, ...expectedErrors[ix]}));
@@ -12,7 +13,7 @@ export function testSystem(name: string, system: System, expectedErrors: Array<R
   });
 }
 
-export function testQuery(name: string, system: System, query: Query, expectedErrors: Array<Record<string, unknown>>) {
+export function testQuery(name: string, system: System, query: Query, expectedErrors: Array<Record<string, unknown>>): void {
   test(name, () => {
     const shouldBeEmpty = validateSystem(system);
     assert.deepStrictEqual(shouldBeEmpty, []);

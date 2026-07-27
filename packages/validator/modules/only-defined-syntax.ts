@@ -1,4 +1,4 @@
-import type * as T from '../../formats/driver.ts';
+import type * as T from '@justify/core';
 import * as C from '../module-common.ts';
 
 export const managedError = 'ODS' as const;
@@ -20,11 +20,12 @@ export interface PrimitiveDisallowedHere extends C.ModuleError<'ODS', 'P'> {
 
 export type PushedError = UndefinedSynCat | UndefinedConstructor | PrimitiveDisallowedHere;
 
-function isPrimitive(id: string) {
+function isPrimitive(id: string): id is "literal" {
   return id === 'literal';
 }
 
-export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System) {
+// @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
+export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPath, variables: Record<string, T.TexMath>, literals: Record<string, T.TexMath>, term: T.TermCon, system: T.System): void {
   if (isPrimitive(term.from)) {
     errors.push({
       moduleId: 'ODS',
@@ -54,12 +55,12 @@ export function onTermCon(errors: C.ErrorStack<PushedError>, path: C.LocationPat
       location: path,
       syncatId: term.from,
       conId: term.tag,
-      allConIds: system.syntax[term.from].grammar.map(g => g.id),
+      allConIds: system.syntax[term.from]?.grammar.map(g => g.id) || [],
     });
   }
 }
 
-export function onArgument(errors: C.ErrorStack<PushedError>, path: C.LocationPath, arg: T.Argument, system: T.System) {
+export function onArgument(errors: C.ErrorStack<PushedError>, path: C.LocationPath, arg: T.Argument, system: T.System): void {
   if (!(arg.from in system.syntax) && !isPrimitive(arg.from)) {
     errors.push({
       moduleId: 'ODS',

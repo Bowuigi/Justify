@@ -1,6 +1,8 @@
 # Markdown extension
 
-Generate [Justify](https://github.com/Bowuigi/Justify) System files (other formats might be supported in the future) using a [remark](https://github.com/remarkjs/remark) extension.
+**WORK IN PROGRESS, NOT USABLE YET**
+
+Generate [Justify](https://github.com/Bowuigi/Justify) files using a [remark](https://github.com/remarkjs/remark) extension.
 
 See the examples for usage information.
 

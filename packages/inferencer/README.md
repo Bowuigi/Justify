@@ -1,6 +1,6 @@
 # Inferencer
 
-A type system query engine for [Justify](https://github.com/Bowuigi/Justify) based on [miniKanren](https://minikanren.org) with the following extensions:
+A logical system query engine for [Justify](https://github.com/Bowuigi/Justify) based on [miniKanren](https://minikanren.org) with the following extensions:
 
 - Simple-complete search
 - N-ary conj, disj and fresh by default
@@ -15,10 +15,10 @@ A type system query engine for [Justify](https://github.com/Bowuigi/Justify) bas
 
 ## Usage
 
-Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported):
+Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported) and that your current directory is the root of the Justify monorepo:
 
 ```shell
-deno run --allow-read --allow-env inferencer/main.ts [-m] <System file> <Query file>
+deno run --allow-read --allow-env packages/inferencer/main.ts [-m] <System file> <Query file>
 ```
 
-The `-m` flag switches on machine-readable output, generating a **DerivationTree** file from the **System** and **Query** ones.
+The `-m` flag switches on machine-readable output, generating a **DerivationTree** file from the **System** and **Query** ones, which is less human-readable but easier to work with programatically.

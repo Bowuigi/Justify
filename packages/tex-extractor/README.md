@@ -15,7 +15,7 @@ Given a system file it generates:
 
 ## Usage
 
-Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported). Run the following command from the root directory of the repository:
+Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported). Run the following command from the root directory of the Justify monorepo:
 
 ```shell
 deno run --allow-read --allow-env packages/tex-extractor/main.ts <system file> > my/project/justify-tex.sty
@@ -31,6 +31,7 @@ This produces a file in `my/project/justify-<system name>.sty` which you can the
 \usepackage{amssymb}
 \input{justify-<system name>.sty}
 % Only required for LaTeX (not for KaTeX). That file specifically is 0BSD so you can vendor it directly instead
+% Copy it from the Justify monorepo, it is on `packages/tex-extractor/latex-compat.sty`
 \input{path/to/the/provided/latex-compat.sty}
 
 \begin{document}

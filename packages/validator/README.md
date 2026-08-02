@@ -18,3 +18,18 @@ Validation passes (NYI is "not yet implemented"):
 - (NYI) Constructor type checking
 - (NYI) Relation type checking
 - (NYI) Check that relations have at least one parameter (the lang is pure, zero argument relations are useless aside from log filling)
+
+# Usage
+
+From the root of the Justify monorepo, run the following (other TS/JS runtimes are supported):
+
+```sh
+# For System files
+deno run --allow-read --allow-env packages/validator/main.ts system <your-system.json>
+
+# For Query files
+deno run --allow-read --allow-env packages/validator/main.ts query <your-system.json> <your-query.json>
+
+# For DerivationTree files
+deno run --allow-read --allow-env packages/validator/main.ts derivation-tree <your-system.json> <your-derivation-tree.json>
+```

@@ -1,4 +1,5 @@
-import { Fixity, parseSystem, System, Term, TexMath, TexMathParts } from "@justify/core";
+import { type Fixity, parseSystem, type System, type Term, type TexMath, type TexMathParts } from "@justify/core";
+// deno-lint-ignore no-external-import
 import { default as process } from "node:process";
 
 type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription' | 'relationRule' | 'relationRuleset';
@@ -10,7 +11,9 @@ function snakeToCamel(s: string): string {
 function interleave<T>(arr1: T[], arr2: T[]): T[] {
   const result: T[] = [];
   for (let i = 0; i < Math.max(arr1.length, arr2.length); i++) {
+    // deno-lint-ignore no-non-null-assertion
     if (i < arr1.length) result.push(arr1[i]!);
+    // deno-lint-ignore no-non-null-assertion
     if (i < arr2.length) result.push(arr2[i]!);
   }
   return result;
@@ -25,6 +28,7 @@ function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<str
 function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string>): string {
   switch (fixity) {
     case 'none':
+      // deno-lint-ignore no-non-null-assertion
       return (texParts[0] || args[0])!;
     case 'prefix':
       return interleave(texParts, args).join(' ');
@@ -114,6 +118,7 @@ function extractTeX(system: System): string {
             rule.premises.map(p =>
               commandOf('relation', p.relation, p.args.map(a => renderTerm(a, rule.variables, rule.literals)))
             ).join(' \\\\ '),
+            // deno-lint-ignore no-non-null-assertion
             commandOf('relation', relation, definition.arguments.map(a => renderTerm(rule.patterns[a.id]!, rule.variables, rule.literals))),
           ]),
         }
@@ -163,6 +168,7 @@ function extractTeX(system: System): string {
 
 async function main(): Promise<void> {
   if (process.argv.length !== 3) {
+    // deno-lint-ignore no-console
     console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} filename`);
     process.exitCode = 1;
     return;
@@ -175,6 +181,7 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
+  // deno-lint-ignore no-console
   console.log(extractTeX(system));
 }
 main();

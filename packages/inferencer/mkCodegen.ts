@@ -45,18 +45,18 @@ export function toRelationStore(
               MK.fresh(Object.keys(rule.variables), (pool) =>
                 MK.conjN(
                   ...Object.entries(rule.patterns).map(
-                    // Catched by validator
-                    // deno-lint-ignore no-non-null-assertion
                     ([argVar, poolValue]) =>
                       MK.eq(
+                        // Catched by validator
+                        // deno-lint-ignore no-non-null-assertion
                         argPool[argVar]!,
                         MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals))
                       )
                   ),
                   ...rule.premises.map(
-                    // Catched by validator
-                    // deno-lint-ignore no-non-null-assertion
                     ({ relation, args }) =>
+                      // Catched by validator
+                      // deno-lint-ignore no-non-null-assertion
                       relStore[relation]!(
                         args.map((a) => MK.convertTermWithPool(a, pool, Object.keys(rule.literals)))
                       )

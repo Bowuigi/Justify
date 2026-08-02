@@ -1,4 +1,4 @@
-import type { Fixity, System, Term } from '../../formats/driver.ts';
+import type { Fixity, System, Term } from '@justify/core';
 import { testSystem } from '../testing-common.ts';
 
 const sharedSyntax: System['syntax'] = {

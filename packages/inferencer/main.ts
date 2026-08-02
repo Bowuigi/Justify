@@ -1,6 +1,6 @@
-// This file will be removed, replaced with the @justify/cli package
-// deno-lint-ignore-file no-external-import no-console
+// deno-lint-ignore no-external-import
 import * as util from 'node:util';
+// deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
 import { parseQuery, parseSystem } from '@justify/core';
 import type { RuleLog, Term } from './mk.ts';
@@ -58,6 +58,7 @@ function prettyLog(log: RuleLog): string {
 
 async function main(): Promise<void> {
   if (process.argv.length !== 4 && process.argv.length !== 5) {
+    // deno-lint-ignore no-console
     console.error(
       `Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`
     );
@@ -97,13 +98,16 @@ async function main(): Promise<void> {
   const queryResult = performQuery(system, query);
 
   if (typeof queryResult === 'string') {
+    // deno-lint-ignore no-console
     console.error(queryResult);
     process.exitCode = 1;
     return;
   } else {
     if (machineReadable) {
+      // deno-lint-ignore no-console
       console.log('[' + queryResult.map(machineLog).join(',') + ']');
     } else {
+      // deno-lint-ignore no-console
       console.log(queryResult.map(prettyLog).join('\n'));
     }
   }

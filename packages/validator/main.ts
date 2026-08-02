@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-console
 import { parseDerivationTree, parseQuery, parseSystem } from '@justify/core';
 import { validateDerivationTree, validateQuery, validateSystem } from './driver.ts';
 import type { ModuleErrorInfo } from './module-common.ts';
@@ -25,6 +24,7 @@ function renderMEI(mei: ModuleErrorInfo): string {
 
 async function main(): Promise<void> {
   if (process.argv.length < 3) {
+    // deno-lint-ignore no-console
     console.error(
       `Wrong number of arguments.\nUsage: ${
         process.argv[1]
@@ -43,6 +43,7 @@ async function main(): Promise<void> {
   ];
 
   if (!['system', 'query', 'derivation-tree'].includes(format)) {
+    // deno-lint-ignore no-console
     console.error(
       `Unknown format specifier '${format}'.\nUsage: ${
         process.argv[1]
@@ -55,20 +56,24 @@ async function main(): Promise<void> {
   switch (format) {
     case 'system': {
       if (rest.length !== 1) {
+        // deno-lint-ignore no-console
         console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} system filename`);
         process.exitCode = 1;
         return;
       }
-      const system = await parseSystem(rest[0]);
+      // deno-lint-ignore no-non-null-assertion
+      const system = await parseSystem(rest[0]!);
       if (system === null) {
         process.exitCode = 1;
         return;
       }
+      // deno-lint-ignore no-console
       console.log(validateSystem(system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
     case 'query': {
       if (rest.length !== 2) {
+        // deno-lint-ignore no-console
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
@@ -77,17 +82,21 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
-      const system = await parseSystem(rest[0]);
-      const query = await parseQuery(rest[1]);
+      // deno-lint-ignore no-non-null-assertion
+      const system = await parseSystem(rest[0]!);
+      // deno-lint-ignore no-non-null-assertion
+      const query = await parseQuery(rest[1]!);
       if (system === null || query === null) {
         process.exitCode = 1;
         return;
       }
+      // deno-lint-ignore no-console
       console.log(validateQuery(query, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
     case 'derivation-tree': {
       if (rest.length !== 2) {
+        // deno-lint-ignore no-console
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
@@ -96,12 +105,15 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
-      const system = await parseSystem(rest[0]);
-      const drvTree = await parseDerivationTree(rest[1]);
+      // deno-lint-ignore no-non-null-assertion
+      const system = await parseSystem(rest[0]!);
+      // deno-lint-ignore no-non-null-assertion
+      const drvTree = await parseDerivationTree(rest[1]!);
       if (system === null || drvTree === null) {
         process.exitCode = 1;
         return;
       }
+      // deno-lint-ignore no-console
       console.log(validateDerivationTree(drvTree, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }

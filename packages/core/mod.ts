@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-console
-
 // deno-lint-ignore no-external-import
 import { readFile } from 'node:fs/promises';
 
@@ -21,8 +19,10 @@ async function parseFile<T>(
     json = JSON.parse(contents);
   } catch (exn: unknown) {
     if (exn instanceof Error) {
+      // deno-lint-ignore no-console
       console.error(`${filename}, ${exn.name}: ${exn.message}`);
     } else {
+      // deno-lint-ignore no-console
       console.error(`${filename}, fatal error: ${exn}`);
     }
     return null;
@@ -34,8 +34,10 @@ async function parseFile<T>(
     return json as T;
   } else {
     for (const error of valid.errors) {
+      // deno-lint-ignore no-console
       console.error(`${filename}, /${error.path.join('/')}: ${error.message}`);
       if (error.suggestions.length > 0) {
+        // deno-lint-ignore no-console
         console.error(`  Suggestions: ${error.suggestions.join(', ')}`);
       }
     }

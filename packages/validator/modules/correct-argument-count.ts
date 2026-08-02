@@ -17,8 +17,8 @@ export type PushedError = MissingArguments | ExtraArguments;
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
-  variables: Record<string, T.TexMath>,
-  literals: Record<string, T.TexMath>,
+  variables: Record<T.Identifier, T.TexMath>,
+  literals: Record<T.Identifier, T.TexMath>,
   term: T.TermCon,
   system: T.System
 ): void {

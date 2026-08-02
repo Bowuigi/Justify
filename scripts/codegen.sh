@@ -40,14 +40,37 @@ echo '--- Generating fused file for validator modules ---'
 cd packages/validator/codegen || exit 1
 rm -f fused.ts
 awk '
+BEGIN {
+  FS = "[ :]+"
+}
+
 /export const managedError/ {
   fnameMap[FILENAME] = gensub(/'\''/, "", "g", $5)
 }
 
-/export function on/ {
+/^export function on/ {
   fun = gensub(/\(.*/, "", "1", $3)
   on[fun][fnameMap[FILENAME]] = 1
-  signatureMap[fun] = $0
+  if (!(fun in signatureMap)) {
+    currentHandler = fun
+    signatureMap[currentHandler] = $0
+  }
+}
+
+/^): void {$/ {
+  signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  currentHandler = ""
+}
+
+/^  / {
+  if (currentHandler) {
+    if (currentHandler in args) {
+      args[currentHandler] = args[currentHandler] ", " $2
+    } else {
+      args[currentHandler] = $2
+    }
+    signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  }
 }
 
 END {
@@ -66,11 +89,9 @@ END {
 
   for (fun in on) {
     print ""
-    print "// @ts-ignore 6133 - `arguments` is not handled by Typescript"
     print signatureMap[fun]
     for (fname in on[fun]) {
-      printf "  // @ts-ignore 2741 - `arguments` here is known to be the correct type\n"
-      printf "  %s.%s(...arguments);\n", fname, fun
+      printf "  %s.%s(%s);\n", fname, fun, args[fun]
     }
     print "}"
   }

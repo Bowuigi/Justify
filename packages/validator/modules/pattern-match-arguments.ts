@@ -21,7 +21,7 @@ export type PushedError = MissingPatterns | ExtraPatterns;
 export function onPatterns(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
-  relationId: string,
+  relationId: T.Identifier,
   patterns: T.SystemRelationRule['patterns'],
   system: T.System
 ): void {

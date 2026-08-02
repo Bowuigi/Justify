@@ -13,18 +13,15 @@ export type PushedError =
   | ODR.PushedError
   | ODS.PushedError;
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onDerivationTermLit(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
   lit: T.DerivationTermLit,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onDerivationTermLit(...arguments);
+  VI.onDerivationTermLit(errors, path, lit, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onPatterns(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -32,13 +29,10 @@ export function onPatterns(
   patterns: T.SystemRelationRule['patterns'],
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onPatterns(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  PMA.onPatterns(...arguments);
+  VI.onPatterns(errors, path, relationId, patterns, system);
+  PMA.onPatterns(errors, path, relationId, patterns, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onRelation(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -46,11 +40,9 @@ export function onRelation(
   relDef: T.SystemRelation,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onRelation(...arguments);
+  VI.onRelation(errors, path, relId, relDef, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onSynCat(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -58,33 +50,27 @@ export function onSynCat(
   syncatDef: T.SystemSyntax,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onSynCat(...arguments);
+  VI.onSynCat(errors, path, syncatId, syncatDef, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onDerivationTermVar(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
   termVar: T.DerivationTermVar,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onDerivationTermVar(...arguments);
+  VI.onDerivationTermVar(errors, path, termVar, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onDerivation(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
   derivation: T.Derivation,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onDerivation(...arguments);
+  VI.onDerivation(errors, path, derivation, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -93,65 +79,50 @@ export function onTermCon(
   term: T.TermCon,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  ODS.onTermCon(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onTermCon(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  CAC.onTermCon(...arguments);
+  ODS.onTermCon(errors, path, variables, literals, term, system);
+  VI.onTermCon(errors, path, variables, literals, term, system);
+  CAC.onTermCon(errors, path, variables, literals, term, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onGrammar(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   grammar: T.SystemSyntaxGrammar,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onGrammar(...arguments);
+  VI.onGrammar(errors, path, grammar, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onArgument(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   arg: T.Argument,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  ODS.onArgument(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onArgument(...arguments);
+  ODS.onArgument(errors, path, arg, system);
+  VI.onArgument(errors, path, arg, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onRule(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   rule: T.SystemRelationRule,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onRule(...arguments);
+  VI.onRule(errors, path, rule, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onPremise(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   premise: T.SystemRelationRulePremise,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onPremise(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  ODR.onPremise(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  CAC.onPremise(...arguments);
+  VI.onPremise(errors, path, premise, system);
+  ODR.onPremise(errors, path, premise, system);
+  CAC.onPremise(errors, path, premise, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onTermRef(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -160,42 +131,34 @@ export function onTermRef(
   term: T.TermRef,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onTermRef(...arguments);
+  VI.onTermRef(errors, path, variables, literals, term, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onDerivationTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
   con: T.DerivationTermCon,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onDerivationTermCon(...arguments);
+  VI.onDerivationTermCon(errors, path, con, system);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onIdentifierMap(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   idmap: Record<T.Identifier, T.TexMath>
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onIdentifierMap(...arguments);
+  VI.onIdentifierMap(errors, path, idmap);
 }
 
-// @ts-ignore 6133 - `arguments` is not handled by Typescript
 export function onQuery(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   query: T.Query,
   system: T.System
 ): void {
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  VI.onQuery(...arguments);
-  // @ts-ignore 2741 - `arguments` here is known to be the correct type
-  ODR.onQuery(...arguments);
+  VI.onQuery(errors, path, query, system);
+  ODR.onQuery(errors, path, query, system);
 }
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {

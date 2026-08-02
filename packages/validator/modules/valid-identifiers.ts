@@ -10,7 +10,7 @@ export interface InvalidIdentifier extends C.ModuleError<'VI', 'I'> {
 export type PushedError = InvalidIdentifier;
 
 function isValidIdentifier(id: string): boolean {
-  return /^[a-z][a-z0-9_]$/.test(id);
+  return /^[a-z][a-z0-9_]*$/.test(id);
 }
 
 function validIdCheck(

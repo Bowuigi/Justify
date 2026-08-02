@@ -2,23 +2,24 @@
 # Generate TS types for every schema
 # jtd-codegen always asks for a dir and generates an index.ts file on it
 
-mkdir -p formats/codegen/ts
-cd formats || exit 1
+### @justify/core ###
 
-for schema_file in *.jtd.json; do
+mkdir -p packages/core/codegen
+
+for schema_file in formats/*.jtd.json; do
   schema="$(basename "$schema_file" .jtd.json)"
 
   echo "--- Generating types for ${schema} ---"
-  jtd-codegen --typescript-out codegen/ts/ "$schema_file"
-  mv codegen/ts/index.ts "codegen/ts/${schema}-types.d.ts"
+  jtd-codegen --typescript-out packages/core/codegen/ "$schema_file"
+  mv packages/core/codegen/index.ts "packages/core/codegen/${schema}-types.d.ts"
 
   echo "--- Generating JSON validator for ${schema} ---"
-  ../node_modules/.bin/ajv compile --spec=jtd -s "$schema_file" -o "codegen/ts/${schema}-validator.cjs" --code-optimize=5
+  #deno x jsr:@bowuigi/jtd-validator-generator "$schema_file" > "packages/core/codegen/${schema}-validator.ts"
 done
 
 echo '--- Generating barrel file for types ---'
 
-cd codegen/ts || exit 1
+cd packages/core/codegen || exit 1
 rm -f types.d.ts
 awk '
 /^export (type|enum|interface)/ {
@@ -30,25 +31,50 @@ END {
     printf "export type { %s } from \"%s\";\n", def, typedefs[def]
 }
 ' ./*.d.ts > types.d.ts
+cd ../../.. || exit 1
 
-cd ../../../
+### @justify/validator ###
+
 echo '--- Generating fused file for validator modules ---'
 
-cd validator/codegen || exit 1
+cd packages/validator/codegen || exit 1
 rm -f fused.ts
 awk '
+BEGIN {
+  FS = "[ :]+"
+}
+
 /export const managedError/ {
   fnameMap[FILENAME] = gensub(/'\''/, "", "g", $5)
 }
 
-/export function on/ {
+/^export function on/ {
   fun = gensub(/\(.*/, "", "1", $3)
   on[fun][fnameMap[FILENAME]] = 1
-  signatureMap[fun] = $0
+  if (!(fun in signatureMap)) {
+    currentHandler = fun
+    signatureMap[currentHandler] = $0
+  }
+}
+
+/^): void {$/ {
+  signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  currentHandler = ""
+}
+
+/^  / {
+  if (currentHandler) {
+    if (currentHandler in args) {
+      args[currentHandler] = args[currentHandler] ", " $2
+    } else {
+      args[currentHandler] = $2
+    }
+    signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  }
 }
 
 END {
-  print "import type * as T from \"../../formats/driver.ts\""
+  print "import type * as T from \"@justify/core\""
   print "import type * as C from \"../module-common.ts\""
 
   for (fname in fnameMap) {
@@ -65,8 +91,7 @@ END {
     print ""
     print signatureMap[fun]
     for (fname in on[fun]) {
-      printf "  // @ts-ignore: 2741 - `arguments` here is known to be the correct type\n"
-      printf "  %s.%s(...arguments);\n", fname, fun
+      printf "  %s.%s(%s);\n", fname, fun, args[fun]
     }
     print "}"
   }
@@ -80,3 +105,4 @@ END {
   print "}"
 }
 ' ../modules/*.ts > fused.ts
+cd ../../.. || exit 1

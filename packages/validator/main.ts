@@ -1,5 +1,5 @@
-import { parseDerivationTree, parseQuery, parseSystem } from '@justify/core';
-import { validateDerivationTree, validateQuery, validateSystem } from './driver.ts';
+import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
+import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
 import type { ModuleErrorInfo } from './module-common.ts';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
@@ -108,13 +108,13 @@ async function main(): Promise<void> {
       // deno-lint-ignore no-non-null-assertion
       const system = await parseSystem(rest[0]!);
       // deno-lint-ignore no-non-null-assertion
-      const drvTree = await parseDerivationTree(rest[1]!);
+      const drvTree = await parseQueryResult(rest[1]!);
       if (system === null || drvTree === null) {
         process.exitCode = 1;
         return;
       }
       // deno-lint-ignore no-console
-      console.log(validateDerivationTree(drvTree, system).map(renderMEI).join('\n') || 'All good!');
+      console.log(validateQueryResult(drvTree, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
       // every other case is unreachable

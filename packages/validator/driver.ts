@@ -1,8 +1,8 @@
 import type {
   Derivation,
   DerivationTerm,
-  DerivationTree,
   Query,
+  QueryResult,
   System,
   Term,
   TexMath
@@ -179,13 +179,13 @@ export function validateQuery(query: Query, system: System): Array<ModuleErrorIn
   return (errors as Array<Fused.PushedError>).map(Fused.formatError);
 }
 
-export function validateDerivationTree(
-  drvTree: DerivationTree,
+export function validateQueryResult(
+  drvTree: QueryResult,
   system: System
 ): Array<ModuleErrorInfo> {
   const errors: Array<Fused.PushedError> = [];
 
-  // Fused.onDerivationTree(errors, ['derivation-tree'], drvTree, system);
+  // Fused.onQueryResult(errors, ['derivation-tree'], drvTree, system);
   for (const [drvIx, drv] of drvTree.entries()) {
     onDerivation(errors, ['derivation-tree', drvIx], drv, system);
   }

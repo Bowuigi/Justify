@@ -9,7 +9,7 @@
     ]
   },
   "imports": {
-    "@bowuigi/jtd-validator-generator": "jsr:@bowuigi/jtd-validator-generator@^1.0.0"
+    "@bowuigi/jtd-validator-generator": "jsr:@bowuigi/jtd-validator-generator@^1.0.2"
   },
   "lint": {
     "include": [

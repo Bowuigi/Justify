@@ -1,6 +1,5 @@
 export type { System } from './system-types.d.ts';
 export type { SystemSyntax } from './system-types.d.ts';
-export type { QueryResultSolutions } from './query-result-types.d.ts';
 export type { Arguments } from './system-types.d.ts';
 export type { TexMathParts } from './system-types.d.ts';
 export type { SystemSyntaxGrammar } from './system-types.d.ts';
@@ -11,6 +10,7 @@ export type { SystemRelationRuleRule } from './system-types.d.ts';
 export type { DerivationTermCon } from './query-result-types.d.ts';
 export type { SystemRelationRulePremise } from './system-types.d.ts';
 export type { TermCon } from './system-types.d.ts';
+export type { QueryResultSolution } from './query-result-types.d.ts';
 export type { TexMath } from './system-types.d.ts';
 export type { QueryResult } from './query-result-types.d.ts';
 export type { Term } from './system-types.d.ts';

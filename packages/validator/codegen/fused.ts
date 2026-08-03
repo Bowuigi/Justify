@@ -84,6 +84,14 @@ export function onTermCon(
   CAC.onTermCon(errors, path, variables, literals, term, system);
 }
 
+export function onQueryResultSolutionVariableIdentifier(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  identifier: T.Identifier
+): void {
+  VI.onQueryResultSolutionVariableIdentifier(errors, path, identifier);
+}
+
 export function onGrammar(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,

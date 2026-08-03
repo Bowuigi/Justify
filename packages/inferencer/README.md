@@ -10,7 +10,7 @@ A logical system query engine for [Justify](https://github.com/Bowuigi/Justify) 
 - Checked variables and literals
 - Conversion from **System**/**Query** terms
 - Codegen for **System** / inference rules (check `mkCodegen.ts`)
-- Derivation tree generation
+- Derivation tree generation (for **QueryResult** files)
 - Idempotent substitution transformation
 
 ## Usage
@@ -21,4 +21,4 @@ Assuming `deno run --allow-read --allow-env` is used to run Typescript (other ru
 deno run --allow-read --allow-env packages/inferencer/main.ts [-m] <System file> <Query file>
 ```
 
-The `-m` flag switches on machine-readable output, generating a **DerivationTree** file from the **System** and **Query** ones, which is less human-readable but easier to work with programatically.
+The `-m` flag switches on machine-readable output, generating a **QueryResult** file from the **System** and **Query** ones, which is less human-readable but easier to work with programatically.

@@ -30,6 +30,6 @@ deno run --allow-read --allow-env packages/validator/main.ts system <your-system
 # For Query files
 deno run --allow-read --allow-env packages/validator/main.ts query <your-system.json> <your-query.json>
 
-# For DerivationTree files
-deno run --allow-read --allow-env packages/validator/main.ts derivation-tree <your-system.json> <your-derivation-tree.json>
+# For QueryResult files
+deno run --allow-read --allow-env packages/validator/main.ts query-result <your-system.json> <your-query-result.json>
 ```

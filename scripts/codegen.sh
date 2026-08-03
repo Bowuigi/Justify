@@ -14,7 +14,7 @@ for schema_file in formats/*.jtd.json; do
   mv packages/core/codegen/index.ts "packages/core/codegen/${schema}-types.d.ts"
 
   echo "--- Generating JSON validator for ${schema} ---"
-  #deno x jsr:@bowuigi/jtd-validator-generator "$schema_file" > "packages/core/codegen/${schema}-validator.ts"
+  deno x jsr:@bowuigi/jtd-validator-generator "$schema_file" > "packages/core/codegen/${schema}-validator.ts"
 done
 
 echo '--- Generating barrel file for types ---'

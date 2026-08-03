@@ -50,6 +50,6 @@
         "derivation": {"ref": "derivation"}
       }
     },
-    "count": {}
+    "count": {"type": "uint16"}
   }
 }

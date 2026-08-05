@@ -1,8 +1,8 @@
 import type {
   Derivation,
   DerivationTerm,
-  DerivationTree,
   Query,
+  QueryResult,
   System,
   Term,
   TexMath
@@ -179,15 +179,24 @@ export function validateQuery(query: Query, system: System): Array<ModuleErrorIn
   return (errors as Array<Fused.PushedError>).map(Fused.formatError);
 }
 
-export function validateDerivationTree(
-  drvTree: DerivationTree,
+export function validateQueryResult(
+  queryResult: QueryResult,
   system: System
 ): Array<ModuleErrorInfo> {
   const errors: Array<Fused.PushedError> = [];
 
-  // Fused.onDerivationTree(errors, ['derivation-tree'], drvTree, system);
-  for (const [drvIx, drv] of drvTree.entries()) {
-    onDerivation(errors, ['derivation-tree', drvIx], drv, system);
+  for (const [solIx, sol] of queryResult.solutions.entries()) {
+    for (const [solVarId, solVarDef] of Object.entries(sol.variables)) {
+      Fused.onQueryResultSolutionVariableIdentifier(
+        errors,
+        ['query-result', solIx, 'variables'],
+        solVarId
+      );
+      onDerivationTerm(errors, ['query-result', solIx, 'variables', solVarId], solVarDef, system);
+    }
+    if (sol.derivation !== undefined) {
+      onDerivation(errors, ['query-result', solIx, 'derivation'], sol.derivation, system);
+    }
   }
   return (errors as Array<Fused.PushedError>).map(Fused.formatError);
 }

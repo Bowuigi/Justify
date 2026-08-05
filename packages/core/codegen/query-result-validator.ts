@@ -15,16 +15,144 @@ export function validate(data: unknown): ValidationResult {
 }
 
 function validateMain(data: unknown, path: Path, errors: Errors): void {
-  if ((Array.isArray(data))) {
-    for (const [key, value] of data.entries()) {
-      path.push(key);
-      const data = value;
-      validate_derivation(data, path, errors);
-      path.pop();
+  if (
+    (typeof data === 'object' && data !== null && Object.getPrototypeOf(data) === Object.prototype)
+  ) {
+    if ('solutions' in data) {
+      ((data: unknown): void => {
+        path.push('solutions');
+        if ((Array.isArray(data))) {
+          for (const [key, value] of data.entries()) {
+            path.push(key);
+            const data = value;
+            if (
+              (typeof data === 'object' && data !== null &&
+                Object.getPrototypeOf(data) === Object.prototype)
+            ) {
+              if ('variables' in data) {
+                ((data: unknown): void => {
+                  path.push('variables');
+                  if (
+                    (typeof data === 'object' && data !== null &&
+                      Object.getPrototypeOf(data) === Object.prototype)
+                  ) {
+                    for (const [key, value] of Object.entries(data)) {
+                      path.push(key);
+                      const data = value;
+                      if ((typeof key === 'string')) validate_derivation_term(data, path, errors);
+                      else {errors.push({
+                          path: [...path],
+                          message: `expected string key, got ${key === null ? 'null' : typeof key}`,
+                          suggestions: []
+                        });}
+                      path.pop();
+                    }
+                  } else {errors.push({
+                      path: [...path],
+                      message: `expected JSON object, got ${
+                        data === null ? 'null' : (Array.isArray(data) ? 'array' : typeof data)
+                      }`,
+                      suggestions: []
+                    });}
+                  path.pop();
+                })(data.variables);
+              } else {errors.push({
+                  path: [...path],
+                  message: `missing required property "variables"`,
+                  suggestions: []
+                });}
+              if ('derivation' in data) {
+                ((data: unknown): void => {
+                  path.push('derivation');
+                  validate_derivation(data, path, errors);
+                  path.pop();
+                })(data.derivation);
+              }
+              {
+                /* properties */ const dataKeys = new Set(Object.keys(data));
+                const allowedKeys = new Set(['variables', 'derivation']);
+                const extraKeys = dataKeys.difference(allowedKeys);
+                if ((extraKeys.size > 0)) {
+                  errors.push({
+                    path: [...path],
+                    message: `unexpected properties: "${
+                      [...extraKeys].map((x) => x.toString()).join('", "')
+                    }"`,
+                    suggestions: [...allowedKeys]
+                  });
+                }
+              }
+            } else {errors.push({
+                path: [...path],
+                message: `expected JSON object, got ${
+                  data === null ? 'null' : (Array.isArray(data) ? 'array' : typeof data)
+                }`,
+                suggestions: []
+              });}
+            path.pop();
+          }
+        } else {errors.push({
+            path: [...path],
+            message: `expected array, got ${
+              data === null ? 'null' : (Array.isArray(data) ? 'array' : typeof data)
+            }`,
+            suggestions: []
+          });}
+        path.pop();
+      })(data.solutions);
+    } else {errors.push({
+        path: [...path],
+        message: `missing required property "solutions"`,
+        suggestions: []
+      });}
+    if ('count' in data) {
+      ((data: unknown): void => {
+        path.push('count');
+        if ((typeof data === 'number')) {
+          if ((data >= 0 && data <= 65535)) {
+            if (!Number.isInteger(data)) {
+              errors.push({
+                path: [...path],
+                message: `value ${data} is not an unsigned integer`,
+                suggestions: []
+              });
+            }
+          } else {errors.push({
+              path: [...path],
+              message: `value ${data} out of range for uint16`,
+              suggestions: []
+            });}
+        } else {errors.push({
+            path: [...path],
+            message: `expected uint16, got ${
+              data === null ? 'null' : (Array.isArray(data) ? 'array' : typeof data)
+            }`,
+            suggestions: []
+          });}
+        path.pop();
+      })(data.count);
+    } else {errors.push({
+        path: [...path],
+        message: `missing required property "count"`,
+        suggestions: []
+      });}
+    {
+      /* properties */ const dataKeys = new Set(Object.keys(data));
+      const allowedKeys = new Set(['solutions', 'count']);
+      const extraKeys = dataKeys.difference(allowedKeys);
+      if ((extraKeys.size > 0)) {
+        errors.push({
+          path: [...path],
+          message: `unexpected properties: "${
+            [...extraKeys].map((x) => x.toString()).join('", "')
+          }"`,
+          suggestions: [...allowedKeys]
+        });
+      }
     }
   } else {errors.push({
       path: [...path],
-      message: `expected array, got ${
+      message: `expected JSON object, got ${
         data === null ? 'null' : (Array.isArray(data) ? 'array' : typeof data)
       }`,
       suggestions: []

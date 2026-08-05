@@ -36,7 +36,7 @@ type Stream = MatureStream | ImmatureStream;
 
 export type Goal = (st: State) => Stream;
 
-type VarPool = Record<string, Var>;
+export type VarPool = Record<string, Var>;
 
 class OcurrsCheckFailedError extends Error {
   public variable: Var;

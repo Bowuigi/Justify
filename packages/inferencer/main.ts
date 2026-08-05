@@ -2,33 +2,10 @@
 import * as util from 'node:util';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
-import { parseQuery, parseSystem } from '@justify/core';
-import type { RuleLog, Term } from './mk.ts';
+import { type Derivation, type DerivationTerm, parseQuery, parseSystem, type QueryResult, type QueryResultSolution } from '@justify/core';
 import { performQuery } from './lib.ts';
 
-function machineTerm(term: Term): string {
-  switch (term.is) {
-    case 'var':
-      return `{"is":"var","id":"${term.id}","counter":${term.counter}}`;
-    case 'lit':
-      return `{"is":"lit","id":"${term.id}"}`;
-    case 'con':
-      return `{"is":"con","from":"${term.from}","tag":"${term.tag}","args":[${
-        term.args.map(machineTerm).join(',')
-      }]}`;
-  }
-}
-
-function machineLog(log: RuleLog): string {
-  return ('{' + [
-    `"relation":"${log.relation}"`,
-    `"rule":"${log.rule}"`,
-    `"args":[${log.args.map(machineTerm).join(',')}]`,
-    `"premises":[${log.premises.map(machineLog).join(',')}]`
-  ].join(',') + '}');
-}
-
-function prettyTerm(term: Term): string {
+function prettyTerm(term: DerivationTerm): string {
   switch (term.is) {
     case 'var':
       return util.styleText('magenta', `${term.id}@${term.counter}`);
@@ -42,18 +19,25 @@ function prettyTerm(term: Term): string {
   }
 }
 
-function prettyLog(log: RuleLog): string {
-  const single = (indent: number, l: RuleLog): string => (
+function prettySolution(solution: QueryResultSolution): string {
+  const prettyDerivation = (indent: number, l: Derivation): string => (
     util.styleText('gray', '\u{2502} ').repeat(indent) +
     '[' + util.styleText('green', l.rule) + '] ' +
     util.styleText('cyan', l.relation) +
     '(' + l.args.map(prettyTerm).join(util.styleText('bold', ', ')) + ')'
   );
 
-  const loop = (indent: number, l: RuleLog): string =>
-    `${single(indent, l)}\n${l.premises.map((p) => loop(indent + 1, p)).join('')}`;
+  const loop = (indent: number, l: Derivation): string =>
+    `${prettyDerivation(indent, l)}\n${l.premises.map((p) => loop(indent + 1, p)).join('')}`;
 
-  return loop(0, log);
+  let output = '';
+  for (const [meta, binding] of Object.entries(solution.variables)) {
+    output += `${meta} = ${prettyTerm(binding)}\n`
+  }
+  if (solution.derivation !== undefined) {
+    output += loop(0, solution.derivation)
+  }
+  return output;
 }
 
 async function main(): Promise<void> {
@@ -95,20 +79,21 @@ async function main(): Promise<void> {
     return;
   }
 
-  const queryResult = performQuery(system, query);
+  const solutions = performQuery(system, query);
 
-  if (typeof queryResult === 'string') {
+  if (typeof solutions === 'string') {
     // deno-lint-ignore no-console
-    console.error(queryResult);
+    console.error(solutions);
     process.exitCode = 1;
     return;
   } else {
+    const result: QueryResult = { solutions, count: solutions.length };
     if (machineReadable) {
       // deno-lint-ignore no-console
-      console.log('[' + queryResult.map(machineLog).join(',') + ']');
+      console.log(JSON.stringify(result));
     } else {
       // deno-lint-ignore no-console
-      console.log(queryResult.map(prettyLog).join('\n'));
+      console.log(solutions.map(prettySolution).join('\n'));
     }
   }
 }

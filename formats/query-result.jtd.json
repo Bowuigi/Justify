@@ -39,5 +39,19 @@
       }
     }
   },
-  "elements": {"ref": "derivation"}
+  "properties": {
+    "solutions": {
+      "elements": {
+        "properties": {
+          "variables": {
+            "values": {"ref": "derivation-term"}
+          }
+        },
+        "optionalProperties": {
+          "derivation": {"ref": "derivation"}
+        }
+      }
+    },
+    "count": {"type": "uint16"}
+  }
 }

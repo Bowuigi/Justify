@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import type { ValidationResult } from './codegen/system-validator.ts';
 import { validate as validateSystem } from './codegen/system-validator.ts';
 import { validate as validateQuery } from './codegen/query-validator.ts';
-import { validate as validateDerivationTree } from './codegen/derivation-tree-validator.ts';
-import type { DerivationTree, Query, System } from './codegen/types.d.ts';
+import { validate as validateQueryResult } from './codegen/query-result-validator.ts';
+import type { Query, QueryResult, System } from './codegen/types.d.ts';
 
 async function parseFile<T>(
   validate: (data: unknown) => ValidationResult,
@@ -53,6 +53,6 @@ export function parseSystem(filename: string): Promise<System | null> {
 export function parseQuery(filename: string): Promise<Query | null> {
   return parseFile<Query>(validateQuery, filename);
 }
-export function parseDerivationTree(filename: string): Promise<DerivationTree | null> {
-  return parseFile<DerivationTree>(validateDerivationTree, filename);
+export function parseQueryResult(filename: string): Promise<QueryResult | null> {
+  return parseFile<QueryResult>(validateQueryResult, filename);
 }

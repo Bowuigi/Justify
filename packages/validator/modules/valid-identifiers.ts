@@ -193,6 +193,14 @@ export function onIdentifierMap(
   }
 }
 
+export function onQueryResultSolutionVariableIdentifier(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  identifier: T.Identifier
+): void {
+  validIdCheck(errors, path, identifier);
+}
+
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'VI-I':

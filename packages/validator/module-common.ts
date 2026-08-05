@@ -28,14 +28,12 @@ export type LocationPath =
   | ['query', 'args', number]
   | ['query', 'literals']
   | ['query', 'variables']
-  | ['derivation-tree', number]
+  | ['query-result', number, 'variables']
   | DTLocationPath;
 
-export type DTLocationPath = [
-  'derivation-tree',
-  number,
-  ...Array<number | 'premises' | 'arguments'>
-];
+export type DTLocationPath =
+  | ['query-result', number, 'derivation', ...Array<number | 'premises' | 'arguments'>]
+  | ['query-result', number, 'variables', string, ...Array<number | 'premises' | 'arguments'>];
 
 export type ErrorStack<T> = { push: (error: T) => void };
 

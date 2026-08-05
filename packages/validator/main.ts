@@ -1,5 +1,5 @@
-import { parseDerivationTree, parseQuery, parseSystem } from '@justify/core';
-import { validateDerivationTree, validateQuery, validateSystem } from './driver.ts';
+import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
+import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
 import type { ModuleErrorInfo } from './module-common.ts';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     console.error(
       `Wrong number of arguments.\nUsage: ${
         process.argv[1]
-      } {system|query|derivation-tree} filenames...`
+      } {system|query|query-result} filenames...`
     );
     process.exitCode = 1;
     return;
@@ -42,12 +42,12 @@ async function main(): Promise<void> {
     ...Array<string>
   ];
 
-  if (!['system', 'query', 'derivation-tree'].includes(format)) {
+  if (!['system', 'query', 'query-result'].includes(format)) {
     // deno-lint-ignore no-console
     console.error(
       `Unknown format specifier '${format}'.\nUsage: ${
         process.argv[1]
-      } {system|query|derivation-tree} filename`
+      } {system|query|query-result} filename`
     );
     process.exitCode = 1;
     return;
@@ -94,13 +94,13 @@ async function main(): Promise<void> {
       console.log(validateQuery(query, system).map(renderMEI).join('\n') || 'All good!');
       break;
     }
-    case 'derivation-tree': {
+    case 'query-result': {
       if (rest.length !== 2) {
         // deno-lint-ignore no-console
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
-          } derivation-tree system-filename derivation-tree-filename`
+          } query-result system-filename query-result-filename`
         );
         process.exitCode = 1;
         return;
@@ -108,13 +108,15 @@ async function main(): Promise<void> {
       // deno-lint-ignore no-non-null-assertion
       const system = await parseSystem(rest[0]!);
       // deno-lint-ignore no-non-null-assertion
-      const drvTree = await parseDerivationTree(rest[1]!);
-      if (system === null || drvTree === null) {
+      const queryResult = await parseQueryResult(rest[1]!);
+      if (system === null || queryResult === null) {
         process.exitCode = 1;
         return;
       }
       // deno-lint-ignore no-console
-      console.log(validateDerivationTree(drvTree, system).map(renderMEI).join('\n') || 'All good!');
+      console.log(
+        validateQueryResult(queryResult, system).map(renderMEI).join('\n') || 'All good!'
+      );
       break;
     }
       // every other case is unreachable

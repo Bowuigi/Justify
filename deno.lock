@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@bowuigi/jtd-validator-generator@^1.0.2": "1.0.2"
+  },
+  "jsr": {
+    "@bowuigi/jtd-validator-generator@1.0.2": {
+      "integrity": "ebfae99b905fb06d9ec18dcaf60ff7fcfaa8ac391f057d1e4de5dcfd454a9804"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@bowuigi/jtd-validator-generator@^1.0.2"
+    ]
+  }
+}

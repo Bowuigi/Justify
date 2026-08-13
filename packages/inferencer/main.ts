@@ -2,7 +2,14 @@
 import * as util from 'node:util';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
-import { type Derivation, type DerivationTerm, parseQuery, parseSystem, type QueryResult, type QueryResultSolution } from '@justify/core';
+import {
+  type Derivation,
+  type DerivationTerm,
+  parseQuery,
+  parseSystem,
+  type QueryResult,
+  type QueryResultSolution
+} from '@justify/core';
 import { performQuery } from './lib.ts';
 
 function prettyTerm(term: DerivationTerm): string {
@@ -32,10 +39,10 @@ function prettySolution(solution: QueryResultSolution): string {
 
   let output = '';
   for (const [meta, binding] of Object.entries(solution.variables)) {
-    output += `${meta} = ${prettyTerm(binding)}\n`
+    output += `${meta} = ${prettyTerm(binding)}\n`;
   }
   if (solution.derivation !== undefined) {
-    output += loop(0, solution.derivation)
+    output += loop(0, solution.derivation);
   }
   return output;
 }

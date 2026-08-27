@@ -6,6 +6,8 @@ Justify uses various data formats to describe logical systems, the queries you r
 
 These documents are specifications. They describe what the formats require, independent of any particular program that reads or writes them. The authoritative machine-readable schemas that back these documents are the JSON Type Definition files under [`formats/`](../formats/). Where this document disagrees with those files, the files win.
 
+There's examples of those formats on the [`examples/`](../examples/) directory.
+
 ## Notation
 
 The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in these documents are to be interpreted as described in BCP 14 (RFC 2119 and RFC 8174) when they appear in all capitals, as shown here.
@@ -102,6 +104,8 @@ Argument declarations MUST be an array of JSON objects with the following fields
 An argument whose `from` field is `"literal"` expects a literal identifier in that position.
 
 An argument whose `from` field is a defined syntax category expects a term of that syntax category in that position.
+
+Unless otherwise specified, the zero arguments case is valid.
 
 ## Relationships between the formats
 

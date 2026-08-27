@@ -6,7 +6,7 @@ Note: this file should have how to handle tex_parts + arguments + fixity, with t
 
 A System is a machine- and human-readable description of a logical system or programming language, expressed as inference rules. It declares the syntax categories and constructors of the language, and the relations defined over that syntax by an inductive set of rules. This document specifies the System format.
 
-This file uses the conventions detailed in [common.md](./common.md).
+This file uses the conventions detailed in [common.md](./common.md), so read that first.
 
 ## Overall structure
 
@@ -29,131 +29,65 @@ Each JSON object in `syntax.<category>` describes one syntax category, that is, 
 
 Each constructor inside a syntax category's grammar MUST be a JSON object containing:
 
-- `id`: an identifier, unique within the category. This is the constructor's `tag`.
-- `description`: a `tex_text`.
-- `tex_parts`: an array of `tex_math`, as in RFC-common Section 4.
-- `fixity`: one of `infix`, `prefix`, `postfix`, `none`, as in RFC-common Section 4.
-- `arguments`: an array of argument declarations.
+- `id`: an identifier, unique within the category. This is the constructor's `tag`. It cannot be named `"identifier"` as it is reserved for literal identifiers.
+- `description`: LaTeX text describing what the constructor _means_.
+- `tex_parts`: an array of LaTeX math representing each mixfix operator part used for formatting when LaTeX rendering is available.
+- `fixity`: one of `infix`, `prefix`, `postfix`, `none`. Used for formatting when LaTeX rendering is available.
+- `arguments`: an array of argument declarations. Used both for formatting and for creating terms of that constructor.
 
-An argument declaration has three fields:
+### Constructor usage and rendering
 
-- `from`: the identifier of the argument's syntax category, or the reserved
-  category `"literal"` (RFC-common Section 6).
-- `id`: an identifier used as the display placeholder for this argument, for
-  example `n`.
-- `tex`: a `tex_math` label for the argument.
+A constructor's `tag` is a reference to a global definition, which MUST point at a defined syntax category. Two constructors that share `from` and `tag` fields MUST have equal number of arguments, matching the syntax category's declared amount.
 
-### Constructor identity and arity
+In order to format a constructor when LaTeX rendering is available, the `tex_parts`, `arguments` and `fixity` constitute a mixfix operator:
 
-A constructor's `tag` is a reference to a global definition, not display text.
-Display is derived from `tex_parts` and the arguments' `tex` labels. Two
-constructors that share a `tag` MUST therefore agree on arity, because `tag` is
-the same definitional reference. A `con` term that names this category and tag
-MUST supply exactly the declared number of arguments.
+- If `fixity` is `none`, one of those MUST apply:
+  - Zero arguments and one TeX part, displaying the TeX part alone (e.g. zero-ary constructors).
+  - One argument and zero TeX parts, displaying only the argument given (e.g. singular variable-like constructor).
+  - $n$ arguments and $n+1$ TeX parts (for any natural number $n$ except $0$), interspersing both on display, starting and ending with a part (e.g. closed mixfix operators like math floor).
+- If `fixity` is `infix`, there MUST be $n+1$ arguments and $n$ parts (for any natural number $n$ except $0$), interspersing both on display, starting and ending with an argument (e.g. addition).
+- If `fixity` is `prefix`, there MUST be $n$ parts and $n$ arguments (for any natural number $n$ except $0$), interspersing both on display, starting with an argument and ending with a part.
+- If `fixity` is `postfix`, there MUST be $n$ parts and $n$ arguments, interspersing both on display, starting with a part and ending with an argument.
+
+One of those cases MUST happen, otherwise, an error MUST be signaled.
+
+If LaTeX rendering is unavailable, a user SHOULD only display the constructor's fields in any way convenient, omitting LaTeX annotations.
 
 ## Relations
 
-The value of `relations.<name>` describes one relation, a judgment over
-arguments drawn from the syntax categories. It has four keys:
+Each value of `relations.<name>` describes a logical relation over arguments drawn from the syntax categories. It has those keys:
 
-- `description`: a `tex_text`.
-- `tex_parts` and `fixity`: as in RFC-common Section 4, rendering the judgment.
-- `arguments`: the relation's parameters, each an argument declaration exactly
-  as in Section 2.1.
-- `rules`: the array of inference rules defining the relation.
+- `description`: LaTeX text describing the description.
+- `tex_parts`: an array of LaTeX math representing each mixfix operator part used for formatting when LaTeX rendering is available.
+- `fixity`: one of `infix`, `prefix`, `postfix`, `none`. Used for formatting when LaTeX rendering is available.
+- `arguments`: an array of argument declarations. Used both for formatting and for creating terms of that constructor.
+- `rules`: the array of inference rules defining the relation's behavior.
 
-A relation SHOULD declare at least one parameter.
+A relation MUST declare at least one argument.
+
+`fixity`, `tex_parts` and `arguments` are rendered in the same way constructors are, see [here](#constructor-usage-and-rendering).
 
 ### Rules
 
-An inference rule defines one way to conclude the relation. Each rule has four
-keys:
+An inference rule defines how a logical relation behaves on a specific case, each distinguished **only** by the identifier naming the rule. It contains those fields:
 
-- `rule`: an object with two fields. `id` is an identifier, the rule's name.
-  `tex` is a `tex_text` label shown above the inference line, for example
-  `Base`.
-- `variables` and `literals`: maps as in RFC-common Section Their scope is
-  this rule.
-- `patterns`: a map from relation parameter id to a term. Every parameter of the
-  relation MUST appear at least once as a key. Each value is a pattern term to
-  unify with that parameter.
-- `premises`: an array of premise objects. Each premise has a `relation`, the
-  identifier of a relation, and `args`, an array of terms, usually references to
-  the rule's variables. A premise states that that valuation of the relation
-  must hold for the rule to apply.
+- `rule`: an object with two fields:
+  - `id` is an identifier, the rule's name.
+  - `tex` is a LaTeX text label shown above the divider line when LaTeX rendering is available.
+- `variables` and `literals`: Identifier maps specifying the local scope of any unresolved terms inside.
+- `patterns`: a map from relation parameter identifier to an unresolved term. Every parameter of the relation MUST appear exactly once as a key. Each value is meant to be unified with its corresponding argument, though other equivalent methods MAY be used.
+- `premises`: an array of premises. Each premise has:
+  - `relation`: The identifier of a relation.
+  - `args`: an array of unresolved terms. Each premise MUST hold for the rule to apply, but their order of evaluation is left to implementations (even allowing parallelism).
 
 ## Cross-references and constraints
 
+TODO
 A valid System keeps every reference resolvable:
 
-- A `con` term's `from` MUST name one of the declared syntax categories, and its
-  `tag` MUST name one of that category's constructors (RFC-common Section 3.1).
-- A relation referenced in any context MUST be defined in `relations`.
-- The `patterns` map MUST cover every declared parameter of the relation.
-- A reference (`ref`) inside a rule MUST point to a name declared in that rule's
-  `variables` or `literals` (RFC-common Section 6).
-- A reference (`ref`) argument of `from: "literal"` MUST point to a declared
-  literal or variable.
+- A `con` term's `from` MUST name one of the declared syntax categories, and its `tag` MUST name one of that category's constructors (RFC-common Section 3.1).
+- A relation referenced in any context MUST be defined in `relations`. - The `patterns` map MUST cover every declared parameter of the relation.
+- A reference (`ref`) inside a rule MUST point to a name declared in that rule's `variables` or `literals` (RFC-common Section 6).
+- A reference (`ref`) argument of `from: "literal"` MUST point to a declared literal or variable.
 
-References to undefined categories, constructors, or relations, and reference
-ids not declared in a rule's `variables` or `literals`, are errors and MUST be
-rejected.
-
-## Example
-
-A small system over natural numbers defines one category, `number`, with a
-constant and a successor, and one relation, `equal`.
-
-```json
-{
-  "description": "Natural numbers",
-  "syntax": {
-    "number": {
-      "description": "Natural numbers",
-      "suggestions": ["n", "m"],
-      "grammar": [
-        {
-          "id": "zero",
-          "description": "Zero",
-          "tex_parts": ["0"],
-          "fixity": "none",
-          "arguments": []
-        },
-        {
-          "id": "succ",
-          "description": "Successor",
-          "tex_parts": ["S"],
-          "fixity": "prefix",
-          "arguments": [{ "from": "number", "id": "n", "tex": "n" }]
-        }
-      ]
-    }
-  },
-  "relations": {
-    "equal": {
-      "description": "Equality",
-      "tex_parts": ["="],
-      "fixity": "infix",
-      "arguments": [
-        { "from": "number", "id": "n", "tex": "n" },
-        { "from": "number", "id": "m", "tex": "m" }
-      ],
-      "rules": [
-        {
-          "rule": { "id": "base", "tex": "Base" },
-          "variables": {},
-          "literals": {},
-          "patterns": {
-            "n": { "is": "con", "from": "number", "tag": "zero", "args": [] },
-            "m": { "is": "con", "from": "number", "tag": "zero", "args": [] }
-          },
-          "premises": []
-        }
-      ]
-    }
-  }
-}
-```
-
-Fragment only. A fuller example with an inductive successor rule appears in the
-committed System files that accompany this suite.
+References to undefined categories, constructors, or relations, and reference ids not declared in a rule's `variables` or `literals`, are errors and MUST be rejected.

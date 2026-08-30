@@ -1,5 +1,3 @@
-Note: this file should have how to handle tex_parts + arguments + fixity, with the intersperse algorithm too (somewhere in previous Deepseek chats)
-
 # The System format
 
 ## Abstract
@@ -72,22 +70,12 @@ A relation MUST declare at least one argument.
 An inference rule defines how a logical relation behaves on a specific case, each distinguished **only** by the identifier naming the rule. It contains those fields:
 
 - `rule`: an object with two fields:
-  - `id` is an identifier, the rule's name.
-  - `tex` is a LaTeX text label shown above the divider line when LaTeX rendering is available.
+  - `id`: an identifier, the rule's name.
+  - `tex`: a LaTeX text label displayed as the rule name when LaTeX rendering is available.
 - `variables` and `literals`: Identifier maps specifying the local scope of any unresolved terms inside.
 - `patterns`: a map from relation parameter identifier to an unresolved term. Every parameter of the relation MUST appear exactly once as a key. Each value is meant to be unified with its corresponding argument, though other equivalent methods MAY be used.
 - `premises`: an array of premises. Each premise has:
-  - `relation`: The identifier of a relation.
-  - `args`: an array of unresolved terms. Each premise MUST hold for the rule to apply, but their order of evaluation is left to implementations (even allowing parallelism).
+  - `relation`: The identifier of a relation. This relation MUST exist in the relation map.
+  - `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal in scope.
 
-## Cross-references and constraints
-
-TODO
-A valid System keeps every reference resolvable:
-
-- A `con` term's `from` MUST name one of the declared syntax categories, and its `tag` MUST name one of that category's constructors (RFC-common Section 3.1).
-- A relation referenced in any context MUST be defined in `relations`. - The `patterns` map MUST cover every declared parameter of the relation.
-- A reference (`ref`) inside a rule MUST point to a name declared in that rule's `variables` or `literals` (RFC-common Section 6).
-- A reference (`ref`) argument of `from: "literal"` MUST point to a declared literal or variable.
-
-References to undefined categories, constructors, or relations, and reference ids not declared in a rule's `variables` or `literals`, are errors and MUST be rejected.
+Each premise MUST hold for the rule to apply, but their order of evaluation is left to implementations (even allowing parallelism).

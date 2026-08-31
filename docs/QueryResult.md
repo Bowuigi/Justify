@@ -26,5 +26,5 @@ A derivation tree is a proof that the relation holds for the given arguments. It
 
 - `relation`: the identifier of the relation. This relation MUST exist in the corresponding System file.
 - `rule`: the identifier of the rule chosen. This rule MUST exist in the corresponding relation declaration.
-- `args`: an ordered array of resolved terms, the relations' arguments. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `lit` term.
+- `args`: an ordered array of resolved terms, the relations' arguments. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. If the corresponding syntax category is `"literal"`, the argument MUST either be a `var` or a `lit` term; if it isn't, the argument MUST either be a `con` term or a `var` term.
 - `premises`: an array of derivation trees, one per premise of the rule, that were required for the rule to be satisfied.

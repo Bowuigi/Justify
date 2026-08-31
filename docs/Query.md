@@ -14,4 +14,4 @@ A Query document has the following top-level keys:
 - `max_results`: a non-negative integer, the maximum number of solutions to report, even if more are available. Solution search MUST stop if this many solutions are found.
 - `variables`: A `variables` identifier map denoting the metavariables bound in the current scope.
 - `literals`: A `literals` identifier map denoting the literal identifiers bound in the current scope.
-- `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal in scope.
+- `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal or variable in scope.

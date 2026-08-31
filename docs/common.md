@@ -4,6 +4,8 @@
 
 Justify uses various data formats to describe logical systems, the queries you run against them, and the results those queries produce. This document collects the definitions the three formats share: how names are written, how terms are represented, how TeX stays attached to structure, and how variables differ from literals, etc. It also records how the three formats fit together and how they version. Read [System](./System.md), [Query](./Query.md) and [QueryResult](./QueryResult.md) for format-specific information.
 
+System, Query and QueryResult files are related with each other in an out-of-band manner, without any pointers to the other related files inside the documents themselves.
+
 These documents are specifications. They describe what the formats require, independent of any particular program that reads or writes them. The authoritative machine-readable schemas that back these documents are the JSON Type Definition files under [`formats/`](../formats/). Where this document disagrees with those files, the files win.
 
 There's examples of those formats on the [`examples/`](../examples/) directory.
@@ -34,7 +36,7 @@ A `con` term is a constructor application. It has three fields (aside):
 
 - `from`: the identifier of a syntax category, which MUST exist in the syntax section of the System file. This identifier MUST NOT be `"literal"`.
 - `tag`: the identifier of a constructor within that category, which MUST exist in the grammar subsection of the chosen syntax category.
-- `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching grammar element and syntax category. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal in scope.
+- `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching grammar element and syntax category. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal or variable in scope.
 
 #### References
 
@@ -56,7 +58,7 @@ A `con` term is a constructor application. It has three fields:
 
 - `from`: the identifier of a syntax category, which MUST exist in the `syntax` section of the designated System file. This identifier MUST NOT be `"literal"`, as it is reserved for enforcing literal identifier usage in arguments.
 - `tag`: the identifier of a constructor within that category, which MUST exist in the grammar subsection of the chosen syntax category.
-- `args`: an ordered array of resolved terms. The length of this array MUST match the length of the `arguments` field of the matching grammar element and syntax category. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `lit` term.
+- `args`: an ordered array of resolved terms. The length of this array MUST match the length of the `arguments` field of the matching grammar element and syntax category. If the corresponding syntax category is `"literal"`, the argument MUST either be a `var` or a `lit` term; if it isn't, the argument MUST either be a `con` term or a `var` term.
 
 #### Literal identifiers
 
@@ -82,7 +84,7 @@ Implementations MAY validate compatibility against a specific feature set (KaTeX
 
 ## Identifier maps
 
-Identifier maps are JSON objects mapping identifiers to LaTeX math. They're used to make structural sharing explicit in unresolved terms. Those determine the scope available for `ref`s on the same level or below, overriding any previous maps. If LaTeX rendering is available, the math annotation MUST be used to render references, otherwise, the identifier MUST be used for such purpose.
+Identifier maps are JSON objects mapping identifiers to LaTeX math. They're used to make structural sharing explicit in unresolved terms. Those determine the scope available for `ref`s on the same level or below. If LaTeX rendering is available, the math annotation MUST be used to render references, otherwise, the identifier MUST be used for such purpose.
 
 There's two kinds of identifier maps:
 

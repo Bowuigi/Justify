@@ -27,7 +27,7 @@ Each JSON object in `syntax.<category>` describes one syntax category, that is, 
 
 Each constructor inside a syntax category's grammar MUST be a JSON object containing:
 
-- `id`: an identifier, unique within the category. This is the constructor's `tag`. It cannot be named `"identifier"` as it is reserved for literal identifiers.
+- `id`: an identifier, unique within the category. This is the constructor's `tag`.
 - `description`: LaTeX text describing what the constructor _means_.
 - `tex_parts`: an array of LaTeX math representing each mixfix operator part used for formatting when LaTeX rendering is available.
 - `fixity`: one of `infix`, `prefix`, `postfix`, `none`. Used for formatting when LaTeX rendering is available.
@@ -44,8 +44,8 @@ In order to format a constructor when LaTeX rendering is available, the `tex_par
   - One argument and zero TeX parts, displaying only the argument given (e.g. singular variable-like constructor).
   - $n$ arguments and $n+1$ TeX parts (for any natural number $n$ except $0$), interspersing both on display, starting and ending with a part (e.g. closed mixfix operators like math floor).
 - If `fixity` is `infix`, there MUST be $n+1$ arguments and $n$ parts (for any natural number $n$ except $0$), interspersing both on display, starting and ending with an argument (e.g. addition).
-- If `fixity` is `prefix`, there MUST be $n$ parts and $n$ arguments (for any natural number $n$ except $0$), interspersing both on display, starting with an argument and ending with a part.
-- If `fixity` is `postfix`, there MUST be $n$ parts and $n$ arguments, interspersing both on display, starting with a part and ending with an argument.
+- If `fixity` is `prefix`, there MUST be $n$ parts and $n$ arguments (for any natural number $n$ except $0$), interspersing both on display, starting with a part and ending with an argument.
+- If `fixity` is `postfix`, there MUST be $n$ parts and $n$ arguments, interspersing both on display, starting with an argument and ending with a part.
 
 One of those cases MUST happen, otherwise, an error MUST be signaled.
 
@@ -76,6 +76,6 @@ An inference rule defines how a logical relation behaves on a specific case, eac
 - `patterns`: a map from relation parameter identifier to an unresolved term. Every parameter of the relation MUST appear exactly once as a key. Each value is meant to be unified with its corresponding argument, though other equivalent methods MAY be used.
 - `premises`: an array of premises. Each premise has:
   - `relation`: The identifier of a relation. This relation MUST exist in the relation map.
-  - `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal in scope.
+  - `args`: an ordered array of unresolved terms. The length of this array MUST match the length of the `arguments` field of the matching relation declaration. Each argument MUST match its corresponding declared syntax category (in `arguments`), or, if the syntax category is `"literal"`, be a `ref` term pointing to a literal or variable in scope.
 
 Each premise MUST hold for the rule to apply, but their order of evaluation is left to implementations (even allowing parallelism).

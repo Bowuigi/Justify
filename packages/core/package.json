@@ -1,5 +1,8 @@
 {
-  "name": "core",
+  "name": "@justify/core",
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./mod.ts"
+  }
 }

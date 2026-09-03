@@ -1,5 +1,8 @@
 {
-  "name": "inferencer",
+  "name": "@justify/inferencer",
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./lib.ts"
+  }
 }

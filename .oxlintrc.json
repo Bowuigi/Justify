@@ -1,0 +1,79 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "options": {
+    "reportUnusedDisableDirectives": "warn",
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "categories": {
+    "style": "error",
+    "pedantic": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "restriction": "error",
+    "nursery": "warn",
+    "correctness": "error"
+  },
+  "rules": {
+    "unicorn/no-lonely-if": "allow",
+    "typescript/prefer-readonly-parameter-types": "allow",
+    "sort-imports": "allow",
+    "sort-keys": "allow",
+    "sort-vars": "allow",
+    "id-length": "allow",
+    "typescript/no-non-null-assertion": "allow",
+    "oxc/no-async-await": "allow",
+    "one-var": "allow",
+
+    "unicorn/empty-brace-spaces": "warn",
+    "unicorn/escape-case": "warn",
+    "unicorn/no-accessor-recursion": "warn",
+    "unicorn/no-anonymous-default-export": "warn",
+    "unicorn/no-array-callback-reference": "warn",
+    "unicorn/no-array-fill-with-reference-type": "warn",
+    "unicorn/no-array-reduce": "warn",
+    "unicorn/no-await-expression-member": "warn",
+    "unicorn/no-console-spaces": "warn",
+    "unicorn/no-immediate-mutation": "warn",
+    "unicorn/no-process-exit": "warn",
+
+    "unicorn/consistent-function-scoping": ["error", { "checkArrowFunctions": false }],
+    "unicorn/explicit-timer-delay": ["error", "always"],
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "unicorn/no-array-sort": ["error", { "allowAfterSpread": true }],
+    "func-style": [
+      "error",
+      "declaration",
+      {
+        "overrides": {
+          "namedExports": "declaration"
+        },
+        "allowArrowFunctions": true
+      }
+    ],
+    "no-magic-numbers": [
+      "error",
+      {
+        "ignore": [0, 1, 200, 400]
+      }
+    ]
+  },
+  "env": {
+    "builtin": true
+  },
+  "overrides": [
+    {
+      "files": ["backend/**/*"],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": ["frontend/**/*"],
+      "env": {
+        "browser": true
+      }
+    }
+  ]
+}

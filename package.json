@@ -1,0 +1,29 @@
+{
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "prepare": "husky",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "lint-staged": {
+    "*": [
+      "oxlint --no-error-on-unmatched-pattern",
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.11",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.4.1",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "vitest": "^4.1.11"
+  }
+}

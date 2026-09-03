@@ -10,9 +10,7 @@
           "description": "Variable $x$",
           "tex_parts": [],
           "fixity": "none",
-          "arguments": [
-            {"from": "literal", "id": "x", "tex": "x"}
-          ]
+          "arguments": [{ "from": "literal", "id": "x", "tex": "x" }]
         },
         {
           "id": "lambda",
@@ -20,9 +18,9 @@
           "tex_parts": ["\\lambda", ":", ".\\,"],
           "fixity": "prefix",
           "arguments": [
-            {"from": "literal", "id": "x", "tex": "x"},
-            {"from": "type", "id": "t", "tex": "\\tau"},
-            {"from": "term", "id": "e", "tex": "e"}
+            { "from": "literal", "id": "x", "tex": "x" },
+            { "from": "type", "id": "t", "tex": "\\tau" },
+            { "from": "term", "id": "e", "tex": "e" }
           ]
         },
         {
@@ -31,8 +29,8 @@
           "tex_parts": ["\\;"],
           "fixity": "infix",
           "arguments": [
-            {"from": "term", "id": "e1", "tex": "e_1"},
-            {"from": "term", "id": "e2", "tex": "e_2"}
+            { "from": "term", "id": "e1", "tex": "e_1" },
+            { "from": "term", "id": "e2", "tex": "e_2" }
           ]
         },
         {
@@ -54,8 +52,8 @@
           "tex_parts": ["\\rightarrow"],
           "fixity": "infix",
           "arguments": [
-            {"from": "type", "id": "t1", "tex": "A"},
-            {"from": "type", "id": "t2", "tex": "B"}
+            { "from": "type", "id": "t1", "tex": "A" },
+            { "from": "type", "id": "t2", "tex": "B" }
           ]
         },
         {
@@ -84,9 +82,9 @@
           "tex_parts": [",", ":"],
           "fixity": "infix",
           "arguments": [
-            {"from": "context", "id": "ctx", "tex": "\\Gamma"},
-            {"from": "literal", "id": "x", "tex": "x"},
-            {"from": "type", "id": "t", "tex": "\\tau"}
+            { "from": "context", "id": "ctx", "tex": "\\Gamma" },
+            { "from": "literal", "id": "x", "tex": "x" },
+            { "from": "type", "id": "t", "tex": "\\tau" }
           ]
         }
       ]
@@ -98,13 +96,13 @@
       "tex_parts": ["\\vdash", ":"],
       "fixity": "infix",
       "arguments": [
-        {"from": "context", "id": "ctx", "tex": "\\Gamma"},
-        {"from": "term", "id": "tm", "tex": "e"},
-        {"from": "type", "id": "ty", "tex": "\\tau"}
+        { "from": "context", "id": "ctx", "tex": "\\Gamma" },
+        { "from": "term", "id": "tm", "tex": "e" },
+        { "from": "type", "id": "ty", "tex": "\\tau" }
       ],
       "rules": [
         {
-          "rule": {"id": "app", "tex": "App"},
+          "rule": { "id": "app", "tex": "App" },
           "variables": {
             "e1": "e_1",
             "e2": "e_2",
@@ -114,31 +112,47 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "from": "term", "tag": "apply", "args": [{"is": "ref", "to": "e1"}, {"is": "ref", "to": "e2"}]},
-            "ty": {"is": "ref", "to": "b"}
+            "ctx": { "is": "ref", "to": "ctx" },
+            "tm": {
+              "is": "con",
+              "from": "term",
+              "tag": "apply",
+              "args": [
+                { "is": "ref", "to": "e1" },
+                { "is": "ref", "to": "e2" }
+              ]
+            },
+            "ty": { "is": "ref", "to": "b" }
           },
           "premises": [
             {
               "relation": "judge",
               "args": [
-                {"is": "ref", "to": "ctx"},
-                {"is": "ref", "to": "e1"},
-                {"is": "con", "from": "type", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
+                { "is": "ref", "to": "ctx" },
+                { "is": "ref", "to": "e1" },
+                {
+                  "is": "con",
+                  "from": "type",
+                  "tag": "arrow",
+                  "args": [
+                    { "is": "ref", "to": "a" },
+                    { "is": "ref", "to": "b" }
+                  ]
+                }
               ]
             },
             {
               "relation": "judge",
               "args": [
-                {"is": "ref", "to": "ctx"},
-                {"is": "ref", "to": "e2"},
-                {"is": "ref", "to": "a"}
+                { "is": "ref", "to": "ctx" },
+                { "is": "ref", "to": "e2" },
+                { "is": "ref", "to": "a" }
               ]
             }
           ]
         },
         {
-          "rule": {"id": "lam", "tex": "Lam"},
+          "rule": { "id": "lam", "tex": "Lam" },
           "variables": {
             "ctx": "\\Gamma",
             "x": "x",
@@ -148,36 +162,62 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "from": "term", "tag": "lambda", "args": [{"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}, {"is": "ref", "to": "e"}]},
-            "ty": {"is": "con", "from": "type", "tag": "arrow", "args": [{"is": "ref", "to": "a"}, {"is": "ref", "to": "b"}]}
+            "ctx": { "is": "ref", "to": "ctx" },
+            "tm": {
+              "is": "con",
+              "from": "term",
+              "tag": "lambda",
+              "args": [
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "a" },
+                { "is": "ref", "to": "e" }
+              ]
+            },
+            "ty": {
+              "is": "con",
+              "from": "type",
+              "tag": "arrow",
+              "args": [
+                { "is": "ref", "to": "a" },
+                { "is": "ref", "to": "b" }
+              ]
+            }
           },
           "premises": [
             {
               "relation": "judge",
               "args": [
-                {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "a"}]},
-                {"is": "ref", "to": "e"},
-                {"is": "ref", "to": "b"}
+                {
+                  "is": "con",
+                  "from": "context",
+                  "tag": "extend",
+                  "args": [
+                    { "is": "ref", "to": "ctx" },
+                    { "is": "ref", "to": "x" },
+                    { "is": "ref", "to": "a" }
+                  ]
+                },
+                { "is": "ref", "to": "e" },
+                { "is": "ref", "to": "b" }
               ]
             }
           ]
         },
         {
-          "rule": {"id": "unit", "tex": "Unit"},
+          "rule": { "id": "unit", "tex": "Unit" },
           "variables": {
             "ctx": "\\Gamma"
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "from": "term", "tag": "star", "args": []},
-            "ty": {"is": "con", "from": "type", "tag": "unit", "args": []}
+            "ctx": { "is": "ref", "to": "ctx" },
+            "tm": { "is": "con", "from": "term", "tag": "star", "args": [] },
+            "ty": { "is": "con", "from": "type", "tag": "unit", "args": [] }
           },
           "premises": []
         },
         {
-          "rule": {"id": "var", "tex": "Var"},
+          "rule": { "id": "var", "tex": "Var" },
           "variables": {
             "ctx": "\\Gamma",
             "x": "x",
@@ -185,17 +225,22 @@
           },
           "literals": {},
           "patterns": {
-            "ctx": {"is": "ref", "to": "ctx"},
-            "tm": {"is": "con", "from": "term", "tag": "variable", "args": [{"is": "ref", "to": "x"}]},
-            "ty": {"is": "ref", "to": "t"}
+            "ctx": { "is": "ref", "to": "ctx" },
+            "tm": {
+              "is": "con",
+              "from": "term",
+              "tag": "variable",
+              "args": [{ "is": "ref", "to": "x" }]
+            },
+            "ty": { "is": "ref", "to": "t" }
           },
           "premises": [
             {
               "relation": "member",
               "args": [
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "t"},
-                {"is": "ref", "to": "ctx"}
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "t" },
+                { "is": "ref", "to": "ctx" }
               ]
             }
           ]
@@ -207,13 +252,13 @@
       "tex_parts": [":", "\\in"],
       "fixity": "infix",
       "arguments": [
-        {"from": "literal", "id": "ident", "tex": "x"},
-        {"from": "type", "id": "ty", "tex": "\\tau"},
-        {"from": "context", "id": "ctx", "tex": "\\Gamma"}
+        { "from": "literal", "id": "ident", "tex": "x" },
+        { "from": "type", "id": "ty", "tex": "\\tau" },
+        { "from": "context", "id": "ctx", "tex": "\\Gamma" }
       ],
       "rules": [
         {
-          "rule": {"id": "found", "tex": "Found"},
+          "rule": { "id": "found", "tex": "Found" },
           "variables": {
             "x": "x",
             "t": "\\tau",
@@ -221,14 +266,23 @@
           },
           "literals": {},
           "patterns": {
-            "ident": {"is": "ref", "to": "x"},
-            "ty": {"is": "ref", "to": "t"},
-            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "x"}, {"is": "ref", "to": "t"}]}
+            "ident": { "is": "ref", "to": "x" },
+            "ty": { "is": "ref", "to": "t" },
+            "ctx": {
+              "is": "con",
+              "from": "context",
+              "tag": "extend",
+              "args": [
+                { "is": "ref", "to": "ctx" },
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "t" }
+              ]
+            }
           },
           "premises": []
         },
         {
-          "rule": {"id": "next", "tex": "Next"},
+          "rule": { "id": "next", "tex": "Next" },
           "variables": {
             "x": "x",
             "y": "y",
@@ -238,17 +292,26 @@
           },
           "literals": {},
           "patterns": {
-            "ident": {"is": "ref", "to": "x"},
-            "ty": {"is": "ref", "to": "t1"},
-            "ctx": {"is": "con", "from": "context", "tag": "extend", "args": [{"is": "ref", "to": "ctx"}, {"is": "ref", "to": "y"}, {"is": "ref", "to": "t2"}]}
+            "ident": { "is": "ref", "to": "x" },
+            "ty": { "is": "ref", "to": "t1" },
+            "ctx": {
+              "is": "con",
+              "from": "context",
+              "tag": "extend",
+              "args": [
+                { "is": "ref", "to": "ctx" },
+                { "is": "ref", "to": "y" },
+                { "is": "ref", "to": "t2" }
+              ]
+            }
           },
           "premises": [
             {
               "relation": "member",
               "args": [
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "t1"},
-                {"is": "ref", "to": "ctx"}
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "t1" },
+                { "is": "ref", "to": "ctx" }
               ]
             }
           ]

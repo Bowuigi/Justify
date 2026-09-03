@@ -1,4 +1,5 @@
 import type { Fixity, System, Term } from '@justify/core';
+
 import { testSystem } from '../testing-common.ts';
 
 const sharedSyntax: System['syntax'] = {
@@ -11,10 +12,10 @@ const sharedSyntax: System['syntax'] = {
         description: 'Test harness, takes exactly one argument',
         arguments: [{ from: 'literal', id: 'x', tex: 'x' }],
         tex_parts: [],
-        fixity: 'none' as Fixity
-      }
-    ]
-  }
+        fixity: 'none' as Fixity,
+      },
+    ],
+  },
 };
 
 function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
@@ -29,27 +30,36 @@ function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
           fixity: 'none' as Fixity,
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
-          rules: [{
-            rule: { id: 'test_rule', tex: 'TestRule' },
-            literals: { x: 'x' },
-            variables: {},
-            patterns: { t: { is: 'con', from: 'test', tag: 'one', args } },
-            premises: []
-          }]
-        }
-      }
+          rules: [
+            {
+              rule: { id: 'test_rule', tex: 'TestRule' },
+              literals: { x: 'x' },
+              variables: {},
+              patterns: { t: { is: 'con', from: 'test', tag: 'one', args } },
+              premises: [],
+            },
+          ],
+        },
+      },
     },
-    (kind === 'ok') ? [] : [{
-      id: `CAC-${kind}`,
-      sourceOfTruthLocation: ['system', 'syntax', 'test', 'one', 'arguments'],
-      location: ['system', 'relations', 'test', 'rules', 'test_rule', 'patterns', 't']
-    }]
+    kind === 'ok'
+      ? []
+      : [
+          {
+            id: `CAC-${kind}`,
+            sourceOfTruthLocation: ['system', 'syntax', 'test', 'one', 'arguments'],
+            location: ['system', 'relations', 'test', 'rules', 'test_rule', 'patterns', 't'],
+          },
+        ],
   );
 }
 
 testConstructorCAC('ok', [{ is: 'ref', to: 'x' }]);
 testConstructorCAC('M', []);
-testConstructorCAC('E', [{ is: 'ref', to: 'x' }, { is: 'ref', to: 'x' }]);
+testConstructorCAC('E', [
+  { is: 'ref', to: 'x' },
+  { is: 'ref', to: 'x' },
+]);
 
 function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
   testSystem(
@@ -63,24 +73,33 @@ function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
           fixity: 'none' as Fixity,
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
-          rules: [{
-            rule: { id: 'test_rule', tex: 'TestRule' },
-            literals: {},
-            variables: { t: 't' },
-            patterns: { t: { is: 'ref', to: 't' } },
-            premises: [{ relation: 'test', args }]
-          }]
-        }
-      }
+          rules: [
+            {
+              rule: { id: 'test_rule', tex: 'TestRule' },
+              literals: {},
+              variables: { t: 't' },
+              patterns: { t: { is: 'ref', to: 't' } },
+              premises: [{ relation: 'test', args }],
+            },
+          ],
+        },
+      },
     },
-    (kind === 'ok') ? [] : [{
-      id: `CAC-${kind}`,
-      sourceOfTruthLocation: ['system', 'relations', 'test', 'arguments'],
-      location: ['system', 'relations', 'test', 'rules', 'test_rule', 'premises', 0]
-    }]
+    kind === 'ok'
+      ? []
+      : [
+          {
+            id: `CAC-${kind}`,
+            sourceOfTruthLocation: ['system', 'relations', 'test', 'arguments'],
+            location: ['system', 'relations', 'test', 'rules', 'test_rule', 'premises', 0],
+          },
+        ],
   );
 }
 
 testPremiseCAC('ok', [{ is: 'ref', to: 't' }]);
 testPremiseCAC('M', []);
-testPremiseCAC('E', [{ is: 'ref', to: 't' }, { is: 'ref', to: 't' }]);
+testPremiseCAC('E', [
+  { is: 'ref', to: 't' },
+  { is: 'ref', to: 't' },
+]);

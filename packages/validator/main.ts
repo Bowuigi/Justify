@@ -1,10 +1,12 @@
-import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
-import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
-import type { ModuleErrorInfo } from './module-common.ts';
 // deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
 // deno-lint-ignore no-external-import
 import { styleText } from 'node:util';
+
+import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
+
+import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
+import type { ModuleErrorInfo } from './module-common.ts';
 
 function renderMEI(mei: ModuleErrorInfo): string {
   const fromPath = (p: Array<unknown>): string => styleText('yellow', '/' + p.join('/'));
@@ -28,7 +30,7 @@ async function main(): Promise<void> {
     console.error(
       `Wrong number of arguments.\nUsage: ${
         process.argv[1]
-      } {system|query|query-result} filenames...`
+      } {system|query|query-result} filenames...`,
     );
     process.exitCode = 1;
     return;
@@ -39,7 +41,7 @@ async function main(): Promise<void> {
     string,
     string,
     string,
-    ...Array<string>
+    ...Array<string>,
   ];
 
   if (!['system', 'query', 'query-result'].includes(format)) {
@@ -47,7 +49,7 @@ async function main(): Promise<void> {
     console.error(
       `Unknown format specifier '${format}'.\nUsage: ${
         process.argv[1]
-      } {system|query|query-result} filename`
+      } {system|query|query-result} filename`,
     );
     process.exitCode = 1;
     return;
@@ -77,7 +79,7 @@ async function main(): Promise<void> {
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
-          } query system-filename query-filename`
+          } query system-filename query-filename`,
         );
         process.exitCode = 1;
         return;
@@ -100,7 +102,7 @@ async function main(): Promise<void> {
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
-          } query-result system-filename query-result-filename`
+          } query-result system-filename query-result-filename`,
         );
         process.exitCode = 1;
         return;
@@ -115,11 +117,11 @@ async function main(): Promise<void> {
       }
       // deno-lint-ignore no-console
       console.log(
-        validateQueryResult(queryResult, system).map(renderMEI).join('\n') || 'All good!'
+        validateQueryResult(queryResult, system).map(renderMEI).join('\n') || 'All good!',
       );
       break;
     }
-      // every other case is unreachable
+    // every other case is unreachable
   }
 }
 main();

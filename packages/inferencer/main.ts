@@ -1,15 +1,17 @@
 // deno-lint-ignore no-external-import
-import * as util from 'node:util';
-// deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
+// deno-lint-ignore no-external-import
+import * as util from 'node:util';
+
 import {
   type Derivation,
   type DerivationTerm,
   parseQuery,
   parseSystem,
   type QueryResult,
-  type QueryResultSolution
+  type QueryResultSolution,
 } from '@justify/core';
+
 import { performQuery } from './lib.ts';
 
 function prettyTerm(term: DerivationTerm): string {
@@ -21,21 +23,26 @@ function prettyTerm(term: DerivationTerm): string {
     case 'con':
       return (
         util.styleText('blue', term.tag) +
-        '(' + term.args.map(prettyTerm).join(util.styleText('bold', ', ')) + ')'
+        '(' +
+        term.args.map(prettyTerm).join(util.styleText('bold', ', ')) +
+        ')'
       );
   }
 }
 
 function prettySolution(solution: QueryResultSolution): string {
-  const prettyDerivation = (indent: number, l: Derivation): string => (
+  const prettyDerivation = (indent: number, l: Derivation): string =>
     util.styleText('gray', '\u{2502} ').repeat(indent) +
-    '[' + util.styleText('green', l.rule) + '] ' +
+    '[' +
+    util.styleText('green', l.rule) +
+    '] ' +
     util.styleText('cyan', l.relation) +
-    '(' + l.args.map(prettyTerm).join(util.styleText('bold', ', ')) + ')'
-  );
+    '(' +
+    l.args.map(prettyTerm).join(util.styleText('bold', ', ')) +
+    ')';
 
   const loop = (indent: number, l: Derivation): string =>
-    `${prettyDerivation(indent, l)}\n${l.premises.map((p) => loop(indent + 1, p)).join('')}`;
+    `${prettyDerivation(indent, l)}\n${l.premises.map(p => loop(indent + 1, p)).join('')}`;
 
   let output = '';
   for (const [meta, binding] of Object.entries(solution.variables)) {
@@ -51,7 +58,7 @@ async function main(): Promise<void> {
   if (process.argv.length !== 4 && process.argv.length !== 5) {
     // deno-lint-ignore no-console
     console.error(
-      `Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`
+      `Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`,
     );
     process.exitCode = 1;
     return;
@@ -71,7 +78,7 @@ async function main(): Promise<void> {
       string,
       string,
       string,
-      string
+      string,
     ];
     if (flags.includes('m')) {
       machineReadable = true;

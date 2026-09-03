@@ -1,11 +1,42 @@
 {
-  "variables": {"r": "r"},
+  "variables": { "r": "r" },
   "literals": {},
   "max_results": 1,
   "relation": "multiply",
   "args": [
-    {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "zero", "args": []}]}]},
-    {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "succ", "args": [{"is": "con", "from": "number", "tag": "zero", "args": []}]}]}]},
-    {"is": "ref", "to": "r"}
+    {
+      "is": "con",
+      "from": "number",
+      "tag": "succ",
+      "args": [
+        {
+          "is": "con",
+          "from": "number",
+          "tag": "succ",
+          "args": [{ "is": "con", "from": "number", "tag": "zero", "args": [] }]
+        }
+      ]
+    },
+    {
+      "is": "con",
+      "from": "number",
+      "tag": "succ",
+      "args": [
+        {
+          "is": "con",
+          "from": "number",
+          "tag": "succ",
+          "args": [
+            {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "con", "from": "number", "tag": "zero", "args": [] }]
+            }
+          ]
+        }
+      ]
+    },
+    { "is": "ref", "to": "r" }
   ]
 }

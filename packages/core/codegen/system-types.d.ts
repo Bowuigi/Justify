@@ -58,7 +58,7 @@ export enum Fixity {
   Infix = 'infix',
   None = 'none',
   Postfix = 'postfix',
-  Prefix = 'prefix'
+  Prefix = 'prefix',
 }
 
 export type Identifier = string;

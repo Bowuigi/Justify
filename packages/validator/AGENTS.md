@@ -28,7 +28,7 @@ export function formatError(err: PushedError): ModuleErrorInfo {} // id: `${mana
 ## Testing
 
 ```ts
-import { testSystem, testQuery } from '../testing-common.ts'
+import { testSystem, testQuery } from '../testing-common.ts';
 // asserts validateSystem/validateQuery return expected ModuleErrorInfo partials
 ```
 

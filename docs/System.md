@@ -19,8 +19,7 @@ A System document has the following top-level keys:
 Each JSON object in `syntax.<category>` describes one syntax category, that is, a group of constructors that you can use in terms and relations. This object has the following keys:
 
 - `description`: LaTeX text denoting the description of the syntax category.
-- `suggestions`: an array of LaTeX math strings proposing metavariable names for
-  terms of this syntax category. These are purely advisory.
+- `suggestions`: an array of LaTeX math strings proposing metavariable names for terms of this syntax category. These are purely advisory.
 - `grammar`: the array of constructors that syntax category has.
 
 ### Constructors

@@ -1,3 +1,5 @@
+import type { Term as STerm } from '@justify/core';
+
 /*
   MicroKanren implementation with the following augments:
   - Simple-complete search
@@ -12,26 +14,25 @@
   - Idempotent substitution transformation
 */
 import { AssocArray } from './AssocArray.ts';
-import type { Term as STerm } from '@justify/core';
 
 // Identifiers and tags are used for rendering, note that equal labels means equal number of args (as they point to global defs)
-type Var = { is: 'var', id: string, counter: number };
-type Constructor = { is: 'con', from: string, tag: string, args: Array<Term> };
-type Literal = { is: 'lit', id: string };
+type Var = { is: 'var'; id: string; counter: number };
+type Constructor = { is: 'con'; from: string; tag: string; args: Array<Term> };
+type Literal = { is: 'lit'; id: string };
 export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
 export type RuleLog = {
-  rule: string,
-  relation: string,
-  args: Array<Term>,
-  premises: Array<RuleLog>
+  rule: string;
+  relation: string;
+  args: Array<Term>;
+  premises: Array<RuleLog>;
 };
-type State = { subst: Substitution, log: Array<RuleLog>, counter: number };
+type State = { subst: Substitution; log: Array<RuleLog>; counter: number };
 
-type ImmatureStream = { is: 'delayed', force: () => Stream };
-type MatureStream = { is: 'nil' } | { is: 'cons', solution: State, next: Stream };
+type ImmatureStream = { is: 'delayed'; force: () => Stream };
+type MatureStream = { is: 'nil' } | { is: 'cons'; solution: State; next: Stream };
 type Stream = MatureStream | ImmatureStream;
 
 export type Goal = (st: State) => Stream;
@@ -71,7 +72,7 @@ export function convertTerm(
   sterm: STerm,
   variables: Array<string>,
   literals: Array<string>,
-  counter: number
+  counter: number,
 ): [term: Term, newCounter: number] {
   if (sterm.is === 'ref') {
     if (variables.includes(sterm.to)) {
@@ -81,7 +82,8 @@ export function convertTerm(
     } else {
       throw new UnboundIdentifierError(sterm.to, variables, literals);
     }
-  } else { // Constructor
+  } else {
+    // Constructor
     let prevCounter = counter;
     const newArgs: Array<Term> = [];
     for (const arg of sterm.args) {
@@ -103,12 +105,13 @@ export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array
     } else {
       throw new UnboundIdentifierError(sterm.to, Object.keys(pool), literals);
     }
-  } else { // Constructor
+  } else {
+    // Constructor
     return {
       is: 'con',
       from: sterm.from,
       tag: sterm.tag,
-      args: sterm.args.map((a) => convertTermWithPool(a, pool, literals))
+      args: sterm.args.map(a => convertTermWithPool(a, pool, literals)),
     };
   }
 }
@@ -119,7 +122,7 @@ function varEq(a: Var, b: Var): boolean {
 
 function walk(term: Term, subst: Substitution): Term {
   if (term.is === 'var') {
-    const stepped = subst.lastKey((varN) => varEq(term, varN));
+    const stepped = subst.lastKey(varN => varEq(term, varN));
     if (stepped === null) return term;
     return walk(stepped, subst);
   } else {
@@ -134,7 +137,7 @@ function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
     case 'var':
       return varEq(variable, steppedTerm);
     case 'con':
-      return steppedTerm.args.some((t) => occursCheck(variable, t, subst));
+      return steppedTerm.args.some(t => occursCheck(variable, t, subst));
     case 'lit':
       return false;
   }
@@ -158,7 +161,7 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
     return extendSubstitution(termB, termA, subst);
   }
   if (termA.is === 'lit' && termB.is === 'lit') {
-    return (termA.id === termB.id) ? subst : null;
+    return termA.id === termB.id ? subst : null;
   }
   if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
     return unifyArray(termA.args, termB.args, subst);
@@ -170,7 +173,7 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
 function unifyArray(
   termsA: Array<Term>,
   termsB: Array<Term>,
-  subst: Substitution
+  subst: Substitution,
 ): Substitution | null {
   let oldSubst = subst;
   for (const [ix, term] of termsA.entries()) {
@@ -244,7 +247,7 @@ function walkAll(term: Term, subst: Substitution): Term {
         is: stepped.is,
         from: stepped.from,
         tag: stepped.tag,
-        args: stepped.args.map((a) => walkAll(a, subst))
+        args: stepped.args.map(a => walkAll(a, subst)),
       };
     case 'var':
       return stepped;
@@ -254,9 +257,7 @@ function walkAll(term: Term, subst: Substitution): Term {
 }
 
 export function toIdempotent(subst: Substitution): Substitution {
-  return new AssocArray(
-    subst.data.map((v) => ({ key: v.key, value: walkAll(v.value, subst) }))
-  );
+  return new AssocArray(subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) })));
 }
 
 // The substitution should be idempotent for efficiency
@@ -264,8 +265,8 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   return {
     rule: log.rule,
     relation: log.relation,
-    args: log.args.map((a) => walkAll(a, subst)),
-    premises: log.premises.map((p) => walkLog(p, subst))
+    args: log.args.map(a => walkAll(a, subst)),
+    premises: log.premises.map(p => walkLog(p, subst)),
   };
 }
 
@@ -291,10 +292,10 @@ export function wrapLogs(rule: string, relation: string, args: Array<Term>, goal
     // Not isolating the state results in duplicated logs
     const isolatedState = { ...st, log: [] };
 
-    return mapStream(
-      goal(isolatedState),
-      (sol) => ({ ...sol, log: [...st.log, { rule, relation, args, premises: sol.log }] })
-    );
+    return mapStream(goal(isolatedState), sol => ({
+      ...sol,
+      log: [...st.log, { rule, relation, args, premises: sol.log }],
+    }));
   };
 }
 
@@ -308,7 +309,7 @@ export function delay(goal: Goal): Goal {
 export function run(solutions: number, goal: Goal): Array<State> {
   return takeStream(
     solutions,
-    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 }))
+    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })),
   );
 }
 
@@ -322,7 +323,7 @@ export function eq(termA: Term, termB: Term): Goal {
     return {
       is: 'cons',
       solution: { subst: newSubst, log: st.log, counter: st.counter },
-      next: { is: 'nil' }
+      next: { is: 'nil' },
     };
   };
 }

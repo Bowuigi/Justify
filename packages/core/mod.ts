@@ -1,15 +1,15 @@
 // deno-lint-ignore no-external-import
 import { readFile } from 'node:fs/promises';
 
+import { validate as validateQueryResult } from './codegen/query-result-validator.ts';
+import { validate as validateQuery } from './codegen/query-validator.ts';
 import type { ValidationResult } from './codegen/system-validator.ts';
 import { validate as validateSystem } from './codegen/system-validator.ts';
-import { validate as validateQuery } from './codegen/query-validator.ts';
-import { validate as validateQueryResult } from './codegen/query-result-validator.ts';
 import type { Query, QueryResult, System } from './codegen/types.d.ts';
 
 async function parseFile<T>(
   validate: (data: unknown) => ValidationResult,
-  filename: string
+  filename: string,
 ): Promise<T | null> {
   let contents: string;
   let json;

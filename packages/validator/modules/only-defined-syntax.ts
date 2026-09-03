@@ -1,4 +1,5 @@
 import type * as T from '@justify/core';
+
 import * as C from '../module-common.ts';
 
 export const managedError = 'ODS' as const;
@@ -31,7 +32,7 @@ export function onTermCon(
   variables: Record<T.Identifier, T.TexMath>,
   literals: Record<T.Identifier, T.TexMath>,
   term: T.TermCon,
-  system: T.System
+  system: T.System,
 ): void {
   if (isPrimitive(term.from)) {
     errors.push({
@@ -39,7 +40,7 @@ export function onTermCon(
       id: 'ODS-P',
       sourceOfTruthLocation: null,
       location: path,
-      syncatId: term.from
+      syncatId: term.from,
     });
   }
 
@@ -50,11 +51,11 @@ export function onTermCon(
       sourceOfTruthLocation: ['system', 'syntax'],
       location: path,
       syncatId: term.from,
-      allSynCatIds: Object.keys(system.syntax)
+      allSynCatIds: Object.keys(system.syntax),
     });
   }
 
-  if (system.syntax[term.from]?.grammar.findIndex((g) => g.id === term.tag) === -1) {
+  if (system.syntax[term.from]?.grammar.findIndex(g => g.id === term.tag) === -1) {
     errors.push({
       moduleId: 'ODS',
       id: 'ODS-C',
@@ -62,7 +63,7 @@ export function onTermCon(
       location: path,
       syncatId: term.from,
       conId: term.tag,
-      allConIds: system.syntax[term.from]?.grammar.map((g) => g.id) || []
+      allConIds: system.syntax[term.from]?.grammar.map(g => g.id) || [],
     });
   }
 }
@@ -71,7 +72,7 @@ export function onArgument(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   arg: T.Argument,
-  system: T.System
+  system: T.System,
 ): void {
   if (!(arg.from in system.syntax) && !isPrimitive(arg.from)) {
     errors.push({
@@ -80,7 +81,7 @@ export function onArgument(
       sourceOfTruthLocation: ['system', 'syntax'],
       location: path,
       syncatId: arg.from,
-      allSynCatIds: Object.keys(system.syntax)
+      allSynCatIds: Object.keys(system.syntax),
     });
   }
 }
@@ -91,23 +92,23 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
       return {
         message: `Undefined syntax category ${C.highlightWrong(err.syncatId)}`,
         hints: [
-          `Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`
+          `Expected ${C.displayIterable('identifier', 'any of the following', err.allSynCatIds)}`,
         ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
     case 'ODS-C':
       return {
-        message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${
-          C.highlight(err.syncatId)
-        }`,
+        message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${C.highlight(
+          err.syncatId,
+        )}`,
         hints: [
-          `Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`
+          `Expected ${C.displayIterable('identifier', 'any of the following', err.allConIds)}`,
         ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
     case 'ODS-P':
       return {
@@ -115,7 +116,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
   }
 }

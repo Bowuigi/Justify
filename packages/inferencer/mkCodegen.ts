@@ -1,5 +1,6 @@
-import * as MK from './mk.ts';
 import type { System } from '@justify/core';
+
+import * as MK from './mk.ts';
 
 /*
 Every relation in inference-rule style
@@ -29,7 +30,7 @@ defrel relationName(args...) {
 ```
 */
 export function toRelationStore(
-  system: System
+  system: System,
 ): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
   const relStore: Record<string, (relArgs: Array<MK.Term>) => MK.Goal> = {};
   for (const [relName, relData] of Object.entries(system.relations)) {
@@ -37,35 +38,38 @@ export function toRelationStore(
       const argPool = Object.fromEntries(relData.arguments.map((arg, ix) => [arg.id, relArgs[ix]]));
       return MK.delay(
         MK.disjN(
-          ...relData.rules.map((rule) =>
-            MK.wrapLogs(
-              rule.rule.id,
-              relName,
-              relArgs,
-              MK.fresh(Object.keys(rule.variables), (pool) =>
-                MK.conjN(
-                  ...Object.entries(rule.patterns).map(
-                    ([argVar, poolValue]) =>
-                      MK.eq(
+          ...relData.rules.map(
+            rule =>
+              MK.wrapLogs(
+                rule.rule.id,
+                relName,
+                relArgs,
+                MK.fresh(
+                  Object.keys(rule.variables),
+                  pool =>
+                    MK.conjN(
+                      ...Object.entries(rule.patterns).map(([argVar, poolValue]) =>
+                        MK.eq(
+                          // Catched by validator
+                          // deno-lint-ignore no-non-null-assertion
+                          argPool[argVar]!,
+                          MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals)),
+                        ),
+                      ),
+                      ...rule.premises.map(({ relation, args }) =>
                         // Catched by validator
                         // deno-lint-ignore no-non-null-assertion
-                        argPool[argVar]!,
-                        MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals))
-                      )
-                  ),
-                  ...rule.premises.map(
-                    ({ relation, args }) =>
-                      // Catched by validator
-                      // deno-lint-ignore no-non-null-assertion
-                      relStore[relation]!(
-                        args.map((a) => MK.convertTermWithPool(a, pool, Object.keys(rule.literals)))
-                      )
-                  )
-                ) // conjN
-              ) // fresh
-            ) // wrapLogs
-          ) // rules.map
-        ) // disjN
+                        relStore[relation]!(
+                          args.map(a =>
+                            MK.convertTermWithPool(a, pool, Object.keys(rule.literals)),
+                          ),
+                        ),
+                      ),
+                    ), // conjN
+                ), // fresh
+              ), // wrapLogs
+          ), // rules.map
+        ), // disjN
       ); // delay
     }; // relStore[relName]
   } // for

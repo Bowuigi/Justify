@@ -1,4 +1,5 @@
 import type * as T from '@justify/core';
+
 import * as C from '../module-common.ts';
 
 // Used to create a mapping (moduleId -> formatError)
@@ -23,9 +24,9 @@ export function onPatterns(
   path: C.LocationPath,
   relationId: T.Identifier,
   patterns: T.SystemRelationRule['patterns'],
-  system: T.System
+  system: T.System,
 ): void {
-  const expectedPatterns = new Set(system.relations[relationId]?.arguments.map((a) => a.id));
+  const expectedPatterns = new Set(system.relations[relationId]?.arguments.map(a => a.id));
   const providedPatterns = new Set(Object.keys(patterns));
   const missingPatterns: Set<string> = expectedPatterns.difference(providedPatterns);
   const extraPatterns: Set<string> = providedPatterns.difference(expectedPatterns);
@@ -37,7 +38,7 @@ export function onPatterns(
       sourceOfTruthLocation: ['system', 'relations', relationId, 'arguments'],
       location: path,
       expectedPatterns,
-      missingPatterns
+      missingPatterns,
     });
   }
 
@@ -48,7 +49,7 @@ export function onPatterns(
       sourceOfTruthLocation: ['system', 'relations', relationId, 'arguments'],
       location: path,
       expectedPatterns,
-      extraPatterns
+      extraPatterns,
     });
   }
 }
@@ -61,7 +62,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
     case 'PMA-E':
       return {
@@ -69,7 +70,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
   }
 }

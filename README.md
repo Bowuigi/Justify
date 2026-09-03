@@ -13,7 +13,7 @@ This project is also meant to contain general tooling (all WIP, see the [issues]
 - A **validator** that checks that the files are correct.
 - An **inferencer** that takes a System and a Query on it and returns a QueryResult with the query results (human-readable or in JSON).
 - Various **generators** that turn other formats into Justify files
-  - *(Deprecated)* A Tcl DSL that generates System and Query files.
+  - _(Deprecated)_ A Tcl DSL that generates System and Query files.
   - A [remark](https://github.com/remarkjs/remark) (Markdown) extension that generates System files.
 - Various **extractors** that turn those formats into other formats for external uses.
   - A LaTeX and KaTeX compatible TeX extractor.

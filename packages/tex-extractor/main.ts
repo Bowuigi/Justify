@@ -1,8 +1,22 @@
-import { type Fixity, parseSystem, type System, type Term, type TexMath, type TexMathParts } from "@justify/core";
 // deno-lint-ignore no-external-import
-import { default as process } from "node:process";
+import { default as process } from 'node:process';
 
-type TeXNamespace = 'system' | 'grammar' | 'relation' | 'relationDescription' | 'relationRule' | 'relationRuleset';
+import {
+  type Fixity,
+  parseSystem,
+  type System,
+  type Term,
+  type TexMath,
+  type TexMathParts,
+} from '@justify/core';
+
+type TeXNamespace =
+  | 'system'
+  | 'grammar'
+  | 'relation'
+  | 'relationDescription'
+  | 'relationRule'
+  | 'relationRuleset';
 
 function snakeToCamel(s: string): string {
   return s.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -20,8 +34,15 @@ function interleave<T>(arr1: T[], arr2: T[]): T[] {
 }
 
 function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<string>): string {
-  const mappings: Record<TeXNamespace, string> = { system: 'y', grammar: 'g', relation: 'r', relationDescription: 'rd', relationRule: 'rr', relationRuleset: 'rrs' };
-  const renderedArgs = (args === undefined) ? '' : ('{' + args.join('}{') + '}');
+  const mappings: Record<TeXNamespace, string> = {
+    system: 'y',
+    grammar: 'g',
+    relation: 'r',
+    relationDescription: 'rd',
+    relationRule: 'rr',
+    relationRuleset: 'rrs',
+  };
+  const renderedArgs = args === undefined ? '' : '{' + args.join('}{') + '}';
   return '\\' + snakeToCamel(`j${mappings[namespace]}_${invocation}`) + renderedArgs;
 }
 
@@ -41,113 +62,160 @@ function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string
   }
 }
 
-function renderTerm(term: Term, variables: Record<string, TexMath>, literals: Record<string, TexMath>): string {
+function renderTerm(
+  term: Term,
+  variables: Record<string, TexMath>,
+  literals: Record<string, TexMath>,
+): string {
   switch (term.is) {
     case 'ref':
-      return variables[term.to] || literals[term.to] || `<Ref ${term.to} unbound>`
+      return variables[term.to] || literals[term.to] || `<Ref ${term.to} unbound>`;
     case 'con':
       return commandOf(
         'grammar',
         `${term.from}_${term.tag}`,
-        term.args.map(a => renderTerm(a, variables, literals))
+        term.args.map(a => renderTerm(a, variables, literals)),
       );
   }
 }
 
 function extractTeX(system: System): string {
-  const mapEntries: <S, T>(obj: Record<string, S>, callback: (value: [string, S], index: number) => T) => T[]
-    = (obj, callback) => Object.entries(obj).map(callback);
+  const mapEntries: <S, T>(
+    obj: Record<string, S>,
+    callback: (value: [string, S], index: number) => T,
+  ) => T[] = (obj, callback) => Object.entries(obj).map(callback);
 
   /// jyGrammar formatting
   const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) => [
     // e ::= & constructor(...args) & description \\
     // On title lines it inserts an extra line with -5pt line spacing
     (ix === 0 ? '' : '\\\\[-5pt] ') + `& & \\textbf{${definition.description}}`,
-    ...definition.grammar.map((grammar, ix) =>
-      ((ix === 0) ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : '\\mid') +
-      ` & ${commandOf('grammar', `${category}_${grammar.id}`, grammar.arguments.map(a => a.tex))}` +
-      ` & \\text{${grammar.description}}`
-    )
+    ...definition.grammar.map(
+      (grammar, ix) =>
+        (ix === 0 ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : '\\mid') +
+        ` & ${commandOf(
+          'grammar',
+          `${category}_${grammar.id}`,
+          grammar.arguments.map(a => a.tex),
+        )}` +
+        ` & \\text{${grammar.description}}`,
+    ),
   ]);
 
-  const definedCommands: Record<TeXNamespace, Array<readonly [string, { readonly arguments: number, readonly definition: string }]>> = {
+  const definedCommands: Record<
+    TeXNamespace,
+    Array<readonly [string, { readonly arguments: number; readonly definition: string }]>
+  > = {
     // jg<category><constructor>{...}{...}... macros
     grammar: Object.entries(system.syntax).flatMap(([category, definition]) =>
-      definition.grammar.map(grammar => [
-        `${category}_${grammar.id}`, {
-          arguments: grammar.arguments.length,
-          definition: renderMixfix(
-            grammar.fixity,
-            grammar.tex_parts,
-            Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
-          ),
-        }
-      ] as const)
+      definition.grammar.map(
+        grammar =>
+          [
+            `${category}_${grammar.id}`,
+            {
+              arguments: grammar.arguments.length,
+              definition: renderMixfix(
+                grammar.fixity,
+                grammar.tex_parts,
+                Array.from({ length: grammar.arguments.length }, (_, i) => `#${i + 1}`),
+              ),
+            },
+          ] as const,
+      ),
     ),
     // jr<relation>{...}{...}... macros
     relation: mapEntries(system.relations, ([relation, definition]) => [
-      relation, {
+      relation,
+      {
         arguments: definition.arguments.length,
         definition: renderMixfix(
           definition.fixity,
           definition.tex_parts,
           Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
         ),
-      }
+      },
     ]),
     // \jrd<relation> macros
     relationDescription: mapEntries(system.relations, ([relation, definition]) => [
-      relation, {
+      relation,
+      {
         arguments: 0,
         definition: `
         \\boxed{
           \\begin{array}{c}
-          ${commandOf('relation', relation, definition.arguments.map(a => a.tex))} \\\\
+          ${commandOf(
+            'relation',
+            relation,
+            definition.arguments.map(a => a.tex),
+          )} \\\\
           \\text{${definition.description}}
           \\end{array}
         }`,
-      }
+      },
     ]),
     // \jrr<relation><rule> macros
     relationRule: Object.entries(system.relations).flatMap(([relation, definition]) =>
       definition.rules.map(rule => [
-        `${relation}_${rule.rule.id}`, {
+        `${relation}_${rule.rule.id}`,
+        {
           arguments: 0,
           definition: commandOf('system', 'infer', [
             rule.rule.tex,
-            rule.premises.map(p =>
-              commandOf('relation', p.relation, p.args.map(a => renderTerm(a, rule.variables, rule.literals)))
-            ).join(' \\\\ '),
+            rule.premises
+              .map(p =>
+                commandOf(
+                  'relation',
+                  p.relation,
+                  p.args.map(a => renderTerm(a, rule.variables, rule.literals)),
+                ),
+              )
+              .join(' \\\\ '),
             // deno-lint-ignore no-non-null-assertion
-            commandOf('relation', relation, definition.arguments.map(a => renderTerm(rule.patterns[a.id]!, rule.variables, rule.literals))),
+            commandOf(
+              'relation',
+              relation,
+              definition.arguments.map(a =>
+                renderTerm(rule.patterns[a.id]!, rule.variables, rule.literals),
+              ),
+            ),
           ]),
-        }
-      ])
+        },
+      ]),
     ),
     // \jrrs<relation> macros
     relationRuleset: mapEntries(system.relations, ([relation, definition]) => [
-      relation, {
+      relation,
+      {
         arguments: 0,
-        definition: definition.rules.map(r =>
-          commandOf('relationRule', `${relation}_${r.rule.id}`)
-        ).join(' \\allowbreak \\qquad '),
-      }
+        definition: definition.rules
+          .map(r => commandOf('relationRule', `${relation}_${r.rule.id}`))
+          .join(' \\allowbreak \\qquad '),
+      },
     ]),
     system: [
       // \jyDescription
-      ['description', {
-        arguments: 0,
-        definition: `\\text{${system.description}}`,
-      }],
+      [
+        'description',
+        {
+          arguments: 0,
+          definition: `\\text{${system.description}}`,
+        },
+      ],
       // \jyInfer{rule name}{premise1 \\ premise2 \\ ...}{conclusion}
-      ['infer', {
-        arguments: 3,
-        definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
-      }],
-      ['grammar', {
-        arguments: 0,
-        definition: `\n  \\begin{array}{rll}\n    ${grammarDef.join(' \\\\\n    ')}\n  \\end{array}`,
-      }]
+      [
+        'infer',
+        {
+          arguments: 3,
+          definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
+        },
+      ],
+      [
+        'grammar',
+        {
+          arguments: 0,
+          definition: `\n  \\begin{array}{rll}\n    ${grammarDef.join(' \\\\\n    ')}\n  \\end{array}`,
+        },
+      ],
     ],
   };
 
@@ -155,13 +223,18 @@ function extractTeX(system: System): string {
   let output = '';
   for (const [namespace, commands] of Object.entries(definedCommands)) {
     output += `% Bindings from namespace '${namespace}'\n`;
-    output += commands.map(([command, macro]) =>
-      '\\newcommand{' +
-      commandOf(namespace as TeXNamespace, command) +
-      '}[' + macro.arguments + ']{' +
-      macro.definition +
-      '}\n'
-    ).join('');
+    output += commands
+      .map(
+        ([command, macro]) =>
+          '\\newcommand{' +
+          commandOf(namespace as TeXNamespace, command) +
+          '}[' +
+          macro.arguments +
+          ']{' +
+          macro.definition +
+          '}\n',
+      )
+      .join('');
   }
   return output;
 }

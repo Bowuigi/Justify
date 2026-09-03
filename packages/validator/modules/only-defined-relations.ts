@@ -1,4 +1,5 @@
 import type * as T from '@justify/core';
+
 import * as C from '../module-common.ts';
 
 export const managedError = 'ODR' as const;
@@ -19,7 +20,7 @@ export function onQuery(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   query: T.Query,
-  system: T.System
+  system: T.System,
 ): void {
   if (!(query.relation in system.relations)) {
     errors.push({
@@ -28,7 +29,7 @@ export function onQuery(
       sourceOfTruthLocation: ['system', 'relations'],
       location: path,
       relationId: query.relation,
-      allRelationIds: Object.keys(system.relations)
+      allRelationIds: Object.keys(system.relations),
     });
   }
 }
@@ -37,7 +38,7 @@ export function onPremise(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   premise: T.SystemRelationRulePremise,
-  system: T.System
+  system: T.System,
 ): void {
   if (!(premise.relation in system.relations)) {
     errors.push({
@@ -46,7 +47,7 @@ export function onPremise(
       sourceOfTruthLocation: ['system', 'relations'],
       location: path,
       relationId: premise.relation,
-      allRelationIds: Object.keys(system.relations)
+      allRelationIds: Object.keys(system.relations),
     });
   }
 }
@@ -59,7 +60,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
     case 'ODR-Q':
       return {
@@ -67,7 +68,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
   }
 }

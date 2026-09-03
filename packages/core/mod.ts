@@ -1,45 +1,38 @@
-// deno-lint-ignore no-external-import
+// oxlint-disable no-console
 import { readFile } from 'node:fs/promises';
 
 import { validate as validateQueryResult } from './codegen/query-result-validator.ts';
 import { validate as validateQuery } from './codegen/query-validator.ts';
-import type { ValidationResult } from './codegen/system-validator.ts';
-import { validate as validateSystem } from './codegen/system-validator.ts';
+import { validate as validateSystem, type ValidationResult } from './codegen/system-validator.ts';
 import type { Query, QueryResult, System } from './codegen/types.d.ts';
 
 async function parseFile<T>(
   validate: (data: unknown) => ValidationResult,
   filename: string,
 ): Promise<T | null> {
-  let contents: string;
-  let json;
-
   try {
-    contents = await readFile(filename, { encoding: 'utf8' });
-    json = JSON.parse(contents);
-  } catch (exn: unknown) {
-    if (exn instanceof Error) {
-      // deno-lint-ignore no-console
-      console.error(`${filename}, ${exn.name}: ${exn.message}`);
-    } else {
-      // deno-lint-ignore no-console
-      console.error(`${filename}, fatal error: ${exn}`);
+    const contents = await readFile(filename, { encoding: 'utf8' });
+    const json = JSON.parse(contents);
+
+    const valid = validate(json);
+
+    if (valid.success) {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      return json as T;
     }
-    return null;
-  }
 
-  const valid = validate(json);
-
-  if (valid.success) {
-    return json as T;
-  } else {
     for (const error of valid.errors) {
-      // deno-lint-ignore no-console
       console.error(`${filename}, /${error.path.join('/')}: ${error.message}`);
       if (error.suggestions.length > 0) {
-        // deno-lint-ignore no-console
         console.error(`  Suggestions: ${error.suggestions.join(', ')}`);
       }
+    }
+    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`${filename}, ${error.name}: ${error.message}`);
+    } else {
+      console.error(`${filename}, fatal error: ${error?.toString()}`);
     }
     return null;
   }
@@ -47,12 +40,15 @@ async function parseFile<T>(
 
 export type * from './codegen/types.d.ts';
 
-export function parseSystem(filename: string): Promise<System | null> {
-  return parseFile<System>(validateSystem, filename);
+export async function parseSystem(filename: string): Promise<System | null> {
+  const result = await parseFile<System>(validateSystem, filename);
+  return result;
 }
-export function parseQuery(filename: string): Promise<Query | null> {
-  return parseFile<Query>(validateQuery, filename);
+export async function parseQuery(filename: string): Promise<Query | null> {
+  const result = await parseFile<Query>(validateQuery, filename);
+  return result;
 }
-export function parseQueryResult(filename: string): Promise<QueryResult | null> {
-  return parseFile<QueryResult>(validateQueryResult, filename);
+export async function parseQueryResult(filename: string): Promise<QueryResult | null> {
+  const result = await parseFile<QueryResult>(validateQueryResult, filename);
+  return result;
 }

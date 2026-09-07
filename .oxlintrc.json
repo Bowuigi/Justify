@@ -20,6 +20,10 @@
     "curly": "allow",
     "default-case": "allow",
     "id-length": "allow",
+    "no-plusplus": "allow",
+    "no-warning-comments": "warn",
+    "max-lines": ["error", 350],
+    "max-classes-per-file": ["error", 3],
     "max-params": ["error", 6],
     "max-statements": ["allow", 15],
     "no-magic-numbers": "allow",
@@ -40,6 +44,8 @@
     "typescript/prefer-readonly-parameter-types": "allow",
     "unicorn/no-lonely-if": "allow",
     "unicorn/no-null": "allow",
+    "unicorn/no-array-reduce": "allow",
+    "unicorn/max-nested-calls": ["error", { "max": 5 }],
 
     "unicorn/empty-brace-spaces": "warn",
     "unicorn/escape-case": "warn",
@@ -47,7 +53,6 @@
     "unicorn/no-anonymous-default-export": "warn",
     "unicorn/no-array-callback-reference": "warn",
     "unicorn/no-array-fill-with-reference-type": "warn",
-    "unicorn/no-array-reduce": "warn",
     "unicorn/no-await-expression-member": "warn",
     "unicorn/no-console-spaces": "warn",
     "unicorn/no-immediate-mutation": "warn",
@@ -85,6 +90,13 @@
       },
       "globals": {
         "console": "readonly"
+      }
+    },
+    {
+      "files": ["packages/inferencer/mk-codegen.ts"],
+      "rules": {
+        "no-inline-comments": "allow",
+        "capitalized-comments": "allow"
       }
     }
   ]

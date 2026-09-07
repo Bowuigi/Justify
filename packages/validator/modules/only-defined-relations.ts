@@ -54,7 +54,7 @@ export function onPremise(
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
-    case 'ODR-P':
+    case 'ODR-P': {
       return {
         message: `Undefined relation in premise: ${C.highlightWrong(err.relationId)}`,
         hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
@@ -62,7 +62,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
-    case 'ODR-Q':
+    }
+    case 'ODR-Q': {
       return {
         message: `Undefined relation in query: ${C.highlightWrong(err.relationId)}`,
         hints: [`Expected ${C.displayIterable('relation', 'relations', err.allRelationIds)}`],
@@ -70,5 +71,6 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
+    }
   }
 }

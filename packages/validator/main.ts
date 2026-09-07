@@ -1,6 +1,5 @@
-// deno-lint-ignore no-external-import
+// oxlint-disable no-console
 import { default as process } from 'node:process';
-// deno-lint-ignore no-external-import
 import { styleText } from 'node:util';
 
 import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
@@ -9,7 +8,7 @@ import { validateQuery, validateQueryResult, validateSystem } from './driver.ts'
 import type { ModuleErrorInfo } from './module-common.ts';
 
 function renderMEI(mei: ModuleErrorInfo): string {
-  const fromPath = (p: Array<unknown>): string => styleText('yellow', '/' + p.join('/'));
+  const fromPath = (p: Array<unknown>): string => styleText('yellow', `/${p.join('/')}`);
   let output = `Error: ${mei.message}\n`;
   output += `  In ${fromPath(mei.location)}\n`;
 
@@ -24,9 +23,10 @@ function renderMEI(mei: ModuleErrorInfo): string {
   return output;
 }
 
+// This whole file is temporary, to be replaced with @justify/cli
+// oxlint-disable-next-line max-lines-per-function
 async function main(): Promise<void> {
   if (process.argv.length < 3) {
-    // deno-lint-ignore no-console
     console.error(
       `Wrong number of arguments.\nUsage: ${
         process.argv[1]
@@ -37,6 +37,7 @@ async function main(): Promise<void> {
   }
 
   // This cast depends on the check above
+  // oxlint-disable-next-line no-unsafe-type-assertion
   const [_node, _source, format, ...rest] = process.argv as [
     string,
     string,
@@ -45,7 +46,6 @@ async function main(): Promise<void> {
   ];
 
   if (!['system', 'query', 'query-result'].includes(format)) {
-    // deno-lint-ignore no-console
     console.error(
       `Unknown format specifier '${format}'.\nUsage: ${
         process.argv[1]
@@ -58,24 +58,24 @@ async function main(): Promise<void> {
   switch (format) {
     case 'system': {
       if (rest.length !== 1) {
-        // deno-lint-ignore no-console
         console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} system filename`);
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-non-null-assertion
       const system = await parseSystem(rest[0]!);
       if (system === null) {
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-console
-      console.log(validateSystem(system).map(renderMEI).join('\n') || 'All good!');
+      console.log(
+        validateSystem(system)
+          .map(mei => renderMEI(mei))
+          .join('\n') || 'All good!',
+      );
       break;
     }
     case 'query': {
       if (rest.length !== 2) {
-        // deno-lint-ignore no-console
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
@@ -84,21 +84,21 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-non-null-assertion
       const system = await parseSystem(rest[0]!);
-      // deno-lint-ignore no-non-null-assertion
       const query = await parseQuery(rest[1]!);
       if (system === null || query === null) {
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-console
-      console.log(validateQuery(query, system).map(renderMEI).join('\n') || 'All good!');
+      console.log(
+        validateQuery(query, system)
+          .map(mei => renderMEI(mei))
+          .join('\n') || 'All good!',
+      );
       break;
     }
     case 'query-result': {
       if (rest.length !== 2) {
-        // deno-lint-ignore no-console
         console.error(
           `Wrong number of arguments.\nUsage: ${
             process.argv[1]
@@ -107,21 +107,20 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-non-null-assertion
       const system = await parseSystem(rest[0]!);
-      // deno-lint-ignore no-non-null-assertion
       const queryResult = await parseQueryResult(rest[1]!);
       if (system === null || queryResult === null) {
         process.exitCode = 1;
         return;
       }
-      // deno-lint-ignore no-console
       console.log(
-        validateQueryResult(queryResult, system).map(renderMEI).join('\n') || 'All good!',
+        validateQueryResult(queryResult, system)
+          .map(mei => renderMEI(mei))
+          .join('\n') || 'All good!',
       );
       break;
     }
-    // every other case is unreachable
+    // Every other case is unreachable
   }
 }
-main();
+await main();

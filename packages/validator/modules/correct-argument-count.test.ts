@@ -2,6 +2,10 @@ import type { Fixity, System, Term } from '@justify/core';
 
 import { testSystem } from '../testing-common.ts';
 
+// Typescript being weird
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+const noneFixity: Fixity = 'none' as const as Fixity.None;
+
 const sharedSyntax: System['syntax'] = {
   test: {
     description: 'Syntax category for testing',
@@ -12,14 +16,14 @@ const sharedSyntax: System['syntax'] = {
         description: 'Test harness, takes exactly one argument',
         arguments: [{ from: 'literal', id: 'x', tex: 'x' }],
         tex_parts: [],
-        fixity: 'none' as Fixity,
+        fixity: noneFixity,
       },
     ],
   },
 };
 
-function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
-  testSystem(
+async function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): Promise<void> {
+  await testSystem(
     `CAC-${kind} in constructor`,
     {
       description: '',
@@ -27,7 +31,7 @@ function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
       relations: {
         test: {
           description: '',
-          fixity: 'none' as Fixity,
+          fixity: noneFixity,
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
           rules: [
@@ -54,15 +58,8 @@ function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
   );
 }
 
-testConstructorCAC('ok', [{ is: 'ref', to: 'x' }]);
-testConstructorCAC('M', []);
-testConstructorCAC('E', [
-  { is: 'ref', to: 'x' },
-  { is: 'ref', to: 'x' },
-]);
-
-function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
-  testSystem(
+async function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): Promise<void> {
+  await testSystem(
     `CAC-${kind} in premise`,
     {
       description: '',
@@ -70,7 +67,7 @@ function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
       relations: {
         test: {
           description: '',
-          fixity: 'none' as Fixity,
+          fixity: noneFixity,
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
           rules: [
@@ -97,9 +94,16 @@ function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): void {
   );
 }
 
-testPremiseCAC('ok', [{ is: 'ref', to: 't' }]);
-testPremiseCAC('M', []);
-testPremiseCAC('E', [
+await testConstructorCAC('ok', [{ is: 'ref', to: 'x' }]);
+await testConstructorCAC('M', []);
+await testConstructorCAC('E', [
+  { is: 'ref', to: 'x' },
+  { is: 'ref', to: 'x' },
+]);
+
+await testPremiseCAC('ok', [{ is: 'ref', to: 't' }]);
+await testPremiseCAC('M', []);
+await testPremiseCAC('E', [
   { is: 'ref', to: 't' },
   { is: 'ref', to: 't' },
 ]);

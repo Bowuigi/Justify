@@ -20,14 +20,17 @@ function onTerm(
   system: System,
 ): void {
   switch (term.is) {
-    case 'ref':
-      return Fused.onTermRef(errors, path, variables, literals, term, system);
-    case 'con':
+    case 'ref': {
+      Fused.onTermRef(errors, path, variables, literals, term, system);
+      return;
+    }
+    case 'con': {
       Fused.onTermCon(errors, path, variables, literals, term, system);
       for (const arg of term.args) {
         onTerm(errors, path, variables, literals, arg, system);
       }
       break;
+    }
   }
 }
 
@@ -38,18 +41,21 @@ function onDerivationTerm(
   system: System,
 ): void {
   switch (drvTerm.is) {
-    case 'lit':
+    case 'lit': {
       Fused.onDerivationTermLit(errors, path, drvTerm, system);
       break;
-    case 'var':
+    }
+    case 'var': {
       Fused.onDerivationTermVar(errors, path, drvTerm, system);
       break;
-    case 'con':
+    }
+    case 'con': {
       Fused.onDerivationTermCon(errors, path, drvTerm, system);
       for (const arg of drvTerm.args) {
         onDerivationTerm(errors, path, arg, system);
       }
       break;
+    }
   }
 }
 
@@ -70,6 +76,7 @@ function onDerivation(
   }
 }
 
+// oxlint-disable-next-line max-lines-per-function
 export function validateSystem(system: System): Array<ModuleErrorInfo> {
   const errors: Array<Fused.PushedError> = [];
 
@@ -157,7 +164,7 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
       }
     }
   }
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }
 
 export function validateQuery(query: Query, system: System): Array<ModuleErrorInfo> {
@@ -171,7 +178,7 @@ export function validateQuery(query: Query, system: System): Array<ModuleErrorIn
     onTerm(errors, ['query', 'args', argIx], query.variables, query.literals, arg, system);
   }
 
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }
 
 export function validateQueryResult(
@@ -193,5 +200,5 @@ export function validateQueryResult(
       onDerivation(errors, ['query-result', solIx, 'derivation'], sol.derivation, system);
     }
   }
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }

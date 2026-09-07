@@ -30,7 +30,6 @@ function validIdCheck(
   }
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onDerivation(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
@@ -41,7 +40,6 @@ export function onDerivation(
   validIdCheck(errors, path, derivation.rule);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onDerivationTermLit(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
@@ -51,7 +49,6 @@ export function onDerivationTermLit(
   validIdCheck(errors, path, lit.id);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onDerivationTermVar(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
@@ -61,7 +58,6 @@ export function onDerivationTermVar(
   validIdCheck(errors, path, termVar.id);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onDerivationTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.DTLocationPath,
@@ -72,7 +68,6 @@ export function onDerivationTermCon(
   validIdCheck(errors, path, con.tag);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onTermRef(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -84,7 +79,6 @@ export function onTermRef(
   validIdCheck(errors, path, term.to);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -97,7 +91,6 @@ export function onTermCon(
   validIdCheck(errors, path, term.tag);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onArgument(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -108,7 +101,6 @@ export function onArgument(
   validIdCheck(errors, path, arg.id);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onPremise(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -118,7 +110,6 @@ export function onPremise(
   validIdCheck(errors, path, premise.relation);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onPatterns(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -132,7 +123,6 @@ export function onPatterns(
   }
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onQuery(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -142,7 +132,6 @@ export function onQuery(
   validIdCheck(errors, path, query.relation);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onSynCat(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -153,7 +142,6 @@ export function onSynCat(
   validIdCheck(errors, path, syncatId);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onGrammar(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -163,7 +151,6 @@ export function onGrammar(
   validIdCheck(errors, path, grammar.id);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onRelation(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -174,7 +161,6 @@ export function onRelation(
   validIdCheck(errors, path, relId);
 }
 
-// @ts-ignore 6133 - Cannot remove variable parameters due to codegen specifics
 export function onRule(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -203,14 +189,11 @@ export function onQueryResultSolutionVariableIdentifier(
 }
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
-  switch (err.id) {
-    case 'VI-I':
-      return {
-        message: `Improperly formatted identifier ${C.highlightWrong(err.identifier)}`,
-        hints: [],
-        location: err.location,
-        sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id,
-      };
-  }
+  return {
+    message: `Improperly formatted identifier ${C.highlightWrong(err.identifier)}`,
+    hints: [],
+    location: err.location,
+    sourceOfTruthLocation: err.sourceOfTruthLocation,
+    id: err.id,
+  };
 }

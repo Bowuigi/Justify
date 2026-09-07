@@ -31,7 +31,7 @@ export function onPatterns(
   const missingPatterns: Set<string> = expectedPatterns.difference(providedPatterns);
   const extraPatterns: Set<string> = providedPatterns.difference(expectedPatterns);
 
-  if (missingPatterns.size !== 0) {
+  if (missingPatterns.size > 0) {
     errors.push({
       moduleId: 'PMA',
       id: 'PMA-M',
@@ -42,7 +42,7 @@ export function onPatterns(
     });
   }
 
-  if (extraPatterns.size !== 0) {
+  if (extraPatterns.size > 0) {
     errors.push({
       moduleId: 'PMA',
       id: 'PMA-E',
@@ -56,7 +56,7 @@ export function onPatterns(
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
-    case 'PMA-M':
+    case 'PMA-M': {
       return {
         message: `Missing ${C.displayIterable('pattern', 'patterns', err.missingPatterns)}`,
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
@@ -64,7 +64,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
-    case 'PMA-E':
+    }
+    case 'PMA-E': {
       return {
         message: `Extra ${C.displayIterable('pattern', 'patterns', err.extraPatterns)}`,
         hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
@@ -72,5 +73,6 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
+    }
   }
 }

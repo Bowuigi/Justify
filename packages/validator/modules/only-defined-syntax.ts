@@ -25,7 +25,6 @@ function isPrimitive(id: string): id is 'literal' {
   return id === 'literal';
 }
 
-// @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -63,7 +62,7 @@ export function onTermCon(
       location: path,
       syncatId: term.from,
       conId: term.tag,
-      allConIds: system.syntax[term.from]?.grammar.map(g => g.id) || [],
+      allConIds: system.syntax[term.from]?.grammar.map(g => g.id) ?? [],
     });
   }
 }
@@ -88,7 +87,7 @@ export function onArgument(
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
-    case 'ODS-S':
+    case 'ODS-S': {
       return {
         message: `Undefined syntax category ${C.highlightWrong(err.syncatId)}`,
         hints: [
@@ -98,7 +97,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
-    case 'ODS-C':
+    }
+    case 'ODS-C': {
       return {
         message: `Undefined constructor ${C.highlightWrong(err.conId)} in syntax category ${C.highlight(
           err.syncatId,
@@ -110,7 +110,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
-    case 'ODS-P':
+    }
+    case 'ODS-P': {
       return {
         message: `Primitive ${C.highlightWrong(err.syncatId)} not allowed here`,
         hints: [],
@@ -118,5 +119,6 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
+    }
   }
 }

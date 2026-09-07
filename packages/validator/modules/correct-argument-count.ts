@@ -14,7 +14,6 @@ interface ExtraArguments extends C.ModuleError<typeof managedError, 'E'> {
 
 export type PushedError = MissingArguments | ExtraArguments;
 
-// @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -79,7 +78,7 @@ export function onPremise(
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
-    case 'CAC-M':
+    case 'CAC-M': {
       return {
         message: `Missing arguments in relation call`,
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
@@ -87,7 +86,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
-    case 'CAC-E':
+    }
+    case 'CAC-E': {
       return {
         message: `Extra ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`,
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
@@ -95,5 +95,6 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
       };
+    }
   }
 }

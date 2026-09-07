@@ -1,22 +1,21 @@
 import type { Derivation, Query, QueryResultSolution, System } from '@justify/core';
 
+import { toRelationStore } from './mk-codegen.ts';
 import * as MK from './mk.ts';
-import type { RuleLog, Term } from './mk.ts';
-import { toRelationStore } from './mkCodegen.ts';
 
-export type { Query, RuleLog, System, Term };
+export type { RuleLog, Term } from './mk.ts';
+export type { Query, System } from '@justify/core';
 
 export function performQuery(system: System, query: Query): Array<QueryResultSolution> | string {
   const systemRelations = toRelationStore(system);
-  let initialPool: MK.VarPool;
 
   try {
+    let initialPool: MK.VarPool = {};
     const results = MK.run(
       query.max_results,
       MK.fresh(Object.keys(query.variables), pool => {
         initialPool = pool;
         // Catched by validator
-        // deno-lint-ignore no-non-null-assertion
         return systemRelations[query.relation]!(
           query.args.map(a => MK.convertTermWithPool(a, pool, Object.keys(query.literals))),
         );
@@ -37,15 +36,13 @@ export function performQuery(system: System, query: Query): Array<QueryResultSol
       );
 
       // Literally guarded for by the if above
-      // deno-lint-ignore no-non-null-assertion
       const derivation: Derivation = MK.walkLog(rslt.log[0]!, idempotentSubst);
       return { variables, derivation };
     });
-  } catch (err) {
-    if (err instanceof Error) {
-      return `Fatal error on execution (${err.name}):\n` + err.message;
-    } else {
-      throw err;
+  } catch (error) {
+    if (error instanceof Error) {
+      return `Fatal error on execution (${error.name}): ${error.message}`;
     }
+    throw error;
   }
 }

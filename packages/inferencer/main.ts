@@ -1,7 +1,5 @@
-// deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
-// deno-lint-ignore no-external-import
-import * as util from 'node:util';
+import { styleText } from 'node:util';
 
 import {
   type Derivation,
@@ -16,30 +14,21 @@ import { performQuery } from './lib.ts';
 
 function prettyTerm(term: DerivationTerm): string {
   switch (term.is) {
-    case 'var':
-      return util.styleText('magenta', `${term.id}@${term.counter}`);
-    case 'lit':
-      return util.styleText('yellow', `!${term.id}`);
-    case 'con':
-      return (
-        util.styleText('blue', term.tag) +
-        '(' +
-        term.args.map(prettyTerm).join(util.styleText('bold', ', ')) +
-        ')'
-      );
+    case 'var': {
+      return styleText('magenta', `${term.id}@${term.counter}`);
+    }
+    case 'lit': {
+      return styleText('yellow', `!${term.id}`);
+    }
+    case 'con': {
+      return `${styleText('blue', term.tag)}(${term.args.map(prettyTerm).join(styleText('bold', ', '))})`;
+    }
   }
 }
 
 function prettySolution(solution: QueryResultSolution): string {
   const prettyDerivation = (indent: number, l: Derivation): string =>
-    util.styleText('gray', '\u{2502} ').repeat(indent) +
-    '[' +
-    util.styleText('green', l.rule) +
-    '] ' +
-    util.styleText('cyan', l.relation) +
-    '(' +
-    l.args.map(prettyTerm).join(util.styleText('bold', ', ')) +
-    ')';
+    `${styleText('gray', '\u{2502} ').repeat(indent)}[${styleText('green', l.rule)}] ${styleText('cyan', l.relation)}(${l.args.map(prettyTerm).join(styleText('bold', ', '))})`;
 
   const loop = (indent: number, l: Derivation): string =>
     `${prettyDerivation(indent, l)}\n${l.premises.map(p => loop(indent + 1, p)).join('')}`;
@@ -56,7 +45,6 @@ function prettySolution(solution: QueryResultSolution): string {
 
 async function main(): Promise<void> {
   if (process.argv.length !== 4 && process.argv.length !== 5) {
-    // deno-lint-ignore no-console
     console.error(
       `Wrong number of arguments.\nUsage: ${process.argv[1]} [-m] system-file query-file`,
     );
@@ -65,21 +53,16 @@ async function main(): Promise<void> {
   }
 
   let machineReadable = false;
-  // @ts-ignore 6133 (_node and _source are unused on purpose)
-  // deno-lint-ignore single-var-declarator
-  let _node: string, _source: string, flags: string, systemFile: string, queryFile: string;
+  // oxlint-disable-next-line init-declarations
+  let flags: string, systemFile: string, queryFile: string;
   if (process.argv.length === 4) {
-    // Cast added due to deno-lsp complaints
-    [_node, _source, systemFile, queryFile] = process.argv as [string, string, string, string];
+    // Depends on the check above
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    [systemFile, queryFile] = process.argv.toSpliced(0, 2) as [string, string];
   } else {
-    // Cast added due to deno-lsp complaints
-    [_node, _source, flags, systemFile, queryFile] = process.argv as [
-      string,
-      string,
-      string,
-      string,
-      string,
-    ];
+    // Depends on the check above
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    [flags, systemFile, queryFile] = process.argv.toSpliced(0, 2) as [string, string, string];
     if (flags.includes('m')) {
       machineReadable = true;
     }
@@ -96,19 +79,17 @@ async function main(): Promise<void> {
   const solutions = performQuery(system, query);
 
   if (typeof solutions === 'string') {
-    // deno-lint-ignore no-console
     console.error(solutions);
     process.exitCode = 1;
     return;
+  }
+
+  const result: QueryResult = { solutions, count: solutions.length };
+  if (machineReadable) {
+    console.log(JSON.stringify(result));
   } else {
-    const result: QueryResult = { solutions, count: solutions.length };
-    if (machineReadable) {
-      // deno-lint-ignore no-console
-      console.log(JSON.stringify(result));
-    } else {
-      // deno-lint-ignore no-console
-      console.log(solutions.map(prettySolution).join('\n'));
-    }
+    console.log(solutions.map(sol => prettySolution(sol)).join('\n'));
   }
 }
-main();
+
+await main();

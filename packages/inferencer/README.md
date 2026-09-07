@@ -9,7 +9,7 @@ A logical system query engine for [Justify](https://github.com/Bowuigi/Justify) 
 - Literal values
 - Checked variables and literals
 - Conversion from **System**/**Query** terms
-- Codegen for **System** / inference rules (check `mkCodegen.ts`)
+- Codegen for **System** / inference rules (check `mk-codegen.ts`)
 - Derivation tree generation (for **QueryResult** files)
 - Idempotent substitution transformation
 

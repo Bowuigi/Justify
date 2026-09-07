@@ -34,7 +34,7 @@ export function toRelationStore(
 ): Record<string, (relArgs: Array<MK.Term>) => MK.Goal> {
   const relStore: Record<string, (relArgs: Array<MK.Term>) => MK.Goal> = {};
   for (const [relName, relData] of Object.entries(system.relations)) {
-    relStore[relName] = (relArgs: Array<MK.Term>) => {
+    relStore[relName] = (relArgs: Array<MK.Term>): MK.Goal => {
       const argPool = Object.fromEntries(relData.arguments.map((arg, ix) => [arg.id, relArgs[ix]]));
       return MK.delay(
         MK.disjN(
@@ -51,14 +51,12 @@ export function toRelationStore(
                       ...Object.entries(rule.patterns).map(([argVar, poolValue]) =>
                         MK.eq(
                           // Catched by validator
-                          // deno-lint-ignore no-non-null-assertion
                           argPool[argVar]!,
                           MK.convertTermWithPool(poolValue, pool, Object.keys(rule.literals)),
                         ),
                       ),
                       ...rule.premises.map(({ relation, args }) =>
                         // Catched by validator
-                        // deno-lint-ignore no-non-null-assertion
                         relStore[relation]!(
                           args.map(a =>
                             MK.convertTermWithPool(a, pool, Object.keys(rule.literals)),

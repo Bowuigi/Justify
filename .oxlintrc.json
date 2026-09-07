@@ -17,19 +17,29 @@
     "correctness": "error"
   },
   "rules": {
-    "unicorn/no-lonely-if": "allow",
-    "unicorn/no-null": "allow",
-    "typescript/prefer-readonly-parameter-types": "allow",
+    "curly": "allow",
+    "default-case": "allow",
+    "id-length": "allow",
+    "max-params": ["error", 6],
+    "max-statements": ["allow", 15],
+    "no-magic-numbers": "allow",
+    "no-optional-chaining": "allow",
+    "no-ternary": "allow",
+    "no-undefined": "allow",
+    "one-var": "allow",
+    "oxc/no-async-await": "allow",
+    "oxc/no-rest-spread-properties": "allow",
+    "require-unicode-regexp": "allow",
     "sort-imports": "allow",
     "sort-keys": "allow",
     "sort-vars": "allow",
-    "id-length": "allow",
-    "no-optional-chaining": "allow",
-    "max-statements": ["allow", 15],
+    "typescript/array-type": ["error", { "default": "generic" }],
+    "typescript/consistent-return": "allow",
     "typescript/no-non-null-assertion": "allow",
     "typescript/no-unsafe-assignment": "allow",
-    "oxc/no-async-await": "allow",
-    "one-var": "allow",
+    "typescript/prefer-readonly-parameter-types": "allow",
+    "unicorn/no-lonely-if": "allow",
+    "unicorn/no-null": "allow",
 
     "unicorn/empty-brace-spaces": "warn",
     "unicorn/escape-case": "warn",
@@ -56,12 +66,6 @@
         },
         "allowArrowFunctions": true
       }
-    ],
-    "no-magic-numbers": [
-      "error",
-      {
-        "ignore": [0, 1, 200, 400]
-      }
     ]
   },
   "env": {
@@ -69,15 +73,15 @@
   },
   "overrides": [
     {
-      "files": ["backend/**/*"],
-      "env": {
-        "node": true
+      "files": ["packages/validator/modules/*"],
+      "rules": {
+        "no-unused-vars": "allow"
       }
     },
     {
-      "files": ["frontend/**/*"],
-      "env": {
-        "browser": true
+      "files": ["packages/*/main.ts"],
+      "globals": {
+        "console": "readonly"
       }
     }
   ]

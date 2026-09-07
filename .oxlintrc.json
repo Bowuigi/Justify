@@ -80,6 +80,9 @@
     },
     {
       "files": ["packages/*/main.ts"],
+      "rules": {
+        "no-console": "allow"
+      },
       "globals": {
         "console": "readonly"
       }

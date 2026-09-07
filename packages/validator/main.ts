@@ -1,4 +1,3 @@
-// oxlint-disable no-console
 import { default as process } from 'node:process';
 import { styleText } from 'node:util';
 

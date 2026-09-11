@@ -1,10 +1,6 @@
-import type { Fixity, System, Term } from '@justify/core';
+import type { System, Term } from '@justify/core';
 
 import { testSystem } from '../testing-common.ts';
-
-// Typescript being weird
-// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-const noneFixity: Fixity = 'none' as const as Fixity.None;
 
 const sharedSyntax: System['syntax'] = {
   test: {
@@ -16,7 +12,7 @@ const sharedSyntax: System['syntax'] = {
         description: 'Test harness, takes exactly one argument',
         arguments: [{ from: 'literal', id: 'x', tex: 'x' }],
         tex_parts: [],
-        fixity: noneFixity,
+        fixity: 'none',
       },
     ],
   },
@@ -31,7 +27,7 @@ async function testConstructorCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): Pr
       relations: {
         test: {
           description: '',
-          fixity: noneFixity,
+          fixity: 'none',
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
           rules: [
@@ -67,7 +63,7 @@ async function testPremiseCAC(kind: 'E' | 'M' | 'ok', args: Array<Term>): Promis
       relations: {
         test: {
           description: '',
-          fixity: noneFixity,
+          fixity: 'none',
           arguments: [{ from: 'test', id: 't', tex: 't' }],
           tex_parts: [],
           rules: [

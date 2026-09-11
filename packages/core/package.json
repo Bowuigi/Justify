@@ -3,6 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./mod.ts"
+    ".": "./lib.ts"
   }
 }

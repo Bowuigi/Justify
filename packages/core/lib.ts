@@ -1,4 +1,3 @@
-// oxlint-disable no-console
 import { readFile } from 'node:fs/promises';
 
 import { validate as validateQueryResult } from './codegen/query-result-validator.ts';
@@ -37,6 +36,8 @@ async function parseFile<T>(
     return null;
   }
 }
+
+// --- exports ---
 
 export type * from './codegen/types.d.ts';
 

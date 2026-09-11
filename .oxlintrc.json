@@ -37,7 +37,6 @@
     "sort-imports": "allow",
     "sort-keys": "allow",
     "sort-vars": "allow",
-    "typescript/array-type": ["error", { "default": "generic" }],
     "typescript/consistent-return": "allow",
     "typescript/no-non-null-assertion": "allow",
     "typescript/no-unsafe-assignment": "allow",
@@ -45,7 +44,7 @@
     "unicorn/no-lonely-if": "allow",
     "unicorn/no-null": "allow",
     "unicorn/no-array-reduce": "allow",
-    "unicorn/max-nested-calls": ["error", { "max": 5 }],
+    "unicorn/prefer-ternary": "allow",
 
     "unicorn/empty-brace-spaces": "warn",
     "unicorn/escape-case": "warn",
@@ -58,6 +57,9 @@
     "unicorn/no-immediate-mutation": "warn",
     "unicorn/no-process-exit": "warn",
 
+    "typescript/explicit-function-return-type": ["error", { "allowExpressions": true }],
+    "typescript/array-type": ["error", { "default": "generic" }],
+    "unicorn/max-nested-calls": ["error", { "max": 5 }],
     "unicorn/consistent-function-scoping": ["error", { "checkArrowFunctions": false }],
     "unicorn/explicit-timer-delay": ["error", "always"],
     "unicorn/filename-case": ["error", { "case": "kebabCase" }],

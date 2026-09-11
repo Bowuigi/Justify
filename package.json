@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "scripts": {
+    "codegen": "sh scripts/codegen.sh",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",

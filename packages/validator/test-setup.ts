@@ -1,6 +1,5 @@
-import { expect } from 'vitest';
-
 import type { Query, QueryResult, System } from '@justify/core';
+import { expect } from 'vitest';
 
 import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
 import type { ModuleErrorInfo } from './module-common.ts';
@@ -13,63 +12,82 @@ expect.extend({
       pass: givenErrors.length === 0,
       message: () => {
         if (isNot) {
-          return `This System is valid (when it's not supposed to be). No validation errors reported.`
-        } else {
-          return `This System is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`
+          return `This System is valid (when it's not supposed to be). No validation errors reported.`;
         }
-      }
-    }
+        return `This System is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`;
+      },
+    };
   },
-  toBeAValidQueryFor(system: System, query: Query) {
+  toHaveAValidQuery(system: System, query: Query) {
     const { isNot, utils } = this;
     const givenErrors = validateQuery(query, system);
     return {
       pass: givenErrors.length === 0,
       message: () => {
         if (isNot) {
-          return `This Query is valid (when it's not supposed to be). No validation errors reported.`
-        } else {
-          return `This Query is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`
+          return `This Query is valid (when it's not supposed to be). No validation errors reported.`;
         }
-      }
-    }
+        return `This Query is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`;
+      },
+    };
   },
-  toBeAValidQueryResultFor(system: System, queryResult: QueryResult) {
+  toHaveAValidQueryResult(system: System, queryResult: QueryResult) {
     const { isNot, utils } = this;
     const givenErrors = validateQueryResult(queryResult, system);
     return {
       pass: givenErrors.length === 0,
       message: () => {
         if (isNot) {
-          return `This QueryResult is valid (when it's not supposed to be). No validation errors reported.`
-        } else {
-          return `This QueryResult is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`
+          return `QueryResult is valid (when it's not supposed to be). No validation errors reported.`;
         }
-      }
-    }
+        return `QueryResult is invalid. Reported errors:\n${utils.printDiffOrStringify(givenErrors, [])}`;
+      },
+    };
   },
   toBeASystemReturningValidationErrors(system: System, errors: ModuleErrorInfo) {
     const { isNot, utils } = this;
     const givenErrors = validateSystem(system);
+    const match = givenErrors.every(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
-      pass: false, // stub
-      message: () => `stub test`
-    }
+      pass: match,
+      message: () => {
+        if (isNot) {
+          return `System validation errors partially-match (when they shouldn't).`;
+        }
+        return `System validation errors don't partially-match.\n${utils.printDiffOrStringify(givenErrors, errors)}`;
+      },
+    };
   },
   toBeAQueryReturningValidationErrors(system: System, query: Query, errors: ModuleErrorInfo) {
     const { isNot, utils } = this;
     const givenErrors = validateQuery(query, system);
+    const match = givenErrors.some(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
-      pass: false, // stub
-      message: () => `stub test`
-    }
+      pass: match,
+      message: () => {
+        if (isNot) {
+          return `Query validation errors partially-match (when they shouldn't).`;
+        }
+        return `Query validation errors don't partially-match.\n${utils.printDiffOrStringify(givenErrors, errors)}`;
+      },
+    };
   },
-  toBeAQueryResultReturningValidationErrors(system: System, queryResult: QueryResult, errors: ModuleErrorInfo) {
+  toBeAQueryResultReturningValidationErrors(
+    system: System,
+    queryResult: QueryResult,
+    errors: ModuleErrorInfo,
+  ) {
     const { isNot, utils } = this;
     const givenErrors = validateQueryResult(queryResult, system);
+    const match = givenErrors.some(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
-      pass: false, // stub
-      message: () => `stub test`
-    }
+      pass: match,
+      message: () => {
+        if (isNot) {
+          return `QueryResult validation errors partially-match (when they shouldn't).`;
+        }
+        return `QueryResult validation errors don't partially-match.\n${utils.printDiffOrStringify(givenErrors, errors)}`;
+      },
+    };
   },
 });

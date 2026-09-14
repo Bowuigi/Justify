@@ -30,6 +30,7 @@
     "no-optional-chaining": "allow",
     "no-ternary": "allow",
     "no-undefined": "allow",
+    "prefer-named-capture-group": "allow",
     "one-var": "allow",
     "oxc/no-async-await": "allow",
     "oxc/no-rest-spread-properties": "allow",

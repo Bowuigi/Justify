@@ -1,4 +1,3 @@
-// deno-lint-ignore no-external-import
 import { default as process } from 'node:process';
 
 import {
@@ -19,15 +18,13 @@ type TeXNamespace =
   | 'relationRuleset';
 
 function snakeToCamel(s: string): string {
-  return s.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  return s.replaceAll(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
 }
 
-function interleave<T>(arr1: T[], arr2: T[]): T[] {
-  const result: T[] = [];
+function interleave<T>(arr1: Array<T>, arr2: Array<T>): Array<T> {
+  const result: Array<T> = [];
   for (let i = 0; i < Math.max(arr1.length, arr2.length); i++) {
-    // deno-lint-ignore no-non-null-assertion
     if (i < arr1.length) result.push(arr1[i]!);
-    // deno-lint-ignore no-non-null-assertion
     if (i < arr2.length) result.push(arr2[i]!);
   }
   return result;
@@ -42,23 +39,31 @@ function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<str
     relationRule: 'rr',
     relationRuleset: 'rrs',
   };
-  const renderedArgs = args === undefined ? '' : '{' + args.join('}{') + '}';
-  return '\\' + snakeToCamel(`j${mappings[namespace]}_${invocation}`) + renderedArgs;
+  const renderedArgs = args === undefined ? '' : `{${  args.join('}{')  }}`;
+  return `\\${  snakeToCamel(`j${mappings[namespace]}_${invocation}`)  }${renderedArgs}`;
 }
 
 function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string>): string {
   switch (fixity) {
-    case 'none':
-      // deno-lint-ignore no-non-null-assertion
-      return (texParts[0] || args[0])!;
-    case 'prefix':
+    case 'none': {
+      if (texParts.length === 0) {
+        return args[0]!;
+      }
+        return interleave(texParts, args).join(' ');
+      
+    }
+    case 'prefix': {
       return interleave(texParts, args).join(' ');
-    case 'infix':
+    }
+    case 'infix': {
       return interleave(args, texParts).join(' ');
-    case 'postfix':
+    }
+    case 'postfix': {
       return interleave(args, texParts).join(' ');
-    default:
+    }
+    default: {
       throw new Error('Impossible. New fixity.');
+    }
   }
 }
 
@@ -68,32 +73,35 @@ function renderTerm(
   literals: Record<string, TexMath>,
 ): string {
   switch (term.is) {
-    case 'ref':
-      return variables[term.to] || literals[term.to] || `<Ref ${term.to} unbound>`;
-    case 'con':
+    case 'ref': {
+      return variables[term.to] ?? literals[term.to] ?? `<Ref ${term.to} unbound>`;
+    }
+    case 'con': {
       return commandOf(
         'grammar',
         `${term.from}_${term.tag}`,
         term.args.map(a => renderTerm(a, variables, literals)),
       );
+    }
   }
 }
 
+// oxlint-disable-next-line max-lines-per-function
 function extractTeX(system: System): string {
   const mapEntries: <S, T>(
     obj: Record<string, S>,
     callback: (value: [string, S], index: number) => T,
-  ) => T[] = (obj, callback) => Object.entries(obj).map(callback);
+  ) => Array<T> = (obj, callback) => Object.entries(obj).map((val, ix) => callback(val, ix));
 
-  /// jyGrammar formatting
+  /// Formatting for \jyGrammar
   const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) => [
-    // e ::= & constructor(...args) & description \\
+    // Format: e ::= & constructor(...args) & description \\
     // On title lines it inserts an extra line with -5pt line spacing
-    (ix === 0 ? '' : '\\\\[-5pt] ') + `& & \\textbf{${definition.description}}`,
+    `${ix === 0 ? '' : String.raw`\\[-5pt] `  }& & \\textbf{${definition.description}}`,
     ...definition.grammar.map(
-      (grammar, ix) =>
-        (ix === 0 ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : '\\mid') +
-        ` & ${commandOf(
+      (grammar, gix) =>
+        `${gix === 0 ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : String.raw`\mid` 
+        } & ${commandOf(
           'grammar',
           `${category}_${grammar.id}`,
           grammar.arguments.map(a => a.tex),
@@ -106,7 +114,7 @@ function extractTeX(system: System): string {
     TeXNamespace,
     Array<readonly [string, { readonly arguments: number; readonly definition: string }]>
   > = {
-    // jg<category><constructor>{...}{...}... macros
+    // \jg<category><constructor>{...}{...}... macros
     grammar: Object.entries(system.syntax).flatMap(([category, definition]) =>
       definition.grammar.map(
         grammar =>
@@ -123,7 +131,7 @@ function extractTeX(system: System): string {
           ] as const,
       ),
     ),
-    // jr<relation>{...}{...}... macros
+    // \jr<relation>{...}{...}... macros
     relation: mapEntries(system.relations, ([relation, definition]) => [
       relation,
       {
@@ -169,8 +177,7 @@ function extractTeX(system: System): string {
                   p.args.map(a => renderTerm(a, rule.variables, rule.literals)),
                 ),
               )
-              .join(' \\\\ '),
-            // deno-lint-ignore no-non-null-assertion
+              .join(String.raw` \\ `),
             commandOf(
               'relation',
               relation,
@@ -189,7 +196,7 @@ function extractTeX(system: System): string {
         arguments: 0,
         definition: definition.rules
           .map(r => commandOf('relationRule', `${relation}_${r.rule.id}`))
-          .join(' \\allowbreak \\qquad '),
+          .join(String.raw` \allowbreak \qquad `),
       },
     ]),
     system: [
@@ -221,18 +228,20 @@ function extractTeX(system: System): string {
 
   /// Render defined commands
   let output = '';
-  for (const [namespace, commands] of Object.entries(definedCommands)) {
+  for (const [ns, commands] of Object.entries(definedCommands)) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    const namespace = ns as keyof typeof definedCommands;
     output += `% Bindings from namespace '${namespace}'\n`;
     output += commands
       .map(
         ([command, macro]) =>
-          '\\newcommand{' +
-          commandOf(namespace as TeXNamespace, command) +
-          '}[' +
-          macro.arguments +
-          ']{' +
-          macro.definition +
-          '}\n',
+          `${String.raw`\newcommand{` +
+          commandOf(namespace, command) 
+          }}[${ 
+          macro.arguments 
+          }]{${ 
+          macro.definition 
+          }}\n`,
       )
       .join('');
   }
@@ -241,20 +250,19 @@ function extractTeX(system: System): string {
 
 async function main(): Promise<void> {
   if (process.argv.length !== 3) {
-    // deno-lint-ignore no-console
     console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} filename`);
     process.exitCode = 1;
     return;
   }
 
-  const [_node, _source, filename] = process.argv as [string, string, string];
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  const [filename] = process.argv.toSpliced(0, 2) as [string];
 
   const system = await parseSystem(filename);
   if (system === null) {
     process.exitCode = 1;
     return;
   }
-  // deno-lint-ignore no-console
   console.log(extractTeX(system));
 }
-main();
+await main();

@@ -101,6 +101,12 @@
         "no-inline-comments": "allow",
         "capitalized-comments": "allow"
       }
+    },
+    {
+      "files": ["packages/playground/*"],
+      "env": {
+        "browser": true
+      }
     }
   ]
 }

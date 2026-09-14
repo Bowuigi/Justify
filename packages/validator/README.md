@@ -25,11 +25,11 @@ From the root of the Justify monorepo, run the following (other TS/JS runtimes a
 
 ```sh
 # For System files
-deno run --allow-read --allow-env packages/validator/main.ts system <your-system.json>
+node packages/validator/main.ts system <your-system.json>
 
 # For Query files
-deno run --allow-read --allow-env packages/validator/main.ts query <your-system.json> <your-query.json>
+node packages/validator/main.ts query <your-system.json> <your-query.json>
 
 # For QueryResult files
-deno run --allow-read --allow-env packages/validator/main.ts query-result <your-system.json> <your-query-result.json>
+node packages/validator/main.ts query-result <your-system.json> <your-query-result.json>
 ```

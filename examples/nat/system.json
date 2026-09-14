@@ -17,9 +17,7 @@
           "description": "Successor function, equivalent to $n \\mapsto n+1$",
           "tex_parts": ["S"],
           "fixity": "prefix",
-          "arguments": [
-            {"from": "number", "id": "n", "tex": "n"}
-          ]
+          "arguments": [{ "from": "number", "id": "n", "tex": "n" }]
         }
       ]
     }
@@ -30,34 +28,44 @@
       "tex_parts": ["="],
       "fixity": "infix",
       "arguments": [
-        {"from": "number", "id": "n", "tex": "n"},
-        {"from": "number", "id": "m", "tex": "m"}
+        { "from": "number", "id": "n", "tex": "n" },
+        { "from": "number", "id": "m", "tex": "m" }
       ],
       "rules": [
         {
-          "rule": {"id": "base", "tex": "Base"},
+          "rule": { "id": "base", "tex": "Base" },
           "variables": {},
           "literals": {},
           "patterns": {
-            "n": {"is": "con", "from": "number", "tag": "zero", "args": []},
-            "m": {"is": "con", "from": "number", "tag": "zero", "args": []}
+            "n": { "is": "con", "from": "number", "tag": "zero", "args": [] },
+            "m": { "is": "con", "from": "number", "tag": "zero", "args": [] }
           },
           "premises": []
         },
         {
-          "rule": {"id": "ind", "tex": "Ind"},
-          "variables": {"x": "x", "y": "y"},
+          "rule": { "id": "ind", "tex": "Ind" },
+          "variables": { "x": "x", "y": "y" },
           "literals": {},
           "patterns": {
-            "n": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "x"}]},
-            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]}
+            "n": {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "ref", "to": "x" }]
+            },
+            "m": {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "ref", "to": "y" }]
+            }
           },
           "premises": [
             {
               "relation": "equal",
               "args": [
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "y"}
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "y" }
               ]
             }
           ]
@@ -66,41 +74,51 @@
     },
     "add": {
       "description": "Natural number $n$ plus $m$ is syntactically equal to $k$",
-      "tex_parts": ["+","="],
+      "tex_parts": ["+", "="],
       "fixity": "infix",
       "arguments": [
-        {"from": "number", "id": "n", "tex": "n"},
-        {"from": "number", "id": "m", "tex": "m"},
-        {"from": "number", "id": "k", "tex": "k"}
+        { "from": "number", "id": "n", "tex": "n" },
+        { "from": "number", "id": "m", "tex": "m" },
+        { "from": "number", "id": "k", "tex": "k" }
       ],
       "rules": [
         {
-          "rule": {"id": "base", "tex": "Base"},
-          "variables": {"x": "x"},
+          "rule": { "id": "base", "tex": "Base" },
+          "variables": { "x": "x" },
           "literals": {},
           "patterns": {
-            "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "from": "number", "tag": "zero", "args": []},
-            "k": {"is": "ref", "to": "x"}
+            "n": { "is": "ref", "to": "x" },
+            "m": { "is": "con", "from": "number", "tag": "zero", "args": [] },
+            "k": { "is": "ref", "to": "x" }
           },
           "premises": []
         },
         {
-          "rule": {"id": "ind", "tex": "Ind"},
-          "variables": {"x": "x", "y": "y", "z": "z"},
+          "rule": { "id": "ind", "tex": "Ind" },
+          "variables": { "x": "x", "y": "y", "z": "z" },
           "literals": {},
           "patterns": {
-            "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
-            "k": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "z"}]}
+            "n": { "is": "ref", "to": "x" },
+            "m": {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "ref", "to": "y" }]
+            },
+            "k": {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "ref", "to": "z" }]
+            }
           },
           "premises": [
             {
               "relation": "add",
               "args": [
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "y"},
-                {"is": "ref", "to": "z"}
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "y" },
+                { "is": "ref", "to": "z" }
               ]
             }
           ]
@@ -112,46 +130,51 @@
       "tex_parts": ["\\times", "="],
       "fixity": "infix",
       "arguments": [
-        {"from": "number", "id": "n", "tex": "n"},
-        {"from": "number", "id": "m", "tex": "m"},
-        {"from": "number", "id": "k", "tex": "k"}
+        { "from": "number", "id": "n", "tex": "n" },
+        { "from": "number", "id": "m", "tex": "m" },
+        { "from": "number", "id": "k", "tex": "k" }
       ],
       "rules": [
         {
-          "rule": {"id": "base", "tex": "Base"},
-          "variables": {"x": "x"},
+          "rule": { "id": "base", "tex": "Base" },
+          "variables": { "x": "x" },
           "literals": {},
           "patterns": {
-            "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "from": "number", "tag": "zero", "args": []},
-            "k": {"is": "con", "from": "number", "tag": "zero", "args": []}
+            "n": { "is": "ref", "to": "x" },
+            "m": { "is": "con", "from": "number", "tag": "zero", "args": [] },
+            "k": { "is": "con", "from": "number", "tag": "zero", "args": [] }
           },
           "premises": []
         },
         {
-          "rule": {"id": "ind", "tex": "Ind"},
-          "variables": {"w": "w", "x": "x", "y": "y", "z": "z"},
+          "rule": { "id": "ind", "tex": "Ind" },
+          "variables": { "w": "w", "x": "x", "y": "y", "z": "z" },
           "literals": {},
           "patterns": {
-            "n": {"is": "ref", "to": "x"},
-            "m": {"is": "con", "from": "number", "tag": "succ", "args": [{"is": "ref", "to": "y"}]},
-            "k": {"is": "ref", "to": "z"}
+            "n": { "is": "ref", "to": "x" },
+            "m": {
+              "is": "con",
+              "from": "number",
+              "tag": "succ",
+              "args": [{ "is": "ref", "to": "y" }]
+            },
+            "k": { "is": "ref", "to": "z" }
           },
           "premises": [
             {
               "relation": "multiply",
               "args": [
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "y"},
-                {"is": "ref", "to": "w"}
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "y" },
+                { "is": "ref", "to": "w" }
               ]
             },
             {
               "relation": "add",
               "args": [
-                {"is": "ref", "to": "w"},
-                {"is": "ref", "to": "x"},
-                {"is": "ref", "to": "z"}
+                { "is": "ref", "to": "w" },
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "z" }
               ]
             }
           ]

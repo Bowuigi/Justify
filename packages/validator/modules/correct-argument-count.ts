@@ -1,4 +1,5 @@
 import type * as T from '@justify/core';
+
 import * as C from '../module-common.ts';
 
 export const managedError = 'CAC' as const;
@@ -13,16 +14,15 @@ interface ExtraArguments extends C.ModuleError<typeof managedError, 'E'> {
 
 export type PushedError = MissingArguments | ExtraArguments;
 
-// @ts-ignore 6133: Cannot remove variable parameters due to codegen specifics
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   variables: Record<T.Identifier, T.TexMath>,
   literals: Record<T.Identifier, T.TexMath>,
   term: T.TermCon,
-  system: T.System
+  system: T.System,
 ): void {
-  const expectedArgs = system.syntax[term.from]?.grammar.find((g) => g.id === term.tag)?.arguments;
+  const expectedArgs = system.syntax[term.from]?.grammar.find(g => g.id === term.tag)?.arguments;
 
   // Error flagged by another module
   if (expectedArgs === undefined) return;
@@ -33,7 +33,7 @@ export function onTermCon(
       id: 'CAC-M',
       location: path,
       sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map((a) => a.id)
+      expectedArgumentIds: expectedArgs.map(a => a.id),
     });
   } else if (term.args.length > expectedArgs.length) {
     errors.push({
@@ -41,7 +41,7 @@ export function onTermCon(
       id: 'CAC-E',
       location: path,
       sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map((a) => a.id)
+      expectedArgumentIds: expectedArgs.map(a => a.id),
     });
   }
 }
@@ -50,7 +50,7 @@ export function onPremise(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
   premise: T.SystemRelationRulePremise,
-  system: T.System
+  system: T.System,
 ): void {
   const expectedArgs = system.relations[premise.relation]?.arguments;
 
@@ -63,7 +63,7 @@ export function onPremise(
       id: 'CAC-M',
       location: path,
       sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map((a) => a.id)
+      expectedArgumentIds: expectedArgs.map(a => a.id),
     });
   } else if (premise.args.length > expectedArgs.length) {
     errors.push({
@@ -71,28 +71,30 @@ export function onPremise(
       id: 'CAC-E',
       location: path,
       sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map((a) => a.id)
+      expectedArgumentIds: expectedArgs.map(a => a.id),
     });
   }
 }
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
-    case 'CAC-M':
+    case 'CAC-M': {
       return {
         message: `Missing arguments in relation call`,
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
-    case 'CAC-E':
+    }
+    case 'CAC-E': {
       return {
         message: `Extra ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`,
         hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
-        id: err.id
+        id: err.id,
       };
+    }
   }
 }

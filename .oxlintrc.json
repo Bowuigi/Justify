@@ -1,0 +1,106 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "ignorePatterns": ["**/codegen/**"],
+  "options": {
+    "reportUnusedDisableDirectives": "warn",
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "categories": {
+    "style": "error",
+    "pedantic": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "restriction": "error",
+    "nursery": "warn",
+    "correctness": "error"
+  },
+  "rules": {
+    "curly": "allow",
+    "default-case": "allow",
+    "id-length": "allow",
+    "no-plusplus": "allow",
+    "no-warning-comments": "warn",
+    "max-lines": ["error", 350],
+    "max-classes-per-file": ["error", 3],
+    "max-params": ["error", 6],
+    "max-statements": ["allow", 15],
+    "no-magic-numbers": "allow",
+    "no-optional-chaining": "allow",
+    "no-ternary": "allow",
+    "no-undefined": "allow",
+    "prefer-named-capture-group": "allow",
+    "one-var": "allow",
+    "oxc/no-async-await": "allow",
+    "oxc/no-rest-spread-properties": "allow",
+    "require-unicode-regexp": "allow",
+    "sort-imports": "allow",
+    "sort-keys": "allow",
+    "sort-vars": "allow",
+    "typescript/consistent-return": "allow",
+    "typescript/no-non-null-assertion": "allow",
+    "typescript/no-unsafe-assignment": "allow",
+    "typescript/prefer-readonly-parameter-types": "allow",
+    "unicorn/no-lonely-if": "allow",
+    "unicorn/no-null": "allow",
+    "unicorn/no-array-reduce": "allow",
+    "unicorn/prefer-ternary": "allow",
+
+    "unicorn/empty-brace-spaces": "warn",
+    "unicorn/escape-case": "warn",
+    "unicorn/no-accessor-recursion": "warn",
+    "unicorn/no-anonymous-default-export": "warn",
+    "unicorn/no-array-callback-reference": "warn",
+    "unicorn/no-array-fill-with-reference-type": "warn",
+    "unicorn/no-await-expression-member": "warn",
+    "unicorn/no-console-spaces": "warn",
+    "unicorn/no-immediate-mutation": "warn",
+    "unicorn/no-process-exit": "warn",
+
+    "typescript/explicit-function-return-type": ["error", { "allowExpressions": true }],
+    "typescript/array-type": ["error", { "default": "generic" }],
+    "unicorn/max-nested-calls": ["error", { "max": 5 }],
+    "unicorn/consistent-function-scoping": ["error", { "checkArrowFunctions": false }],
+    "unicorn/explicit-timer-delay": ["error", "always"],
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "unicorn/no-array-sort": ["error", { "allowAfterSpread": true }],
+    "func-style": [
+      "error",
+      "declaration",
+      {
+        "overrides": {
+          "namedExports": "declaration"
+        },
+        "allowArrowFunctions": true
+      }
+    ]
+  },
+  "env": {
+    "builtin": true
+  },
+  "overrides": [
+    {
+      "files": ["packages/validator/modules/*"],
+      "rules": {
+        "no-unused-vars": "allow"
+      }
+    },
+    {
+      "files": ["packages/*/main.ts", "packages/core/lib.ts"],
+      "rules": {
+        "no-console": "allow"
+      },
+      "globals": {
+        "console": "readonly"
+      }
+    },
+    {
+      "files": ["packages/inferencer/mk-codegen.ts"],
+      "rules": {
+        "no-inline-comments": "allow",
+        "capitalized-comments": "allow"
+      }
+    }
+  ]
+}

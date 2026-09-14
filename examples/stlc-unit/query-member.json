@@ -1,11 +1,11 @@
 {
-  "variables": {"ctx": "\\Gamma", "x": "x", "t": "\\tau"},
+  "variables": { "ctx": "\\Gamma", "x": "x", "t": "\\tau" },
   "literals": {},
   "max_results": 2,
   "relation": "member",
   "args": [
-    {"is": "ref", "to": "x"},
-    {"is": "ref", "to": "t"},
-    {"is": "ref", "to": "ctx"}
+    { "is": "ref", "to": "x" },
+    { "is": "ref", "to": "t" },
+    { "is": "ref", "to": "ctx" }
   ]
 }

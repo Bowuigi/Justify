@@ -1,4 +1,3 @@
-// deno-lint-ignore no-external-import
 import { styleText } from 'node:util';
 
 export type SourceOfTruthPath =
@@ -35,7 +34,9 @@ export type DTLocationPath =
   | ['query-result', number, 'derivation', ...Array<number | 'premises' | 'arguments'>]
   | ['query-result', number, 'variables', string, ...Array<number | 'premises' | 'arguments'>];
 
-export type ErrorStack<T> = { push: (error: T) => void };
+export interface ErrorStack<T> {
+  push: (error: T) => void;
+}
 
 export interface ModuleError<ModId extends string, ErrId extends string> {
   moduleId: ModId;
@@ -56,16 +57,17 @@ export const highlight = (str: string): string => styleText(['bold', 'green'], s
 export const highlightWrong = (str: string): string => styleText(['bold', 'red'], str);
 
 export function displayIterable(singular: string, plural: string, item: Iterable<string>): string {
-  const itemAsArray = [...item].map(highlight);
+  const itemAsArray = [...item].map(x => highlight(x));
 
   switch (itemAsArray.length) {
-    case 0:
+    case 0: {
       return `${plural}: <empty>`;
-    case 1:
+    }
+    case 1: {
       return `${singular}: ${itemAsArray[0]}`;
-    default:
-      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} or ${
-        itemAsArray[itemAsArray.length - 1]
-      }`;
+    }
+    default: {
+      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} or ${itemAsArray.at(-1)}`;
+    }
   }
 }

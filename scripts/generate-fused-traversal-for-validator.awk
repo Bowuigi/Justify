@@ -1,0 +1,64 @@
+BEGIN {
+  FS = "[ :]+"
+}
+
+/export const managedError/ {
+  fnameMap[FILENAME] = gensub(/'/, "", "g", $5)
+}
+
+/^export function on/ {
+  fun = gensub(/\(.*/, "", "1", $3)
+  on[fun][fnameMap[FILENAME]] = 1
+  if (!(fun in signatureMap)) {
+    currentHandler = fun
+    signatureMap[currentHandler] = $0
+  }
+}
+
+/^): void {$/ {
+  signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  currentHandler = ""
+}
+
+/^  / {
+  if (currentHandler) {
+    if (currentHandler in args) {
+      args[currentHandler] = args[currentHandler] ", " $2
+    } else {
+      args[currentHandler] = $2
+    }
+    signatureMap[currentHandler] = signatureMap[currentHandler] "\n" $0
+  }
+}
+
+END {
+  print "import type * as T from \"@justify/core\""
+  print "import type * as C from \"../module-common.ts\""
+
+  for (fname in fnameMap) {
+    printf "import * as %s from \"%s\"\n", fnameMap[fname], fname
+  }
+
+  printf "\nexport type PushedError ="
+  for (fname in fnameMap) {
+    printf " | %s.PushedError", fnameMap[fname]
+  }
+  print ";"
+
+  for (fun in on) {
+    print ""
+    print signatureMap[fun]
+    for (fname in on[fun]) {
+      printf "  %s.%s(%s);\n", fname, fun, args[fun]
+    }
+    print "}"
+  }
+
+  print "\nexport function formatError(err: PushedError): C.ModuleErrorInfo {"
+  print "  switch (err.moduleId) {"
+  for (fname in fnameMap) {
+    printf "    case \"%s\": return %s.formatError(err);\n", fnameMap[fname], fnameMap[fname]
+  }
+  print "  }"
+  print "}"
+}

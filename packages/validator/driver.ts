@@ -5,8 +5,9 @@ import type {
   QueryResult,
   System,
   Term,
-  TexMath
+  TexMath,
 } from '@justify/core';
+
 import * as Fused from './codegen/fused.ts';
 import type { DTLocationPath, ErrorStack, LocationPath, ModuleErrorInfo } from './module-common.ts';
 
@@ -16,17 +17,20 @@ function onTerm(
   variables: Record<string, TexMath>,
   literals: Record<string, TexMath>,
   term: Term,
-  system: System
+  system: System,
 ): void {
   switch (term.is) {
-    case 'ref':
-      return Fused.onTermRef(errors, path, variables, literals, term, system);
-    case 'con':
+    case 'ref': {
+      Fused.onTermRef(errors, path, variables, literals, term, system);
+      return;
+    }
+    case 'con': {
       Fused.onTermCon(errors, path, variables, literals, term, system);
       for (const arg of term.args) {
         onTerm(errors, path, variables, literals, arg, system);
       }
       break;
+    }
   }
 }
 
@@ -34,21 +38,24 @@ function onDerivationTerm(
   errors: ErrorStack<Fused.PushedError>,
   path: DTLocationPath,
   drvTerm: DerivationTerm,
-  system: System
+  system: System,
 ): void {
   switch (drvTerm.is) {
-    case 'lit':
+    case 'lit': {
       Fused.onDerivationTermLit(errors, path, drvTerm, system);
       break;
-    case 'var':
+    }
+    case 'var': {
       Fused.onDerivationTermVar(errors, path, drvTerm, system);
       break;
-    case 'con':
+    }
+    case 'con': {
       Fused.onDerivationTermCon(errors, path, drvTerm, system);
       for (const arg of drvTerm.args) {
         onDerivationTerm(errors, path, arg, system);
       }
       break;
+    }
   }
 }
 
@@ -56,7 +63,7 @@ function onDerivation(
   errors: ErrorStack<Fused.PushedError>,
   path: DTLocationPath,
   derivation: Derivation,
-  system: System
+  system: System,
 ): void {
   Fused.onDerivation(errors, path, derivation, system);
 
@@ -69,6 +76,7 @@ function onDerivation(
   }
 }
 
+// oxlint-disable-next-line max-lines-per-function
 export function validateSystem(system: System): Array<ModuleErrorInfo> {
   const errors: Array<Fused.PushedError> = [];
 
@@ -79,14 +87,14 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
         errors,
         ['system', 'syntax', syncatId, 'grammar', grammar.id],
         grammar,
-        system
+        system,
       );
       for (const arg of grammar.arguments) {
         Fused.onArgument(
           errors,
           ['system', 'syntax', syncatId, 'grammar', grammar.id, 'arguments', arg.id],
           arg,
-          system
+          system,
         );
       }
     }
@@ -99,28 +107,22 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
     }
     for (const rule of relDef.rules) {
       Fused.onRule(errors, ['system', 'relations', relId, 'rules', rule.rule.id], rule, system);
-      Fused.onIdentifierMap(errors, [
-        'system',
-        'relations',
-        relId,
-        'rules',
-        rule.rule.id,
-        'literals'
-      ], rule.literals);
-      Fused.onIdentifierMap(errors, [
-        'system',
-        'relations',
-        relId,
-        'rules',
-        rule.rule.id,
-        'variables'
-      ], rule.variables);
+      Fused.onIdentifierMap(
+        errors,
+        ['system', 'relations', relId, 'rules', rule.rule.id, 'literals'],
+        rule.literals,
+      );
+      Fused.onIdentifierMap(
+        errors,
+        ['system', 'relations', relId, 'rules', rule.rule.id, 'variables'],
+        rule.variables,
+      );
       Fused.onPatterns(
         errors,
         ['system', 'relations', relId, 'rules', rule.rule.id, 'patterns'],
         relId,
         rule.patterns,
-        system
+        system,
       );
       for (const [patternVar, patternBody] of Object.entries(rule.patterns)) {
         onTerm(
@@ -129,7 +131,7 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
           rule.variables,
           rule.literals,
           patternBody,
-          system
+          system,
         );
       }
       for (const [premiseIx, premise] of rule.premises.entries()) {
@@ -137,7 +139,7 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
           errors,
           ['system', 'relations', relId, 'rules', rule.rule.id, 'premises', premiseIx],
           premise,
-          system
+          system,
         );
         for (const [argIx, arg] of premise.args.entries()) {
           onTerm(
@@ -151,18 +153,18 @@ export function validateSystem(system: System): Array<ModuleErrorInfo> {
               'premises',
               premiseIx,
               'arguments',
-              argIx
+              argIx,
             ],
             rule.variables,
             rule.literals,
             arg,
-            system
+            system,
           );
         }
       }
     }
   }
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }
 
 export function validateQuery(query: Query, system: System): Array<ModuleErrorInfo> {
@@ -176,12 +178,12 @@ export function validateQuery(query: Query, system: System): Array<ModuleErrorIn
     onTerm(errors, ['query', 'args', argIx], query.variables, query.literals, arg, system);
   }
 
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }
 
 export function validateQueryResult(
   queryResult: QueryResult,
-  system: System
+  system: System,
 ): Array<ModuleErrorInfo> {
   const errors: Array<Fused.PushedError> = [];
 
@@ -190,7 +192,7 @@ export function validateQueryResult(
       Fused.onQueryResultSolutionVariableIdentifier(
         errors,
         ['query-result', solIx, 'variables'],
-        solVarId
+        solVarId,
       );
       onDerivationTerm(errors, ['query-result', solIx, 'variables', solVarId], solVarDef, system);
     }
@@ -198,5 +200,5 @@ export function validateQueryResult(
       onDerivation(errors, ['query-result', solIx, 'derivation'], sol.derivation, system);
     }
   }
-  return (errors as Array<Fused.PushedError>).map(Fused.formatError);
+  return errors.map(err => Fused.formatError(err));
 }

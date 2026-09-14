@@ -1,18 +1,28 @@
 {
   "variables": {},
-  "literals": {"x": "x"},
+  "literals": { "x": "x" },
   "max_results": 1,
   "relation": "judge",
   "args": [
-    {"is": "con", "from": "context", "tag": "empty", "args": []},
-    {"is": "con", "from": "term", "tag": "lambda", "args": [
-      {"is": "ref", "to": "x"},
-      {"is": "con", "from": "type", "tag": "unit", "args": []},
-      {"is": "con", "from": "term", "tag": "variable", "args": [{"is": "ref", "to": "x"}]}
-    ]},
-    {"is": "con", "from": "type", "tag": "arrow", "args": [
-      {"is": "con", "from": "type", "tag": "unit", "args": []},
-      {"is": "con", "from": "type", "tag": "unit", "args": []}
-    ]}
+    { "is": "con", "from": "context", "tag": "empty", "args": [] },
+    {
+      "is": "con",
+      "from": "term",
+      "tag": "lambda",
+      "args": [
+        { "is": "ref", "to": "x" },
+        { "is": "con", "from": "type", "tag": "unit", "args": [] },
+        { "is": "con", "from": "term", "tag": "variable", "args": [{ "is": "ref", "to": "x" }] }
+      ]
+    },
+    {
+      "is": "con",
+      "from": "type",
+      "tag": "arrow",
+      "args": [
+        { "is": "con", "from": "type", "tag": "unit", "args": [] },
+        { "is": "con", "from": "type", "tag": "unit", "args": [] }
+      ]
+    }
   ]
 }

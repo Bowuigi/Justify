@@ -1,84 +1,58 @@
 # Justify — Agent Guide
 
-Suite for inference-rule logical systems. Deno workspace (`deno.json` → `packages/*`), JSR, strict TS. Source of truth is `formats/*.jtd.json`.
+Suite for inference-rule logical systems. npm-workspaces TS monorepo Source of truth for types/validators is `formats/*.jtd.json` (JSON Type Definition), then `docs/` Everything runs as `.ts` directly via Node's type stripping — imports use explicit `.ts` extensions
+
+## Toolchain
+
+- Node v24+ runs TS natively: `node packages/validator/main.ts system <file>` (works for all package CLIs)
+- Format: `npm run fmt`, `npm run fmt:check`
+- Lint + typecheck: `npm run lint` (oxlint is type-aware via `typeAware`/`typeCheck`; there is **no separate tsc step**). `npm run lint:fix` available
+- Pre-commit hook (husky → lint-staged) runs `oxlint` + `oxfmt` on staged files
+- Verification order: `npm run lint` then `npm run fmt`
+
+## Codegen
+
+`formats/*.jtd.json` and `packages/validator/modules/*.ts` are hand-written sources. `npm run codegen` (scripts/codegen.sh) generates into:
+
+- `packages/core/codegen/*-types.d.ts`, `*-validator.ts`, barrel `types.d.ts`
+- `packages/validator/codegen/fused.ts` — fuses the validator `modules/*` passes via awk
+
+Generated output is **committed** but never hand-edited — changes are lost on the next codegen run. After editing a JTD schema or a validator module, run `npm run codegen`
+
+Prereqs on PATH: `jtd-codegen` (from jtd-codegen npm package) and `deno`, plus `awk`
 
 ## Layout
 
-```
-formats/*.jtd.json          # System / Query / QueryResult schemas (JTD)
-packages/core/              # Generated types + JTD validators, parseSystem/parseQuery/parseQueryResult
-packages/validator/         # Semantic validation (fused modular passes) → AGENTS.md
-packages/inferencer/        # microKanren query engine → AGENTS.md
-packages/tex-extractor/     # `extractTeX` → .sty
-packages/remark-plugin/     # remark extension generating System files
-docs/System.md, Query.md, QueryResult.md, common.md
-examples/nat/, stlc-unit/   # Canonical real-world samples — use as integration oracles
-scripts/codegen.sh          # Codegen orchestrator
-attic/                      # Deprecated, likely outdated — do not extend
-```
+- `formats/*.jtd.json` — System/Query/QueryResult schemas, authoritative over `docs/`
+- `packages/core` — generated types + JTD validators; `lib.ts` = `parseSystem`/`parseQuery`/`parseQueryResult`
+- `packages/validator` — semantic validation: modular passes in `modules/*`, fused into `codegen/fused.ts`, orchestrated by `driver.ts`. CLI: `main.ts`
+- `packages/inferencer` — microKanren query engine (`mk.ts`), CLI `main.ts`, codegen for rules (`mk-codegen.ts`)
+- `packages/tex-extractor` — TeX/KaTeX output
+- `packages/remark-plugin` — WIP, NOT usable
+- `attic/` — deprecated, likely outdated; do not extend
+- `examples/nat`, `examples/stlc-unit` — canonical samples; use as integration oracles after semantic changes
+- `docs/*.md` — human (and agent) readable format specs. Read those before writing examples or tests
 
-## Workflow
-
-1. If you edit `formats/*.jtd.json`: run `sh scripts/codegen.sh` then `deno fmt`. Never hand-edit `packages/core/codegen/*` or `packages/validator/codegen/fused.ts` — changes are lost on next codegen.
-2. Edit `packages/*` source (`mod.ts`/`lib.ts`/`main.ts`/`modules/*`).
-3. Fix lint/fmt for edited files: `deno lint`, `deno fmt`. Config scope is `packages/*` only (`fmt` excludes `**/*.md`); still run on your edited files only.
-4. Typecheck: `deno check`.
-5. Test colocated: `deno test --allow-read --allow-env packages/<pkg>/**/*.test.ts`. Validate samples: run validator + inferencer CLIs against `examples/*`.
-
-## Commands
-
-No `deno task` — use direct subcommands:
+## CLI (from repo root)
 
 ```sh
-sh scripts/codegen.sh
-deno lint
-deno fmt                  # --check in CI
-deno check packages/*/mod.ts packages/*/lib.ts packages/*/main.ts
-deno test --allow-read --allow-env packages/validator/modules/correct-argument-count.test.ts
+node packages/validator/main.ts system <system.json>
+node packages/validator/main.ts query <system.json> <query.json>
+node packages/validator/main.ts query-result <system.json> <query-result.json>
+node packages/inferencer/main.ts [-m] <system.json> <query.json>   # -m = machine-readable QueryResult
+node packages/tex-extractor/main.ts <system.json> > out.sty
 ```
-
-Per-package CLIs (from repo root, `bun`/`node` also supported):
-
-```sh
-# validator — see packages/validator/README.md
-deno run --allow-read --allow-env packages/validator/main.ts system <system.json>
-deno run --allow-read --allow-env packages/validator/main.ts query <system.json> <query.json>
-deno run --allow-read --allow-env packages/validator/main.ts query-result <system.json> <query-result.json>
-
-# inferencer — see packages/inferencer/README.md
-deno run --allow-read --allow-env packages/inferencer/main.ts [-m] <system.json> <query.json>
-
-# tex-extractor — see packages/tex-extractor/README.md
-deno run --allow-read --allow-env packages/tex-extractor/main.ts <system.json> > out.sty
-```
-
-Prerequisites: Deno, `jtd-codegen`, `awk`.
-
-## Conventions
-
-- Identifiers: `snake_case` enforced (`^[a-z][a-z0-9_]*$`). Files: `kebab-case`. TeX macros: `PascalCase` via `snakeToCamel`.
-- Imports: `import type` where possible; `// deno-lint-ignore no-external-import` before `node:*` (`node:fs/promises`, `node:process`, `node:util`).
-- Format: 2-space, singleQuote, 100 width, `semiColons:true`, `trailingCommas:never` (`deno.json` `fmt`).
-- Lint: `recommended` + `jsr` + explicit rules (`explicit-function-return-type`, `no-console`, `eqeqeq`, etc.; `no-unused-vars` excluded). `compilerOptions` strict, `noUnusedLocals:true`.
-- Error handling: `main.ts` CLIs only return `null` + `console.error` + `process.exitCode=1` for user errors. All other code uses errors-as-values or throws custom errors — prefer errors-as-values.
-- Generated output (`packages/core/codegen/*`, `packages/validator/codegen/fused.ts`) is BSD where permissible else public domain; `packages/tex-extractor/latex-compat.sty` is 0BSD.
-
-## Packages
-
-- **core** — thin `parseFile` wrapper (`node:fs/promises.readFile` → `JSON.parse` → JTD validator) + barrel `codegen/types.d.ts`. See `packages/core/README.md`.
-- **validator** — fused modular passes. Detail behind pointer → `packages/validator/AGENTS.md`.
-- **inferencer** — microKanren engine with final invariants. Detail behind pointer → `packages/inferencer/AGENTS.md`.
-- **tex-extractor** — `main.ts:extractTeX` + `latex-compat.sty` (`jyRules` env). See `packages/tex-extractor/README.md`.
-- **remark-plugin** — WIP, not usable yet. Literate `justify-syntax`/`justify-relation`/`justify-rule` fences. See `packages/remark-plugin/README.md` + `example-*.jtf.md`.
 
 ## Testing
 
-- Harness: `node:test` + `node:assert` via `packages/validator/testing-common.ts` (`testSystem`/`testQuery`). One existing test: `packages/validator/modules/correct-argument-count.test.ts`.
-- New tests: colocate `*.test.ts` beside implementation in each package.
-- Samples `examples/nat` and `examples/stlc-unit` are the integration oracles — validate and run inferencer (human and `-m` JSON) against them after semantic changes.
+- Vitest, but only the `validator` project is wired up (root `vitest.config.ts` → `packages/validator`)
+- Custom matchers defined in `packages/validator/test-setup.ts` (`toBeAValidSystem`, `toBeHaveAValidQuery`, `toBeASystemReturningValidationErrors`, ...) and typed in `vitest.d.ts`. Use them in new validator tests
+- **There are currently no test files** — `npm test` exits 1 with "No test files found". Colocate new `*.test.ts` under `packages/validator/modules/` (linked to `@justify/core` + `@justify/validator` TS sources)
+- Focused run: `npx vitest run packages/validator/modules/<file>.test.ts`
 
-## Reference
+## Conventions
 
-- `deno.json` — workspace, lint/fmt/compilerOptions, `imports`.
-- `scripts/codegen.sh` — full codegen logic (`jtd-codegen` → `*-types.d.ts`, `jsr:@bowuigi/jtd-validator-generator` → `*-validator.ts`, `awk` barrel + fused).
-- `docs/common.md` + `docs/System.md` + `docs/Query.md` + `docs/QueryResult.md` — format specs.
+- Files: `kebab-case`
+- Lint is strict: `func-style: declaration`, explicit return types, `max-lines: 350`, `max-params: 6`, `noUnusedLocals`, `consistent-return`. `main.ts`/`lib.ts` overrides allow `console`
+- `import type` for type-only imports; `verbatimModuleSyntax`
+- CLI error style (`main.ts`): `null` + `console.error` + `process.exitCode = 1`; library code prefers errors-as-values (`Result` type)

@@ -54,12 +54,7 @@ export interface Argument {
 
 export type Arguments = Argument[];
 
-export enum Fixity {
-  Infix = 'infix',
-  None = 'none',
-  Postfix = 'postfix',
-  Prefix = 'prefix'
-}
+export type Fixity = 'infix' | 'none' | 'postfix' | 'prefix';
 
 export type Identifier = string;
 

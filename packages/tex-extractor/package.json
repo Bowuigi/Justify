@@ -1,0 +1,8 @@
+{
+  "name": "@justify/tex-extractor",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./main.ts"
+  }
+}

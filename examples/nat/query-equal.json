@@ -7,7 +7,7 @@
   "max_results": 2,
   "relation": "equal",
   "args": [
-    {"is": "ref", "to": "p"},
-    {"is": "ref", "to": "q"}
+    { "is": "ref", "to": "p" },
+    { "is": "ref", "to": "q" }
   ]
 }

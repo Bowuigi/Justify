@@ -1,3 +1,5 @@
+import type { Term as STerm } from '@justify/core';
+
 /*
   MicroKanren implementation with the following augments:
   - Simple-complete search
@@ -7,43 +9,61 @@
   - Literal values
   - Checked variables and literals
   - STerm conversions
-  - Codegen for SSystem / inference rules (check src/mkCodegen.ts)
+  - Codegen for SSystem / inference rules (check src/mk-codegen.ts)
   - Derivation tree generation
   - Idempotent substitution transformation
 */
-import { AssocArray } from './AssocArray.ts';
-import type { Term as STerm } from '@justify/core';
+import { AssocArray } from './assoc-array.ts';
 
 // Identifiers and tags are used for rendering, note that equal labels means equal number of args (as they point to global defs)
-type Var = { is: 'var', id: string, counter: number };
-type Constructor = { is: 'con', from: string, tag: string, args: Array<Term> };
-type Literal = { is: 'lit', id: string };
+interface Var {
+  is: 'var';
+  id: string;
+  counter: number;
+}
+interface Constructor {
+  is: 'con';
+  from: string;
+  tag: string;
+  args: Array<Term>;
+}
+interface Literal {
+  is: 'lit';
+  id: string;
+}
 export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
-export type RuleLog = {
-  rule: string,
-  relation: string,
-  args: Array<Term>,
-  premises: Array<RuleLog>
-};
-type State = { subst: Substitution, log: Array<RuleLog>, counter: number };
+export interface RuleLog {
+  rule: string;
+  relation: string;
+  args: Array<Term>;
+  premises: Array<RuleLog>;
+}
+interface State {
+  subst: Substitution;
+  log: Array<RuleLog>;
+  counter: number;
+}
 
-type ImmatureStream = { is: 'delayed', force: () => Stream };
-type MatureStream = { is: 'nil' } | { is: 'cons', solution: State, next: Stream };
+interface ImmatureStream {
+  is: 'delayed';
+  force: () => Stream;
+}
+type MatureStream = { is: 'nil' } | { is: 'cons'; solution: State; next: Stream };
 type Stream = MatureStream | ImmatureStream;
 
 export type Goal = (st: State) => Stream;
 
 export type VarPool = Record<string, Var>;
 
-class OcurrsCheckFailedError extends Error {
+class OccursCheckFailedError extends Error {
   public variable: Var;
   public term: Term;
   public subst: Substitution;
 
-  constructor(variable: Var, term: Term, subst: Substitution) {
+  public constructor(variable: Var, term: Term, subst: Substitution) {
     super(`Occurs check failed for variable ${variable.id}@${variable.counter}.`);
     this.name = 'OccursCheckFailedError';
     this.variable = variable;
@@ -57,7 +77,7 @@ class UnboundIdentifierError extends Error {
   public variableList: Array<string>;
   public literalList: Array<string>;
 
-  constructor(variable: string, variableList: Array<string>, literalList: Array<string>) {
+  public constructor(variable: string, variableList: Array<string>, literalList: Array<string>) {
     super(`Unbound identifier '${variable}', not a bound variable or literal`);
     this.name = 'UnboundIdentifierError';
     this.variable = variable;
@@ -66,49 +86,22 @@ class UnboundIdentifierError extends Error {
   }
 }
 
-// TODO: Should this be used? convertTermWithPool + fresh is more fitting in most cases
-export function convertTerm(
-  sterm: STerm,
-  variables: Array<string>,
-  literals: Array<string>,
-  counter: number
-): [term: Term, newCounter: number] {
-  if (sterm.is === 'ref') {
-    if (variables.includes(sterm.to)) {
-      return [{ is: 'var', id: sterm.to, counter }, counter + 1];
-    } else if (literals.includes(sterm.to)) {
-      return [{ is: 'lit', id: sterm.to }, counter];
-    } else {
-      throw new UnboundIdentifierError(sterm.to, variables, literals);
-    }
-  } else { // Constructor
-    let prevCounter = counter;
-    const newArgs: Array<Term> = [];
-    for (const arg of sterm.args) {
-      const [newSTerm, newCounter] = convertTerm(arg, variables, literals, prevCounter);
-      newArgs.push(newSTerm);
-      prevCounter = newCounter;
-    }
-    return [{ is: 'con', from: sterm.from, tag: sterm.tag, args: newArgs }, prevCounter];
-  }
-}
-
 export function convertTermWithPool(sterm: STerm, pool: VarPool, literals: Array<string>): Term {
   if (sterm.is === 'ref') {
     if (literals.includes(sterm.to)) {
       return { is: 'lit', id: sterm.to };
-    } else if (sterm.to in pool) {
-      // deno-lint-ignore no-non-null-assertion
-      return pool[sterm.to]!;
-    } else {
-      throw new UnboundIdentifierError(sterm.to, Object.keys(pool), literals);
     }
-  } else { // Constructor
+    if (sterm.to in pool) {
+      return pool[sterm.to]!;
+    }
+    throw new UnboundIdentifierError(sterm.to, Object.keys(pool), literals);
+  } else {
+    // Constructor
     return {
       is: 'con',
       from: sterm.from,
       tag: sterm.tag,
-      args: sterm.args.map((a) => convertTermWithPool(a, pool, literals))
+      args: sterm.args.map(a => convertTermWithPool(a, pool, literals)),
     };
   }
 }
@@ -119,30 +112,33 @@ function varEq(a: Var, b: Var): boolean {
 
 function walk(term: Term, subst: Substitution): Term {
   if (term.is === 'var') {
-    const stepped = subst.lastKey((varN) => varEq(term, varN));
+    const stepped = subst.lastKey(varN => varEq(term, varN));
     if (stepped === null) return term;
     return walk(stepped, subst);
-  } else {
-    return term;
   }
+
+  return term;
 }
 
 // Returns true if the substitution has recursive bindings
 function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
   const steppedTerm = walk(term, subst);
   switch (steppedTerm.is) {
-    case 'var':
+    case 'var': {
       return varEq(variable, steppedTerm);
-    case 'con':
-      return steppedTerm.args.some((t) => occursCheck(variable, t, subst));
-    case 'lit':
+    }
+    case 'con': {
+      return steppedTerm.args.some(t => occursCheck(variable, t, subst));
+    }
+    case 'lit': {
       return false;
+    }
   }
 }
 
 function extendSubstitution(variable: Var, term: Term, subst: Substitution): Substitution {
   if (occursCheck(variable, term, subst)) {
-    throw new OcurrsCheckFailedError(variable, term, subst);
+    throw new OccursCheckFailedError(variable, term, subst);
   }
   return subst.insert(variable, term);
 }
@@ -158,9 +154,11 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
     return extendSubstitution(termB, termA, subst);
   }
   if (termA.is === 'lit' && termB.is === 'lit') {
-    return (termA.id === termB.id) ? subst : null;
+    return termA.id === termB.id ? subst : null;
   }
   if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
+    // `unify` and `unifyArray` are mutually recursive
+    // oxlint-disable-next-line no-use-before-define
     return unifyArray(termA.args, termB.args, subst);
   }
   return null;
@@ -170,11 +168,10 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
 function unifyArray(
   termsA: Array<Term>,
   termsB: Array<Term>,
-  subst: Substitution
+  subst: Substitution,
 ): Substitution | null {
   let oldSubst = subst;
   for (const [ix, term] of termsA.entries()) {
-    // deno-lint-ignore no-non-null-assertion
     const newSubst = unify(walk(term, oldSubst), walk(termsB[ix]!, oldSubst), oldSubst);
     if (newSubst === null) return null;
     oldSubst = newSubst;
@@ -184,35 +181,44 @@ function unifyArray(
 
 function appendStream(streamA: Stream, streamB: Stream): Stream {
   switch (streamA.is) {
-    case 'nil':
+    case 'nil': {
       return streamB;
-    case 'delayed':
+    }
+    case 'delayed': {
       // Swapped appendStream arguments to make disj fair
       return { is: 'delayed', force: () => appendStream(streamB, streamA.force()) };
-    case 'cons':
+    }
+    case 'cons': {
       return { is: 'cons', solution: streamA.solution, next: appendStream(streamA.next, streamB) };
+    }
   }
 }
 
 function appendMapStream(goal: Goal, stream: Stream): Stream {
   switch (stream.is) {
-    case 'nil':
+    case 'nil': {
       return stream;
-    case 'delayed':
+    }
+    case 'delayed': {
       return { is: 'delayed', force: () => appendMapStream(goal, stream.force()) };
-    case 'cons':
+    }
+    case 'cons': {
       return appendStream(goal(stream.solution), appendMapStream(goal, stream.next));
+    }
   }
 }
 
 function mapStream(stream: Stream, fn: (st: State) => State): Stream {
   switch (stream.is) {
-    case 'nil':
+    case 'nil': {
       return stream;
-    case 'delayed':
+    }
+    case 'delayed': {
       return { is: 'delayed', force: () => mapStream(stream.force(), fn) };
-    case 'cons':
+    }
+    case 'cons': {
       return { is: 'cons', solution: fn(stream.solution), next: mapStream(stream.next, fn) };
+    }
   }
 }
 
@@ -230,7 +236,7 @@ function takeStream(solutions: number, stream: MatureStream): Array<State> {
   if (solutions === 1) {
     return [stream.solution];
   }
-  return [stream.solution].concat(takeStream(solutions - 1, pullStream(stream.next)));
+  return [stream.solution, ...takeStream(solutions - 1, pullStream(stream.next))];
 }
 
 //// Presentation
@@ -239,24 +245,25 @@ function walkAll(term: Term, subst: Substitution): Term {
   const stepped = walk(term, subst);
 
   switch (stepped.is) {
-    case 'con':
+    case 'con': {
       return {
         is: stepped.is,
         from: stepped.from,
         tag: stepped.tag,
-        args: stepped.args.map((a) => walkAll(a, subst))
+        args: stepped.args.map(a => walkAll(a, subst)),
       };
-    case 'var':
+    }
+    case 'var': {
       return stepped;
-    case 'lit':
+    }
+    case 'lit': {
       return stepped;
+    }
   }
 }
 
 export function toIdempotent(subst: Substitution): Substitution {
-  return new AssocArray(
-    subst.data.map((v) => ({ key: v.key, value: walkAll(v.value, subst) }))
-  );
+  return new AssocArray(subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) })));
 }
 
 // The substitution should be idempotent for efficiency
@@ -264,8 +271,8 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   return {
     rule: log.rule,
     relation: log.relation,
-    args: log.args.map((a) => walkAll(a, subst)),
-    premises: log.premises.map((p) => walkLog(p, subst))
+    args: log.args.map(a => walkAll(a, subst)),
+    premises: log.premises.map(p => walkLog(p, subst)),
   };
 }
 
@@ -291,24 +298,22 @@ export function wrapLogs(rule: string, relation: string, args: Array<Term>, goal
     // Not isolating the state results in duplicated logs
     const isolatedState = { ...st, log: [] };
 
-    return mapStream(
-      goal(isolatedState),
-      (sol) => ({ ...sol, log: [...st.log, { rule, relation, args, premises: sol.log }] })
-    );
+    return mapStream(goal(isolatedState), sol => ({
+      ...sol,
+      log: [...st.log, { rule, relation, args, premises: sol.log }],
+    }));
   };
 }
 
 // Use this for every relation you expect to be recursive
 export function delay(goal: Goal): Goal {
-  return (st: State) => {
-    return { is: 'delayed', force: () => goal(st) };
-  };
+  return (st: State) => ({ is: 'delayed', force: () => goal(st) });
 }
 
 export function run(solutions: number, goal: Goal): Array<State> {
   return takeStream(
     solutions,
-    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 }))
+    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })),
   );
 }
 
@@ -322,7 +327,7 @@ export function eq(termA: Term, termB: Term): Goal {
     return {
       is: 'cons',
       solution: { subst: newSubst, log: st.log, counter: st.counter },
-      next: { is: 'nil' }
+      next: { is: 'nil' },
     };
   };
 }

@@ -22,5 +22,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "exclude": ["node_modules"]
+  "include": ["vitest.d.ts", "packages/**/*.ts"]
 }

@@ -44,7 +44,7 @@ expect.extend({
       },
     };
   },
-  toBeASystemReturningValidationErrors(system: System, errors: ModuleErrorInfo) {
+  toBeASystemReturningValidationErrors(system: System, errors: Partial<ModuleErrorInfo>) {
     const { isNot, utils } = this;
     const givenErrors = validateSystem(system);
     const match = givenErrors.every(actual => this.equals(actual, expect.objectContaining(errors)));
@@ -58,7 +58,11 @@ expect.extend({
       },
     };
   },
-  toBeAQueryReturningValidationErrors(system: System, query: Query, errors: ModuleErrorInfo) {
+  toBeAQueryReturningValidationErrors(
+    system: System,
+    query: Query,
+    errors: Partial<ModuleErrorInfo>,
+  ) {
     const { isNot, utils } = this;
     const givenErrors = validateQuery(query, system);
     const match = givenErrors.some(actual => this.equals(actual, expect.objectContaining(errors)));
@@ -75,7 +79,7 @@ expect.extend({
   toBeAQueryResultReturningValidationErrors(
     system: System,
     queryResult: QueryResult,
-    errors: ModuleErrorInfo,
+    errors: Partial<ModuleErrorInfo>,
   ) {
     const { isNot, utils } = this;
     const givenErrors = validateQueryResult(queryResult, system);

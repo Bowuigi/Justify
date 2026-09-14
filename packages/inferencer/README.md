@@ -15,10 +15,10 @@ A logical system query engine for [Justify](https://github.com/Bowuigi/Justify) 
 
 ## Usage
 
-Assuming `deno run --allow-read --allow-env` is used to run Typescript (other runtimes like `bun` and `node` are supported) and that your current directory is the root of the Justify monorepo:
+Assuming `node` is used to run Typescript (other runtimes like `bun` and `deno` are supported) and that your current directory is the root of the Justify monorepo:
 
 ```shell
-deno run --allow-read --allow-env packages/inferencer/main.ts [-m] <System file> <Query file>
+node packages/inferencer/main.ts [-m] <System file> <Query file>
 ```
 
 The `-m` flag switches on machine-readable output, generating a **QueryResult** file from the **System** and **Query** ones, which is less human-readable but easier to work with programatically.

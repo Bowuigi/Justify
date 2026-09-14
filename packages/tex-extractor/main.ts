@@ -39,8 +39,8 @@ function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<str
     relationRule: 'rr',
     relationRuleset: 'rrs',
   };
-  const renderedArgs = args === undefined ? '' : `{${  args.join('}{')  }}`;
-  return `\\${  snakeToCamel(`j${mappings[namespace]}_${invocation}`)  }${renderedArgs}`;
+  const renderedArgs = args === undefined ? '' : `{${args.join('}{')}}`;
+  return `\\${snakeToCamel(`j${mappings[namespace]}_${invocation}`)}${renderedArgs}`;
 }
 
 function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string>): string {
@@ -49,8 +49,7 @@ function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string
       if (texParts.length === 0) {
         return args[0]!;
       }
-        return interleave(texParts, args).join(' ');
-      
+      return interleave(texParts, args).join(' ');
     }
     case 'prefix': {
       return interleave(texParts, args).join(' ');
@@ -94,21 +93,24 @@ function extractTeX(system: System): string {
   ) => Array<T> = (obj, callback) => Object.entries(obj).map((val, ix) => callback(val, ix));
 
   /// Formatting for \jyGrammar
-  const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) => [
+  // oxlint-disable-next-line no-map-spread
+  const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) =>
     // Format: e ::= & constructor(...args) & description \\
     // On title lines it inserts an extra line with -5pt line spacing
-    `${ix === 0 ? '' : String.raw`\\[-5pt] `  }& & \\textbf{${definition.description}}`,
-    ...definition.grammar.map(
-      (grammar, gix) =>
-        `${gix === 0 ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : String.raw`\mid` 
-        } & ${commandOf(
-          'grammar',
-          `${category}_${grammar.id}`,
-          grammar.arguments.map(a => a.tex),
-        )}` +
-        ` & \\text{${grammar.description}}`,
-    ),
-  ]);
+    [
+      `${ix === 0 ? '' : String.raw`\\[-5pt] `}& & \\textbf{${definition.description}}`,
+      ...definition.grammar.map(
+        (grammar, gix) =>
+          `${
+            gix === 0 ? `${definition.suggestions.join(' , ')} \\mathrel{::=}` : String.raw`\mid`
+          } & ${commandOf(
+            'grammar',
+            `${category}_${grammar.id}`,
+            grammar.arguments.map(a => a.tex),
+          )} & \\text{${grammar.description}}`,
+      ),
+    ],
+  );
 
   const definedCommands: Record<
     TeXNamespace,
@@ -235,12 +237,8 @@ function extractTeX(system: System): string {
     output += commands
       .map(
         ([command, macro]) =>
-          `${String.raw`\newcommand{` +
-          commandOf(namespace, command) 
-          }}[${ 
-          macro.arguments 
-          }]{${ 
-          macro.definition 
+          `${String.raw`\newcommand{` + commandOf(namespace, command)}}[${macro.arguments}]{${
+            macro.definition
           }}\n`,
       )
       .join('');

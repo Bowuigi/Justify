@@ -231,7 +231,6 @@ function extractTeX(system: System): string {
   /// Render defined commands
   let output = '';
   for (const [ns, commands] of Object.entries(definedCommands)) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     const namespace = ns as keyof typeof definedCommands;
     output += `% Bindings from namespace '${namespace}'\n`;
     output += commands
@@ -253,7 +252,6 @@ async function main(): Promise<void> {
     return;
   }
 
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const [filename] = process.argv.toSpliced(0, 2) as [string];
 
   const system = await parseSystem(filename);

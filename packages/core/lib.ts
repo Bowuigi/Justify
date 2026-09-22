@@ -16,7 +16,6 @@ async function parseFile<T>(
     const valid = validate(json);
 
     if (valid.success) {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       return json as T;
     }
 

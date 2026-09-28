@@ -1,0 +1,18 @@
+{
+  "name": "@justify/markdown-dsl",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": "./mod.ts",
+  "dependencies": {
+    "js-yaml": "^5.4.2",
+    "mdast-util-from-markdown": "^2.0.3",
+    "mdast-util-frontmatter": "^2.0.1",
+    "mdast-util-to-string": "^4.0.0",
+    "micromark-extension-frontmatter": "^2.0.0",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^26.6.3"
+  }
+}

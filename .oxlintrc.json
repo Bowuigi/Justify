@@ -41,6 +41,7 @@
     "typescript/consistent-return": "allow",
     "typescript/no-non-null-assertion": "allow",
     "typescript/no-unsafe-assignment": "allow",
+    "typescript/no-unsafe-type-assertion": "allow",
     "typescript/prefer-readonly-parameter-types": "allow",
     "unicorn/no-lonely-if": "allow",
     "unicorn/no-null": "allow",
@@ -100,6 +101,12 @@
       "rules": {
         "no-inline-comments": "allow",
         "capitalized-comments": "allow"
+      }
+    },
+    {
+      "files": ["packages/playground/*"],
+      "env": {
+        "browser": true
       }
     }
   ]

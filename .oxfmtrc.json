@@ -46,9 +46,5 @@
     "preferCodeFences": true,
     "separateReturnsFromParam": false,
     "separateTagGroups": false
-  },
-
-  "sortTailwindcss": {
-    "stylesheet": "frontend/src/app.css"
   }
 }

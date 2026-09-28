@@ -36,7 +36,6 @@ async function main(): Promise<void> {
   }
 
   // This cast depends on the check above
-  // oxlint-disable-next-line no-unsafe-type-assertion
   const [format, ...rest] = process.argv.toSpliced(0, 2) as [string, ...Array<string>];
 
   if (!['system', 'query', 'query-result'].includes(format)) {

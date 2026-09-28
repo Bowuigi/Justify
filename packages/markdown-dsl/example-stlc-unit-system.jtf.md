@@ -4,82 +4,84 @@ title: Simply-typed lambda calculus with a unit type
 
 # Syntax
 
-## term
+## Term
 
-```justify-syntax
-Terms
-
-e ::=
-  | x
-    where
-      x : literal
-    name: variable
-    doc: Variable $x$
-  | \lambda x : t . e
-    where
-      x : literal x
-      t as \tau : type
-      e : term
-    name: lambda
-    doc: Bind the applied term of type $t$ to the variable $x$ in $e$
-  | e1 \; e2
-    where
-      e1 as e_1 : term
-      e2 as e_2 : term
-    name: apply
-    doc: Applies $e_2$ to $e_1$, performing beta reduction
-  | \star
-    name: star
-    doc: The only term of type $\mathbf{1}$
+```jtf-syntax
+desc: Terms
+suggest: [e]
+grammar:
+  - name: variable
+    desc: Variable $x$
+    is: x
+    where:
+      x: literal
+  - name: lambda
+    desc: Bind the applied term of type $t$ to the variable $x$ in $e$
+    is: '\lambda x : t . e'
+    where:
+      x: literal
+      t as \tau: type
+      e: term
+  - name: apply
+    desc: Applies $e_2$ to $e_1$, performing beta reduction
+    is: e1 \; e2
+    where:
+      e1 as e_1: term
+      e2 as e_2: term
+  - name: star
+    desc: The only term of type $\mathbf{1}$
+    is: \star
 ```
 
-## type
+## Type
 
-```justify-syntax
-Types
-
-\tau, A, B ::=
-  | t1 \rightarrow t2
-    where
-      t1 as A : type
-      t2 as B : type
-    name: arrow
-    doc: A function from $A$ to $B$
-  | \mathbf{1}
-    name: unit
-    doc: A type with only one inhabitant, $\\star$
+```jtf-syntax
+desc: Types
+suggest: [A, B, \tau]
+grammar:
+  - name: arrow
+    desc: A function from $A$ to $B$
+    is: a \rightarrow b
+    where:
+      a as A: type
+      b as B: type
+  - name: unit
+    desc: A type with only one inhabitant, $\star$
+    is: \mathbf{1}
 ```
 
-## context
+## Context
 
-```justify-syntax
-\Gamma ::=
-  | \cdot
-    name: empty
-    doc: Empty context, empty environment
-  | ctx , x : t
-    where
-      ctx as \Gamma : context
-      x : literal
-      t as \tau : type
-    name: extend
-    doc: A cons operation for contexts (here, assoc lists)
+```jtf-syntax
+desc: Contexts
+suggest: [\Gamma]
+grammar:
+  - name: empty
+    desc: Empty context, empty environment
+    is: \cdot
+  - name: extend
+    desc: A cons operation for contexts (here, assoc lists)
+    is: 'ctx , x : t'
+    where:
+      ctx as \Gamma: context
+      x: literal
+      t as \tau: type
 ```
 
 # Relations
 
-## judge
+## Judge
 
-```justify-relation
-Term $e$ has type $\\tau$ on context $\\Gamma$
-
-ctx \vdash tm : ty
-  ctx as \Gamma : context
-  tm as e : term
-  ty as \tau : type
+```jtf-relation
+desc: Term $e$ has type $\tau$ on context $\Gamma$
+is: 'ctx \vdash tm : ty'
+where:
+  ctx as \Gamma: context
+  tm as e: term
+  ty as \tau: type
 ```
 
-```justify-rule
+```jtf-rule
 ? e1 as e_1, e2 as e_2, a as A, b as B, ctx as \Gamma
 
 judge ctx e1 (arrow a b)
@@ -88,7 +90,7 @@ judge ctx e2 a
 judge ctx (apply e1 e2) b
 ```
 
-```justify-rule
+```jtf-rule
 ? ctx as \Gamma, x, a as A, b as B, e
 
 judge (extend ctx x a) e b
@@ -96,14 +98,14 @@ judge (extend ctx x a) e b
 judge ctx (lambda x a e) (arrow a b)
 ```
 
-```justify-rule
+```jtf-rule
 ? ctx as \Gamma
 
 ----------------------- [Unit] unit
 judge ctx (star) (unit)
 ```
 
-```justify-rule
+```jtf-rule
 ? ctx as \Gamma, x, t as \tau
 
 member x t ctx
@@ -111,26 +113,26 @@ member x t ctx
 judge ctx (variable x) t
 ```
 
-## member
+## Member
 
-```justify-relation
-Identifier $x$ inside context $\\Gamma$ has type $\\tau$
-
-ident : ty \in ctx
-  ident as x : literal
-  ty as \tau : type
-  ctx as \Gamma : context
+```jtf-relation
+desc: Identifier $x$ inside context $\Gamma$ has type $\tau$
+is: 'x : t \in ctx'
+where:
+  x: literal
+  t as \tau: type
+  ctx as \Gamma: context
 ```
 
-```justify-rule
+```jtf-rule
 ? x, t as \tau, ctx as \Gamma
 
 --------------------------- [Found] found
 member x t (extend ctx x t)
 ```
 
-```justify-rule
-? x, y, t1 as \tau, t2 as \sigma, ctx as \Gamma
+```jtf-rule
+? x, y, t1 as \tau_1, t2 as \tau_2, ctx as \Gamma
 
 member x t1 ctx
 ----------------------------- [Next] next

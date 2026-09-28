@@ -4,64 +4,65 @@ title: Peano arithmetic / natural number arithmetic
 
 # Syntax
 
-## number
+## Number
 
-```justify-syntax
-Natural number
-
-n, m, k ::=
-  | 0
-    name: zero
-    doc: Number zero
-  | S n
-    where
-      n : number
-    name: succ
-    doc: Successor function, equivalent to $n \mapsto n+1$
+```jtf-syntax
+desc: Natural number
+suggest: [n, m, k]
+grammar:
+  - name: zero
+    desc: Number zero
+    is: 0
+  - name: succ
+    desc: Successor function, equivalent to $n \mapsto n+1$
+    is: S n
+    where:
+      n: number
 ```
 
 # Relations
 
-## equal
+## Equal
 
-```justify-relation
-Natural number $n$ is syntactically equal to $m$
-
-n = m
-  n : number
-  m : number
+```jtf-relation
+desc: Natural number $n$ is syntactically equal to $m$
+is: n = m
+where:
+  n: number
+  m: number
 ```
 
-```justify-rule
+```jtf-rule
 ------------------- [Base] base
 equal (zero) (zero)
 ```
 
-```justify-rule
+```jtf-rule
 ? x, y
 equal x y
 ----------------------- [Ind] ind
 equal (succ x) (succ y)
 ```
 
-## add
+## Add
 
-```justify-relation
-Natural number $n$ plus $m$ is syntactically equal to $k$.
-
-n + m = k
-  n : number
-  m : number
-  k : number
+```jtf-relation
+desc: Natural number $n$ plus $m$ is syntactically equal to $k$.
+is: n + m = k
+where:
+  n: number
+  m: number
+  k: number
 ```
 
-```justify-rule
+```jtf-rule
 ? x
+
 -------------- [Base] base
 add x (zero) x
 ```
 
-```justify-rule
+```jtf-rule
 ? x, y, z
 
 add x y z
@@ -69,24 +70,24 @@ add x y z
 add x (succ y) (succ z)
 ```
 
-## multiply
+## Multiply
 
-```justify-relation
-Natural number $n$ times $m$ is syntactically equal to $k$.
-
-n \times m = k
-  n : number
-  m : number
-  k : number
+```jtf-relation
+desc: Natural number $n$ times $m$ is syntactically equal to $k$.
+is: n \times m = k
+where:
+  n: number
+  m: number
+  k: number
 ```
 
-```justify-rule
+```jtf-rule
 ? x
 ------------------------ [Base] base
 multiply x (zero) (zero)
 ```
 
-```justify-rule
+```jtf-rule
 ? w, x, y, z
 
 multiply x y w

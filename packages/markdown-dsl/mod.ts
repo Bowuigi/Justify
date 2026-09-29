@@ -19,8 +19,8 @@ export interface Block {
 
 export type SystemBlocks =
   | ({ type: 'block' } & Block)
-  | ({ type: 'syntax' } & Syntax)
-  | ({ type: 'relation_meta' } & RelationMeta)
+  | ({ type: 'syntax'; name: string } & Syntax)
+  | ({ type: 'relation_meta'; name: string } & RelationMeta)
   | { type: 'error'; message: string };
 
 export interface Extension {

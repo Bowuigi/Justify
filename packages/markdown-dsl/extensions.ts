@@ -32,7 +32,7 @@ export const relationMetaExtension: Extension = {
       }));
     }
 
-    return [{ type: 'relation_meta', ...(doc as RelationMeta) }];
+    return [{ type: 'relation_meta', name: input.scope[1]!, ...(doc as RelationMeta) }];
   },
 };
 
@@ -63,6 +63,6 @@ export const syntaxExtension: Extension = {
       }));
     }
 
-    return [{ type: 'syntax', ...(doc as Syntax) }];
+    return [{ type: 'syntax', name: input.scope[1]!, ...(doc as Syntax) }];
   },
 };

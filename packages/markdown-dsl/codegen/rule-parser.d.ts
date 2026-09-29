@@ -191,7 +191,8 @@ export declare const parse: typeof ParseFunction;
 declare function ParseFunction<Options extends ParseOptions<'Rule'>>(
   input: string,
   options?: Options,
-): {
+): RelationRule;
+export type RelationRule = {
   rule: { id: string; tex: string };
   variables: Record<string, string>;
   literals: Record<string, string>;
@@ -204,7 +205,8 @@ export type Term = { is: 'ref'; to: string } | { is: 'con'; tag: string; args: A
 declare function ParseFunction<Options extends ParseOptions<StartRuleNames>>(
   input: string,
   options?: Options,
-): {
+): RelationRule;
+export type RelationRule = {
   rule: { id: string; tex: string };
   variables: Record<string, string>;
   literals: Record<string, string>;

@@ -3,6 +3,25 @@
 set -euo pipefail
 script_dir="$(dirname "$(realpath "$0")")"
 
+## @justify/markdown-dsl
+
+# `jq` is only used to emit valid JSON
+# Uses a funny trick to type recursive terms and export return types properly
+# The RelationRule, RelationCall and Term exports are duplicated by peggy but tsc doesn't complain so it's fine
+npx peggy --format es --dts --return-types "$(jq -n -c '{
+  Rule: "RelationRule;
+  export type RelationRule = {
+    rule: {id: string, tex: string},
+    variables: Record<string, string>,
+    literals: Record<string, string>,
+    premises: Array<RelationCall>,
+    conclusion: RelationCall,
+  };
+  export type RelationCall = {rel: string, args: Array<Term>};
+  export type Term = {is: \"ref\", to: string} | {is: \"con\", tag: string, args: Array<Term>}"
+    | gsub("[ \n\t]"; " ")
+}')" -o packages/markdown-dsl/codegen/rule-parser.js packages/markdown-dsl/formats/rule.peggyjs
+
 ### @justify/core and @justify/markdown-dsl ###
 
 declare -A input_output
@@ -48,23 +67,5 @@ cd packages/validator/codegen || exit 1
 rm -f fused.ts
 awk -f "${script_dir}/generate-fused-traversal-for-validator.awk" ../modules/*.ts > fused.ts
 cd ../../.. || exit 1
-
-## @justify/markdown-dsl
-
-# `jq` is only used to emit valid JSON
-# Uses a funny trick to type recursive terms properly
-# The Term and RelationCall exports are duplicated by peggy but tsc doesn't complain so it's fine
-npx peggy --format es --dts --return-types "$(jq -n -c '{
-  Rule: "{
-    rule: {id: string, tex: string},
-    variables: Record<string, string>,
-    literals: Record<string, string>,
-    premises: Array<RelationCall>,
-    conclusion: RelationCall
-  };
-  export type RelationCall = {rel: string, args: Array<Term>};
-  export type Term = {is: \"ref\", to: string} | {is: \"con\", tag: string, args: Array<Term>}"
-    | gsub("[ \n\t]"; " ")
-}')" -o packages/markdown-dsl/codegen/rule-parser.js packages/markdown-dsl/formats/rule.peggyjs
 
 oxfmt packages/*/codegen/

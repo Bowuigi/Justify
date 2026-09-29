@@ -2,7 +2,10 @@
   "name": "@justify/markdown-dsl",
   "version": "0.0.0",
   "type": "module",
-  "exports": "./mod.ts",
+  "exports": {
+    "/": "./mod.ts",
+    "/extensions": "./extensions.ts"
+  },
   "dependencies": {
     "js-yaml": "^5.4.2",
     "mdast-util-from-markdown": "^2.0.3",

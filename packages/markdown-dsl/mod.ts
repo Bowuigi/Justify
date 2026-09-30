@@ -1,3 +1,4 @@
+import type { System } from '@justify/core';
 import type { Code, Heading, Node } from 'mdast';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { frontmatterFromMarkdown } from 'mdast-util-frontmatter';
@@ -29,9 +30,10 @@ export interface Extension {
   call: (input: Block) => Array<SystemBlocks>;
 }
 
-export type Pipeline = (input: Block & PreservedFields) => Array<SystemBlocks & PreservedFields>;
+type SyntaxConvertible = Extract<SystemBlocks & PreservedFields, { type: 'syntax' | 'relation_meta' | 'relation_rule' }>;
+type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, {type: 'error'}>, 'type'>;
 
-function extractBlocks(markdown: Buffer): Array<Block & PreservedFields> {
+function parseMarkdown(markdown: Buffer): Array<Block & PreservedFields> {
   const tree = fromMarkdown(markdown, 'utf8', {
     extensions: [frontmatter(['yaml'])],
     mdastExtensions: [frontmatterFromMarkdown(['yaml'])],
@@ -72,17 +74,68 @@ function extractBlocks(markdown: Buffer): Array<Block & PreservedFields> {
   return blocks;
 }
 
+function convertToSystem(description: string, blocks: Array<SyntaxConvertible>): System {
+  const system: System = {
+    description,
+    syntax: {},
+    relations: {},
+  };
+
+  for (const block of blocks) {
+    switch (block.type) {
+      case 'syntax': {
+        system.syntax[block.name] = {
+          description: block.desc,
+          grammar: block.grammar.map(b => {
+            return {
+              id: b.name,
+              description: b.desc,
+              arguments: 3,
+              fixity: 3,
+              tex_parts: 3,
+            };
+          }),
+          suggestions: block.suggest,
+        };
+        break;
+      }
+      case 'relation_meta': {
+        system.relations[block.name] = {
+          description: block.desc,
+          rules: [],
+          arguments: 3,
+          fixity: 3,
+          tex_parts: 3,
+        };
+        break;
+      }
+      case 'relation_rule': {
+        system.relations[block.relation].rules.push({
+          rule: block.rule,
+          variables: block.variables,
+          literals: block.literals,
+          premises: 4,
+          patterns: 4,
+        });
+        break;
+      }
+    }
+  }
+
+  return system;
+}
+
 export function runPipeline(
   markdown: Buffer,
   extensions: Array<Extension>,
-): Array<SystemBlocks & PreservedFields> {
-  let result: Array<SystemBlocks & PreservedFields> = extractBlocks(markdown).map(b => ({
+): {extracted: System, errors: Array<PipelineError>} {
+  let processedInput: Array<SystemBlocks & PreservedFields> = parseMarkdown(markdown).map(b => ({
     type: 'block',
     ...b,
   }));
 
   for (const ext of extensions) {
-    result = result.flatMap(original => {
+    processedInput = processedInput.flatMap(original => {
       if (original.type === 'block' && ext.handledLanguages.includes(original.language)) {
         return ext
           .call(original)
@@ -91,5 +144,21 @@ export function runPipeline(
       return original;
     });
   }
-  return result;
+
+  const errors: Array<PipelineError> = [];
+  const correct: Array<SyntaxConvertible> = [];
+  for (const systemBlock of processedInput) {
+    if (systemBlock.type === 'error') {
+      errors.push({message: systemBlock.message, provenance: systemBlock.provenance});
+    } else if (systemBlock.type === 'block') {
+      errors.push({message: `Unknown extension language ${systemBlock.language}. Maybe you forgot to enable an extension?`, provenance: systemBlock.provenance});
+    } else {
+      correct.push(systemBlock);
+    }
+  }
+
+  return {
+    extracted: convertToSystem('TODO', correct),
+    errors: errors,
+  };
 }

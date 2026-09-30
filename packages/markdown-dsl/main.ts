@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { default as process } from 'node:process';
 import { inspect } from 'node:util';
 
-import { relationMetaExtension, syntaxExtension } from './extensions.ts';
+import { relationMetaExtension, relationRuleExtension, syntaxExtension } from './extensions.ts';
 import { runPipeline, type Extension } from './mod.ts';
 
 async function main(): Promise<void> {
@@ -14,7 +14,11 @@ async function main(): Promise<void> {
 
   const filename = process.argv[2]!;
   const contents = await readFile(filename);
-  const extensions: Array<Extension> = [syntaxExtension, relationMetaExtension];
+  const extensions: Array<Extension> = [
+    syntaxExtension,
+    relationMetaExtension,
+    relationRuleExtension,
+  ];
   const result = runPipeline(contents, extensions);
 
   console.log(inspect(result, false, Infinity, true));

@@ -22,6 +22,9 @@ npx peggy --format es --dts --return-types "$(jq -n -c '{
     | gsub("[ \n\t]"; " ")
 }')" -o packages/markdown-dsl/codegen/rule-parser.js packages/markdown-dsl/formats/rule.peggyjs
 
+# Makes the new types available to later passes
+oxfmt packages/markdown-dsl/codegen/rule-parser.d.ts
+
 ### @justify/core and @justify/markdown-dsl ###
 
 declare -A input_output

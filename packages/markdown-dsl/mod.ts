@@ -5,7 +5,7 @@ import { toString } from 'mdast-util-to-string';
 import { frontmatter } from 'micromark-extension-frontmatter';
 import { visit } from 'unist-util-visit';
 
-import type { RelationMeta, Syntax } from './codegen/types.d.ts';
+import type { RelationRule, RelationMeta, Syntax } from './codegen/types.d.ts';
 
 export interface PreservedFields {
   provenance: { start: number; end: number };
@@ -21,6 +21,7 @@ export type SystemBlocks =
   | ({ type: 'block' } & Block)
   | ({ type: 'syntax'; name: string } & Syntax)
   | ({ type: 'relation_meta'; name: string } & RelationMeta)
+  | ({ type: 'relation_rule'; relation: string } & RelationRule)
   | { type: 'error'; message: string };
 
 export interface Extension {

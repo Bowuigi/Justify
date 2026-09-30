@@ -1,5 +1,6 @@
 export type { EndExpectation } from './rule-parser.d.ts';
 export type { LocationRange } from './rule-parser.d.ts';
+export type { RelationRule } from './rule-parser.d.ts';
 export type { SyntaxGrammar } from './syntax-types.d.ts';
 export type { AnyExpectation } from './rule-parser.d.ts';
 export type { ClassParts } from './rule-parser.d.ts';
@@ -8,7 +9,9 @@ export type { GrammarSourceObject } from './rule-parser.d.ts';
 export type { ClassExpectation } from './rule-parser.d.ts';
 export type { ParserTracerEvent } from './rule-parser.d.ts';
 export type { Syntax } from './syntax-types.d.ts';
+export type { Term } from './rule-parser.d.ts';
 export type { Location } from './rule-parser.d.ts';
+export type { RelationCall } from './rule-parser.d.ts';
 export type { ParseOptions } from './rule-parser.d.ts';
 export type { StartRuleNames } from './rule-parser.d.ts';
 export type { SourceText } from './rule-parser.d.ts';

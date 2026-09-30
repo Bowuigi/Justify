@@ -1,10 +1,10 @@
 //// Rules
 
-Rule = idmaps:EveryIdentifierMap? "\n"? premises:RelationCall|.., "\n"| rule:RuleDivider conclusion:RelationCall {
-  return {rule, variables: idmaps?.variables ?? {}, literals: idmaps?.literals ?? {}, premises, conclusion};
+Rule = idmaps:EveryIdentifierMap? "\n"? premises:(@RelationCall|.., "\n"| "\n")? rule:RuleDivider conclusion:RelationCall {
+  return {rule, variables: idmaps?.variables ?? {}, literals: idmaps?.literals ?? {}, premises: premises ?? [], conclusion};
 }
 
-RuleDivider = "\n" "-"+ _+ "[" tex:$[^\n\r\]]+ "]" _+ id:Identifier "\n" {
+RuleDivider = "-"+ _+ "[" tex:$[^\n\r\]]+ "]" _+ id:Identifier "\n" {
   return {id, tex};
 }
 

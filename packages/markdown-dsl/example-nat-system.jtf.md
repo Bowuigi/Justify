@@ -12,7 +12,7 @@ suggest: [n, m, k]
 grammar:
   - name: zero
     desc: Number zero
-    is: 0
+    is: '0'
   - name: succ
     desc: Successor function, equivalent to $n \mapsto n+1$
     is: S n

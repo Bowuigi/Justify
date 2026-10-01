@@ -1,10 +1,42 @@
 import { load as loadYAML } from 'js-yaml';
 
+import { validate as validateMetadata } from './codegen/metadata-validator.ts';
 import { validate as validateRelationMeta } from './codegen/relation-meta-validator.ts';
 import { parse as parseRelationRule, type SyntaxError } from './codegen/rule-parser.js';
 import { validate as validateSyntax } from './codegen/syntax-validator.ts';
-import type { RelationMeta, RelationRule, Syntax } from './codegen/types.d.ts';
+import type { Metadata, RelationMeta, RelationRule, Syntax } from './codegen/types.d.ts';
 import type { Extension } from './mod.ts';
+
+export const metadataExtension: Extension = {
+  handledLanguages: ['metadata'],
+  call(input) {
+    if (input.scope.length > 0) {
+      return [
+        {
+          type: 'error',
+          message: `This code block is misplaced. It should be at the top level, but was found in '${input.scope.join(' > ')}'`,
+        },
+      ];
+    }
+
+    let doc: unknown;
+    try {
+      doc = loadYAML(input.contents);
+    } catch (error: unknown) {
+      return [{ type: 'error', message: String(error) }];
+    }
+
+    const validated = validateMetadata(doc);
+    if (!validated.success) {
+      return validated.errors.map(err => ({
+        type: 'error',
+        message: `Error: ${err.message}\nIn /${err.path.join('/')}`,
+      }));
+    }
+
+    return [{ type: 'metadata', ...(doc as Metadata) }];
+  },
+};
 
 export const relationMetaExtension: Extension = {
   handledLanguages: ['relation'],

@@ -7,6 +7,7 @@ export type { ClassParts } from './rule-parser.d.ts';
 export type { RelationMeta } from './relation-meta-types.d.ts';
 export type { GrammarSourceObject } from './rule-parser.d.ts';
 export type { ClassExpectation } from './rule-parser.d.ts';
+export type { Metadata } from './metadata-types.d.ts';
 export type { ParserTracerEvent } from './rule-parser.d.ts';
 export type { Syntax } from './syntax-types.d.ts';
 export type { Term } from './rule-parser.d.ts';

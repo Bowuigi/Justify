@@ -1,4 +1,4 @@
-import type { System } from '@justify/core';
+import type { Fixity, System } from '@justify/core';
 import type { Code, Heading, Node } from 'mdast';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { frontmatterFromMarkdown } from 'mdast-util-frontmatter';
@@ -43,6 +43,7 @@ type SyntaxConvertible = Extract<
 >;
 type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, { type: 'error' }>, 'type'>;
 
+// oxlint-disable-next-line max-lines-per-function
 function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & PreservedFields> {
   const tree = fromMarkdown(markdown, 'utf8', {
     extensions: [frontmatter(['yaml'])],
@@ -102,6 +103,65 @@ function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & Preserved
   return blocks;
 }
 
+function inferFixity(
+  argsLength: number,
+  texPartsLength: number,
+  firstAppearance: 'args' | 'parts' | null,
+): Fixity {
+  if (argsLength === 0 || texPartsLength === 0) {
+    return 'none';
+  }
+  if (argsLength === texPartsLength + 1) {
+    return 'infix';
+  }
+  if (argsLength === texPartsLength) {
+    switch (firstAppearance) {
+      case 'parts': {
+        return 'prefix';
+      }
+      case 'args': {
+        return 'postfix';
+      }
+      case null: {
+        return 'none';
+      }
+    }
+  }
+  // `texPartsLength === argsLength + 1` or invalid cases
+  return 'none';
+}
+
+function convertGrammarParts(grammarParts: { is: string; where?: Record<string, string> }): {
+  fixity: Fixity;
+  tex_parts: Array<string>;
+  arguments: Array<{ id: string; tex: string; from: string }>;
+} {
+  const parts = grammarParts.is.split(' ');
+  const texParts: Array<string> = [];
+  const args: Array<{ id: string; tex: string; from: string }> = [];
+  let firstPushed: 'args' | 'parts' | null = null;
+
+  for (const part of parts) {
+    if (/^[a-z][a-z0-9_]*$/.test(part) && grammarParts.where?.[part] !== undefined) {
+      firstPushed ??= 'args';
+      const partDef = grammarParts.where[part].split(' as ');
+      args.push({
+        id: part,
+        tex: partDef[1] ?? part,
+        from: partDef[0] ?? '<unknown>',
+      });
+    } else {
+      firstPushed ??= 'parts';
+      texParts.push(part);
+    }
+  }
+  return {
+    fixity: inferFixity(args.length, texParts.length, firstPushed),
+    arguments: args,
+    tex_parts: texParts,
+  };
+}
+
 function convertToSystem(blocks: Array<SyntaxConvertible>): System {
   const system: System = {
     description: '',
@@ -118,15 +178,11 @@ function convertToSystem(blocks: Array<SyntaxConvertible>): System {
       case 'syntax': {
         system.syntax[block.name] = {
           description: block.desc,
-          grammar: block.grammar.map(b => {
-            return {
-              id: b.name,
-              description: b.desc,
-              arguments: 3,
-              fixity: 3,
-              tex_parts: 3,
-            };
-          }),
+          grammar: block.grammar.map(g => ({
+            id: g.name,
+            description: g.desc,
+            ...convertGrammarParts(g),
+          })),
           suggestions: block.suggest,
         };
         break;
@@ -135,14 +191,12 @@ function convertToSystem(blocks: Array<SyntaxConvertible>): System {
         system.relations[block.name] = {
           description: block.desc,
           rules: [],
-          arguments: 3,
-          fixity: 3,
-          tex_parts: 3,
+          ...convertGrammarParts(block),
         };
         break;
       }
       case 'relation_rule': {
-        system.relations[block.relation].rules.push({
+        system.relations[block.relation]?.rules.push({
           rule: block.rule,
           variables: block.variables,
           literals: block.literals,
@@ -191,6 +245,6 @@ export function runPipeline(
 
   return {
     extracted: convertToSystem(correct),
-    errors: errors,
+    errors,
   };
 }

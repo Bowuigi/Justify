@@ -1,5 +1,5 @@
 ---
-title: Simply-typed lambda calculus with a unit type
+description: Simply-typed lambda calculus with a unit type
 ---
 
 # Syntax

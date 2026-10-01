@@ -1,5 +1,5 @@
 ---
-title: Peano arithmetic / natural number arithmetic
+description: Peano arithmetic / natural number arithmetic
 ---
 
 # Syntax

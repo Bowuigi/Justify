@@ -6,41 +6,68 @@ import { toString } from 'mdast-util-to-string';
 import { frontmatter } from 'micromark-extension-frontmatter';
 import { visit } from 'unist-util-visit';
 
-import type { RelationRule, RelationMeta, Syntax } from './codegen/types.d.ts';
+import type { RelationRule, RelationMeta, Syntax, Metadata } from './codegen/types.d.ts';
 
 export interface PreservedFields {
   provenance: { start: number; end: number };
 }
 
 export interface Block {
+  type: 'block';
   scope: Array<string>;
   language: string;
   contents: string;
 }
 
+export interface ErrorBlock {
+  type: 'error';
+  message: string;
+}
+
 export type SystemBlocks =
-  | ({ type: 'block' } & Block)
+  | Block
+  | ErrorBlock
   | ({ type: 'syntax'; name: string } & Syntax)
   | ({ type: 'relation_meta'; name: string } & RelationMeta)
   | ({ type: 'relation_rule'; relation: string } & RelationRule)
-  | { type: 'error'; message: string };
+  | ({ type: 'metadata' } & Metadata);
 
 export interface Extension {
   handledLanguages: Array<string>;
   call: (input: Block) => Array<SystemBlocks>;
 }
 
-type SyntaxConvertible = Extract<SystemBlocks & PreservedFields, { type: 'syntax' | 'relation_meta' | 'relation_rule' }>;
-type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, {type: 'error'}>, 'type'>;
+type SyntaxConvertible = Extract<
+  SystemBlocks & PreservedFields,
+  { type: 'syntax' | 'relation_meta' | 'relation_rule' | 'metadata' }
+>;
+type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, { type: 'error' }>, 'type'>;
 
-function parseMarkdown(markdown: Buffer): Array<Block & PreservedFields> {
+function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & PreservedFields> {
   const tree = fromMarkdown(markdown, 'utf8', {
     extensions: [frontmatter(['yaml'])],
     mdastExtensions: [frontmatterFromMarkdown(['yaml'])],
   });
 
-  const blocks: Array<Block & PreservedFields> = [];
+  const blocks: Array<(Block | ErrorBlock) & PreservedFields> = [];
   const headingStack: Array<string> = [];
+
+  const metadata = tree.children.find(node => node.type === 'yaml');
+  if (metadata === undefined) {
+    blocks.push({
+      type: 'error',
+      message: 'No metadata provided at the start of the document',
+      provenance: { start: 1, end: 1 },
+    });
+  } else {
+    blocks.push({
+      type: 'block',
+      language: 'metadata',
+      scope: [],
+      provenance: { start: metadata.position!.start.line, end: metadata.position!.end.line },
+      contents: metadata.value,
+    });
+  }
 
   visit(tree, (node: Node) => {
     if (node.type === 'heading') {
@@ -59,6 +86,7 @@ function parseMarkdown(markdown: Buffer): Array<Block & PreservedFields> {
 
       if (lang.startsWith('jtf-')) {
         blocks.push({
+          type: 'block',
           scope: headingStack.filter(Boolean),
           language: lang.slice(4),
           contents: codeNode.value,
@@ -74,15 +102,19 @@ function parseMarkdown(markdown: Buffer): Array<Block & PreservedFields> {
   return blocks;
 }
 
-function convertToSystem(description: string, blocks: Array<SyntaxConvertible>): System {
+function convertToSystem(blocks: Array<SyntaxConvertible>): System {
   const system: System = {
-    description,
+    description: '',
     syntax: {},
     relations: {},
   };
 
   for (const block of blocks) {
     switch (block.type) {
+      case 'metadata': {
+        system.description = block.description;
+        break;
+      }
       case 'syntax': {
         system.syntax[block.name] = {
           description: block.desc,
@@ -128,11 +160,8 @@ function convertToSystem(description: string, blocks: Array<SyntaxConvertible>):
 export function runPipeline(
   markdown: Buffer,
   extensions: Array<Extension>,
-): {extracted: System, errors: Array<PipelineError>} {
-  let processedInput: Array<SystemBlocks & PreservedFields> = parseMarkdown(markdown).map(b => ({
-    type: 'block',
-    ...b,
-  }));
+): { extracted: System; errors: Array<PipelineError> } {
+  let processedInput: Array<SystemBlocks & PreservedFields> = parseMarkdown(markdown);
 
   for (const ext of extensions) {
     processedInput = processedInput.flatMap(original => {
@@ -149,16 +178,19 @@ export function runPipeline(
   const correct: Array<SyntaxConvertible> = [];
   for (const systemBlock of processedInput) {
     if (systemBlock.type === 'error') {
-      errors.push({message: systemBlock.message, provenance: systemBlock.provenance});
+      errors.push({ message: systemBlock.message, provenance: systemBlock.provenance });
     } else if (systemBlock.type === 'block') {
-      errors.push({message: `Unknown extension language ${systemBlock.language}. Maybe you forgot to enable an extension?`, provenance: systemBlock.provenance});
+      errors.push({
+        message: `Unknown extension language ${systemBlock.language}. Maybe you forgot to enable an extension?`,
+        provenance: systemBlock.provenance,
+      });
     } else {
       correct.push(systemBlock);
     }
   }
 
   return {
-    extracted: convertToSystem('TODO', correct),
+    extracted: convertToSystem(correct),
     errors: errors,
   };
 }

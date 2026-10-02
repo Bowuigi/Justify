@@ -47,7 +47,7 @@ equal (succ x) (succ y)
 ## Add
 
 ```jtf-relation
-desc: Natural number $n$ plus $m$ is syntactically equal to $k$.
+desc: Natural number $n$ plus $m$ is syntactically equal to $k$
 is: n + m = k
 where:
   n: number
@@ -73,7 +73,7 @@ add x (succ y) (succ z)
 ## Multiply
 
 ```jtf-relation
-desc: Natural number $n$ times $m$ is syntactically equal to $k$.
+desc: Natural number $n$ times $m$ is syntactically equal to $k$
 is: n \times m = k
 where:
   n: number

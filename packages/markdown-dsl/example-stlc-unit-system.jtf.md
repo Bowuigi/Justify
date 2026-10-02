@@ -16,8 +16,8 @@ grammar:
     where:
       x: literal
   - name: lambda
-    desc: Bind the applied term of type $t$ to the variable $x$ in $e$
-    is: '\lambda x : t . e'
+    desc: Binds the applied term of type $t$ to the variable $x$ in $e$
+    is: '\lambda x : t .\, e'
     where:
       x: literal
       t: type as \tau
@@ -37,14 +37,14 @@ grammar:
 
 ```jtf-syntax
 desc: Types
-suggest: [A, B, \tau]
+suggest: [\tau, A, B]
 grammar:
   - name: arrow
     desc: A function from $A$ to $B$
-    is: a \rightarrow b
+    is: t1 \rightarrow t2
     where:
-      a: type as A
-      b: type as B
+      t1: type as A
+      t2: type as B
   - name: unit
     desc: A type with only one inhabitant, $\star$
     is: \mathbf{1}
@@ -117,10 +117,10 @@ judge ctx (variable x) t
 
 ```jtf-relation
 desc: Identifier $x$ inside context $\Gamma$ has type $\tau$
-is: 'x : t \in ctx'
+is: 'ident : ty \in ctx'
 where:
-  x: literal
-  t: type as \tau
+  ident: literal as x
+  ty: type as \tau
   ctx: context as \Gamma
 ```
 
@@ -132,7 +132,7 @@ member x t (extend ctx x t)
 ```
 
 ```jtf-rule
-? x, y, t1 as \tau_1, t2 as \tau_2, ctx as \Gamma
+? x, y, t1 as \tau, t2 as \sigma, ctx as \Gamma
 
 member x t1 ctx
 ----------------------------- [Next] next

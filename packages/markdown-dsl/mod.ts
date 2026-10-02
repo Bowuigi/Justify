@@ -1,4 +1,11 @@
-import type { Fixity, System } from '@justify/core';
+import type {
+  Argument,
+  Fixity,
+  System,
+  SystemRelation,
+  SystemRelationRulePremise,
+  Term,
+} from '@justify/core';
 import type { Code, Heading, Node } from 'mdast';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { frontmatterFromMarkdown } from 'mdast-util-frontmatter';
@@ -6,7 +13,14 @@ import { toString } from 'mdast-util-to-string';
 import { frontmatter } from 'micromark-extension-frontmatter';
 import { visit } from 'unist-util-visit';
 
-import type { RelationRule, RelationMeta, Syntax, Metadata } from './codegen/types.d.ts';
+import type {
+  RelationCall,
+  RelationRule,
+  RelationMeta,
+  Syntax,
+  Metadata,
+  Term as BlockTerm,
+} from './codegen/types.d.ts';
 
 export interface PreservedFields {
   provenance: { start: number; end: number };
@@ -43,6 +57,7 @@ type SyntaxConvertible = Extract<
 >;
 type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, { type: 'error' }>, 'type'>;
 
+/** Extracts a code block list from a Markdown buffer */
 // oxlint-disable-next-line max-lines-per-function
 function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & PreservedFields> {
   const tree = fromMarkdown(markdown, 'utf8', {
@@ -103,6 +118,7 @@ function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & Preserved
   return blocks;
 }
 
+/** Infers fixity following the standard */
 function inferFixity(
   argsLength: number,
   texPartsLength: number,
@@ -131,6 +147,7 @@ function inferFixity(
   return 'none';
 }
 
+/** Extracts a mixfix operator definition from the human-friendly is+where syntax */
 function convertGrammarParts(grammarParts: { is: string; where?: Record<string, string> }): {
   fixity: Fixity;
   tex_parts: Array<string>;
@@ -162,6 +179,56 @@ function convertGrammarParts(grammarParts: { is: string; where?: Record<string, 
   };
 }
 
+/** Annotates a term with `from` fields, using the available parts of the System file to infer them */
+function convertTerm(system: System, declaration: Argument, term: BlockTerm): Term {
+  if (term.is === 'ref') {
+    return { is: 'ref', to: term.to };
+  }
+  const constructor = system.syntax[declaration.from]?.grammar.find(con => con.id === term.tag);
+  const args = constructor?.arguments ?? [];
+  return {
+    is: 'con',
+    from: declaration.from,
+    tag: term.tag,
+    args: term.args.map((arg, index) => convertTerm(system, args[index] ?? declaration, arg)),
+  };
+}
+
+/** Extracts patterns from a rule's conclusion */
+function convertPatterns(
+  system: System,
+  relation: SystemRelation,
+  call: RelationCall,
+): Record<string, Term> {
+  const patterns: Record<string, Term> = {};
+  for (const [index, declaration] of relation.arguments.entries()) {
+    const term = call.args[index];
+    if (term !== undefined) {
+      patterns[declaration.id] = convertTerm(system, declaration, term);
+    }
+  }
+  return patterns;
+}
+
+/** Extracts a premise array from a RelationCall array */
+function convertPremises(
+  system: System,
+  calls: Array<RelationCall>,
+): Array<SystemRelationRulePremise> {
+  return calls.map(call => ({
+    relation: call.rel,
+    args: call.args.map((arg, index) =>
+      convertTerm(
+        system,
+        system.relations[call.rel]?.arguments[index] ?? { from: 'literal', id: 'unknown', tex: '' },
+        arg,
+      ),
+    ),
+  }));
+}
+
+/** Extracts a System file from non-error code blocks, after running every extension */
+// oxlint-disable-next-line max-lines-per-function
 function convertToSystem(blocks: Array<SyntaxConvertible>): System {
   const system: System = {
     description: '',
@@ -196,12 +263,16 @@ function convertToSystem(blocks: Array<SyntaxConvertible>): System {
         break;
       }
       case 'relation_rule': {
-        system.relations[block.relation]?.rules.push({
+        const relation = system.relations[block.relation];
+        if (relation === undefined) {
+          break;
+        }
+        relation.rules.push({
           rule: block.rule,
           variables: block.variables,
           literals: block.literals,
-          premises: 4,
-          patterns: 4,
+          premises: convertPremises(system, block.premises),
+          patterns: convertPatterns(system, relation, block.conclusion),
         });
         break;
       }
@@ -211,6 +282,11 @@ function convertToSystem(blocks: Array<SyntaxConvertible>): System {
   return system;
 }
 
+/**
+ * Extracts a System file (+ errors) from a Markdown buffer and an extension array. Each extension
+ * is ran over the whole code block list in the given order. Do note that the System file may be
+ * invalid, check with `@justify/validator`
+ */
 export function runPipeline(
   markdown: Buffer,
   extensions: Array<Extension>,

@@ -36,7 +36,7 @@ EveryIdentifierMap = variables:VariableMap literals:LiteralMap? {
 VariableMap = "?" _+ @IdentifierMap "\n"
 LiteralMap = "%" _+ @IdentifierMap "\n"
 
-IdentifierMap = pairs:IdentifierPair|.., _* "," _*| {
+IdentifierMap = pairs:IdentifierPair|1.., _* "," _*| {
   return Object.fromEntries(pairs);
 }
 

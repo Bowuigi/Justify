@@ -1,8 +1,6 @@
-# Markdown extension
+# Markdown DSL
 
-**WORK IN PROGRESS, NOT USABLE YET**
-
-Generate [Justify](https://github.com/Bowuigi/Justify) files using a [remark](https://github.com/remarkjs/remark) extension.
+Generate [Justify](https://github.com/Bowuigi/Justify) files using a much more human-readable format (compared to writing the JSON as-is).
 
 See the examples for usage information.
 
@@ -14,7 +12,7 @@ This format is meant to:
 
 - Focus mostly on presentation and easy integration
 - Be easily readable in plain text
-- Allow for simple extension support (here, as [unified](https://unifiedjs.com) passes that insert code blocks)
+- Allow for simple extension support (here, as pure functions)
 - Become modular and reusable
 - Permit literate programming
 - Allow for nice rendering

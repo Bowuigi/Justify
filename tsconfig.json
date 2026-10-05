@@ -18,9 +18,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "strictNullChecks": true,
-    "types": ["node"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "types": ["node"]
   },
   "include": ["vitest.d.ts", "packages/**/*.ts"]
 }

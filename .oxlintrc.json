@@ -45,6 +45,7 @@
     "typescript/no-unsafe-assignment": "allow",
     "typescript/no-unsafe-type-assertion": "allow",
     "typescript/prefer-readonly-parameter-types": "allow",
+    "typescript/restrict-template-expressions": "allow",
     "unicorn/no-lonely-if": "allow",
     "unicorn/no-null": "allow",
     "unicorn/no-array-reduce": "allow",

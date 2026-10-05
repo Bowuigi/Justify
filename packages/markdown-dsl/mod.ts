@@ -296,9 +296,17 @@ export function runPipeline(
   for (const ext of extensions) {
     processedInput = processedInput.flatMap(original => {
       if (original.type === 'block' && ext.handledLanguages.includes(original.language)) {
-        return ext
-          .call(original)
-          .map(replacement => ({ provenance: original.provenance, ...replacement }));
+        try {
+          return ext
+            .call(original)
+            .map(replacement => ({ provenance: original.provenance, ...replacement }));
+        } catch (error: unknown) {
+          return {
+            type: 'error',
+            message: `Unhandled extension error: ${error}. This is most likely an extension bug`,
+            provenance: original.provenance,
+          };
+        }
       }
       return original;
     });

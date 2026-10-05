@@ -2,7 +2,7 @@ import { load as loadYAML } from 'js-yaml';
 
 import { validate as validateMetadata } from './codegen/metadata-validator.ts';
 import { validate as validateRelationMeta } from './codegen/relation-meta-validator.ts';
-import { parse as parseRelationRule, type SyntaxError } from './codegen/rule-parser.js';
+import { parse as parseRelationRule, SyntaxError } from './codegen/rule-parser.js';
 import { validate as validateSyntax } from './codegen/syntax-validator.ts';
 import type { Metadata, RelationMeta, RelationRule, Syntax } from './codegen/types.d.ts';
 import type { Extension } from './mod.ts';
@@ -30,7 +30,10 @@ export const metadataExtension: Extension = {
     if (!validated.success) {
       return validated.errors.map(err => ({
         type: 'error',
-        message: `Error: ${err.message}\nIn /${err.path.join('/')}`,
+        message:
+          err.suggestions.length === 0
+            ? `Error: ${err.message}\nIn /${err.path.join('/')}`
+            : `Error: ${err.message}\nIn /${err.path.join('/')}\nAllowed options: ${err.suggestions.join(', ')}`,
       }));
     }
 
@@ -116,12 +119,18 @@ export const relationRuleExtension: Extension = {
     try {
       result = parseRelationRule(input.contents, { grammarSource: '<code block>' });
     } catch (error) {
+      if (error instanceof SyntaxError) {
+        return [
+          {
+            type: 'error',
+            message: error.format([{ source: '<code block>', text: input.contents }]),
+          },
+        ];
+      }
       return [
         {
           type: 'error',
-          message: (error as SyntaxError).format([
-            { source: '<code block>', text: input.contents },
-          ]),
+          message: `Unhandled parsing error: ${error}`,
         },
       ];
     }

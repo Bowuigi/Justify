@@ -2,6 +2,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    projects: ['packages/validator', 'packages/markdown-dsl'],
+    name: 'markdown-dsl',
   },
 });

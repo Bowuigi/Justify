@@ -1,0 +1,7 @@
+{
+  "properties": {
+    "desc": { "type": "string" },
+    "is": { "type": "string" },
+    "where": { "values": { "type": "string" } }
+  }
+}

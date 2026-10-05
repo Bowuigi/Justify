@@ -1,0 +1,55 @@
+//// Rules
+
+Rule = idmaps:EveryIdentifierMap? "\n"? premises:(@RelationCall|.., "\n"| "\n")? rule:RuleDivider conclusion:RelationCall {
+  return {rule, variables: idmaps?.variables ?? {}, literals: idmaps?.literals ?? {}, premises: premises ?? [], conclusion};
+}
+
+RuleDivider = "-"+ _+ "[" tex:$[^\n\r\]]+ "]" _+ id:Identifier "\n" {
+  return {id, tex};
+}
+
+RelationCall = rel:Identifier _* args:Term|.., _*| {
+  return {rel, args};
+}
+
+//// Terms
+
+Term = Constructor / Reference
+
+Reference = to:Identifier {
+  return {is: "ref", to};
+}
+
+Constructor = "(" tag:Identifier _* args:Term|.., _*| ")" {
+  return {is: "con", tag, args};
+}
+
+//// Identifier maps
+
+EveryIdentifierMap = variables:VariableMap literals:LiteralMap? {
+                       return {variables, literals};
+                     }
+                   / literals:LiteralMap variables:VariableMap? {
+                       return {literals, variables};
+                     }
+
+VariableMap = "?" _+ @IdentifierMap "\n"
+LiteralMap = "%" _+ @IdentifierMap "\n"
+
+IdentifierMap = pairs:IdentifierPair|1.., _* "," _*| {
+  return Object.fromEntries(pairs);
+}
+
+IdentifierPair = @Identifier _+ "as" _+ @MathAnnotation / id:Identifier { return [id, id]; }
+
+MathAnnotation = ("\\," / "\\" / [^ \n\r\t,])+ {
+  return text();
+}
+
+//// Common utilities
+
+Identifier = [a-z] [a-z0-9_]* {
+  return text();
+}
+
+_ = [ \t] {}

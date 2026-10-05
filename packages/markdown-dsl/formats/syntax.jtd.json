@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "desc": { "type": "string" },
+    "suggest": { "elements": { "type": "string" } },
+    "grammar": {
+      "elements": {
+        "properties": {
+          "name": { "type": "string" },
+          "desc": { "type": "string" },
+          "is": { "type": "string" }
+        },
+        "optionalProperties": {
+          "where": { "values": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

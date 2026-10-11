@@ -18,7 +18,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "strictNullChecks": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react/jsx-runtime": ["./node_modules/preact/jsx-runtime"],
+      "react-dom": ["./node_modules/preact/compat/"],
+      "react-dom/*": ["./node_modules/preact/compat/"]
+    }
   },
   "include": ["vitest.d.ts", "packages/**/*.ts"]
 }

@@ -9,7 +9,10 @@
   },
   "dependencies": {
     "@preact/signals": "^2.11.2",
-    "preact": "^10.29.8"
+    "preact": "^10.29.8",
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat",
+    "react-simple-code-editor": "^0.14.1"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",

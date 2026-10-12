@@ -10,13 +10,14 @@
   "dependencies": {
     "@preact/signals": "^2.11.2",
     "preact": "^10.29.8",
+    "prismjs": "^1.30.0",
     "react": "npm:@preact/compat",
-    "react-dom": "npm:@preact/compat",
-    "react-simple-code-editor": "^0.14.1"
+    "react-dom": "npm:@preact/compat"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/prismjs": "^1.26.6",
     "daisyui": "^5.7.42",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.0"

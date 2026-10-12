@@ -5,7 +5,7 @@ interface LiveSystem {
   editorBuffer: Signal<string>;
 }
 
-export const LiveSystemModel = createModel<LiveSystem>(() => {
+const LiveSystemModel = createModel<LiveSystem>(() => {
   const editorBuffer = signal('');
   // Debouncing?
   // The live syntax tree would be computed()
@@ -15,3 +15,5 @@ export const LiveSystemModel = createModel<LiveSystem>(() => {
     editorBuffer,
   };
 });
+
+export const liveSystem = new LiveSystemModel();

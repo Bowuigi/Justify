@@ -185,4 +185,4 @@ function App(): JSX.Element {
   );
 }
 
-render(<App />, document.querySelector('#app')!);
+render(<App />, document.querySelector<HTMLDivElement>('#app')!);

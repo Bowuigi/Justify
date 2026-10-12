@@ -107,7 +107,7 @@
       }
     },
     {
-      "files": ["packages/playground/*"],
+      "files": ["packages/playground/**/*"],
       "env": {
         "browser": true
       }

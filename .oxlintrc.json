@@ -62,6 +62,7 @@
     "unicorn/no-immediate-mutation": "warn",
     "unicorn/no-process-exit": "warn",
 
+    "new-cap": ["error", { "capIsNewExceptions": ["CodeJar"] }],
     "typescript/explicit-function-return-type": ["error", { "allowExpressions": true }],
     "typescript/array-type": ["error", { "default": "generic" }],
     "unicorn/max-nested-calls": ["error", { "max": 5 }],

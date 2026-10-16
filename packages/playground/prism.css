@@ -33,6 +33,16 @@ pre[class*='language-'] {
   user-select: none;
 }
 
+.codejar-linenumbers {
+  background-color: color-mix(in oklch, var(--color-base-content) 5%, transparent) !important;
+}
+
+.codejar-linenumber {
+  color: color-mix(in oklch, var(--color-base-content) 60%, transparent) !important;
+  text-align: right;
+  padding-right: 0.3em;
+}
+
 .code[class*='language-'] {
   position: relative;
   z-index: 1;

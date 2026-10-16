@@ -5,7 +5,7 @@ import { Editor } from './editor.tsx';
 
 export function EditTool(): JSX.Element {
   return (
-    <div>
+    <div class="h-full w-full">
       <Editor buffer={liveSystem.editorBuffer} />
     </div>
   );

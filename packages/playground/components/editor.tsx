@@ -42,8 +42,8 @@ export function Editor(props: PropsWithoutRef<EditorProps>): JSX.Element {
   }, []);
 
   return (
-    <pre>
-      <code ref={ref} class="language-markdown block"></code>
+    <pre class="h-full w-full">
+      <code ref={ref} class="language-markdown block h-full w-full"></code>
     </pre>
   );
 }

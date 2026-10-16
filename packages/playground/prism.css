@@ -24,6 +24,7 @@ pre[class*='language-'] {
 
 .codejar-wrap {
   position: relative;
+  height: 100%;
 }
 
 .codejar-linenumbers-inner-wrap,

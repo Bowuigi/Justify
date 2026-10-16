@@ -15,8 +15,7 @@ import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-markdown';
 ////
 
-// TODO: Make a theme that uses DaisyUI colors
-import 'prismjs/themes/prism.css';
+import '../prism.css';
 import 'codejar-linenumbers/es/codejar-linenumbers.css';
 
 interface EditorProps {
@@ -24,7 +23,7 @@ interface EditorProps {
 }
 
 export function Editor(props: PropsWithoutRef<EditorProps>): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (ref.current === null) return;
@@ -42,5 +41,9 @@ export function Editor(props: PropsWithoutRef<EditorProps>): JSX.Element {
     };
   }, []);
 
-  return <div ref={ref} class="language-markdown"></div>;
+  return (
+    <pre>
+      <code ref={ref} class="language-markdown block"></code>
+    </pre>
+  );
 }

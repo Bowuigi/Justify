@@ -58,8 +58,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'PMA-M': {
       return {
-        message: `Missing ${C.displayIterable('pattern', 'patterns', err.missingPatterns)}`,
-        hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
+        message: ['Missing ', ...C.displayIterable('pattern', 'patterns', err.missingPatterns)],
+        hints: [['Expected ', ...C.displayIterable('pattern', 'patterns', err.expectedPatterns)]],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
@@ -67,8 +67,8 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     }
     case 'PMA-E': {
       return {
-        message: `Extra ${C.displayIterable('pattern', 'patterns', err.extraPatterns)}`,
-        hints: [`Expected ${C.displayIterable('pattern', 'patterns', err.expectedPatterns)}`],
+        message: ['Extra ', ...C.displayIterable('pattern', 'patterns', err.extraPatterns)],
+        hints: [['Expected ', ...C.displayIterable('pattern', 'patterns', err.expectedPatterns)]],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,

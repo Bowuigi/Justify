@@ -80,8 +80,10 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'CAC-M': {
       return {
-        message: `Missing arguments in relation call`,
-        hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
+        message: ['Missing arguments in relation call'],
+        hints: [
+          ['Expected ', ...C.displayIterable('argument', 'arguments', err.expectedArgumentIds)],
+        ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,
@@ -89,8 +91,10 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     }
     case 'CAC-E': {
       return {
-        message: `Extra ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`,
-        hints: [`Expected ${C.displayIterable('argument', 'arguments', err.expectedArgumentIds)}`],
+        message: ['Extra ', ...C.displayIterable('argument', 'arguments', err.expectedArgumentIds)],
+        hints: [
+          ['Expected ', ...C.displayIterable('argument', 'arguments', err.expectedArgumentIds)],
+        ],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,

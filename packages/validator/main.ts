@@ -4,11 +4,21 @@ import { styleText } from 'node:util';
 import { parseQuery, parseQueryResult, parseSystem } from '@justify/core';
 
 import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
-import type { ModuleErrorInfo } from './module-common.ts';
+import type { ModuleErrorInfo, RichText } from './module-common.ts';
+
+function renderRich(parts: RichText): string {
+  return parts
+    .map(part =>
+      typeof part === 'string'
+        ? part
+        : styleText(part.emphasis === 'good' ? ['bold', 'green'] : ['bold', 'red'], part.text),
+    )
+    .join('');
+}
 
 function renderMEI(mei: ModuleErrorInfo): string {
   const fromPath = (p: Array<unknown>): string => styleText('yellow', `/${p.join('/')}`);
-  let output = `Error: ${mei.message}\n`;
+  let output = `Error: ${renderRich(mei.message)}\n`;
   output += `  In ${fromPath(mei.location)}\n`;
 
   if (mei.sourceOfTruthLocation !== null) {
@@ -16,7 +26,7 @@ function renderMEI(mei: ModuleErrorInfo): string {
   }
 
   for (const hint of mei.hints) {
-    output += `  ${hint}\n`;
+    output += `  ${renderRich(hint)}\n`;
   }
 
   return output;

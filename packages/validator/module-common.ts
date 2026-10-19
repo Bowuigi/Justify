@@ -1,5 +1,3 @@
-import { styleText } from 'node:util';
-
 export type SourceOfTruthPath =
   | ['system', 'relations']
   | ['system', 'relations', string, 'arguments']
@@ -45,29 +43,43 @@ export interface ModuleError<ModId extends string, ErrId extends string> {
   sourceOfTruthLocation: SourceOfTruthPath | null;
 }
 
+export type RichTextPart =
+  | string
+  | { emphasis: 'good'; text: string }
+  | { emphasis: 'bad'; text: string };
+
+export type RichText = Array<RichTextPart>;
+
 export interface ModuleErrorInfo {
   id: string;
-  message: string;
-  hints: Array<string>;
+  message: RichText;
+  hints: Array<RichText>;
   location: LocationPath;
   sourceOfTruthLocation: SourceOfTruthPath | null;
 }
 
-export const highlight = (str: string): string => styleText(['bold', 'green'], str);
-export const highlightWrong = (str: string): string => styleText(['bold', 'red'], str);
+export const highlightCorrect = (text: string): RichTextPart => ({ emphasis: 'good', text });
+export const highlightWrong = (text: string): RichTextPart => ({ emphasis: 'bad', text });
 
-export function displayIterable(singular: string, plural: string, item: Iterable<string>): string {
-  const itemAsArray = [...item].map(x => highlight(x));
-
+export function displayIterable(
+  singular: string,
+  plural: string,
+  item: Iterable<string>,
+): RichText {
+  const itemAsArray = [...item].map(x => highlightCorrect(x));
   switch (itemAsArray.length) {
     case 0: {
-      return `${plural}: <empty>`;
+      return [`${plural}: <empty>`];
     }
     case 1: {
-      return `${singular}: ${itemAsArray[0]}`;
+      return [`${singular}: `, itemAsArray[0]!];
     }
     default: {
-      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} or ${itemAsArray.at(-1)}`;
+      const head: RichText = [];
+      for (const part of itemAsArray.slice(0, -1)) {
+        head.push(part, ', ');
+      }
+      return [`${plural}: `, ...head, ' or ', itemAsArray.at(-1)!];
     }
   }
 }

@@ -190,7 +190,7 @@ export function onQueryResultSolutionVariableIdentifier(
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {
   return {
-    message: `Improperly formatted identifier ${C.highlightWrong(err.identifier)}`,
+    message: ['Improperly formatted identifier ', C.highlightWrong(err.identifier)],
     hints: [],
     location: err.location,
     sourceOfTruthLocation: err.sourceOfTruthLocation,

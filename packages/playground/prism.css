@@ -1,0 +1,110 @@
+/* Prism + CodeJar theme using daisyUI dynamic colors */
+pre[class*='language-'],
+code[class*='language-'] {
+  color: var(--color-base-content);
+  background: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 2;
+  hyphens: none;
+  margin: 0;
+  padding: 0;
+}
+
+pre[class*='language-'] {
+  overflow: auto;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.codejar-wrap {
+  position: relative;
+  height: 100%;
+}
+
+.codejar-linenumbers-inner-wrap,
+.codejar-linenumbers {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.codejar-linenumbers {
+  background-color: color-mix(in oklch, var(--color-base-content) 5%, transparent) !important;
+}
+
+.codejar-linenumber {
+  color: color-mix(in oklch, var(--color-base-content) 60%, transparent) !important;
+  text-align: right;
+  padding-right: 0.3em;
+}
+
+.code[class*='language-'] {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+  font-style: italic;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: var(--color-error);
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: var(--color-success);
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.token.variable {
+  color: var(--color-warning);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword,
+.token.function,
+.token.class-name {
+  color: var(--color-primary);
+}
+
+.token.regex,
+.token.important {
+  color: var(--color-secondary);
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}

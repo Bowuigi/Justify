@@ -57,11 +57,9 @@ async function main(): Promise<void> {
   let flags: string, systemFile: string, queryFile: string;
   if (process.argv.length === 4) {
     // Depends on the check above
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     [systemFile, queryFile] = process.argv.toSpliced(0, 2) as [string, string];
   } else {
     // Depends on the check above
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     [flags, systemFile, queryFile] = process.argv.toSpliced(0, 2) as [string, string, string];
     if (flags.includes('m')) {
       machineReadable = true;

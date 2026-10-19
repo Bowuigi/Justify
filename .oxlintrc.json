@@ -62,6 +62,7 @@
     "unicorn/no-immediate-mutation": "warn",
     "unicorn/no-process-exit": "warn",
 
+    "new-cap": ["error", { "capIsNewExceptions": ["CodeJar"] }],
     "typescript/explicit-function-return-type": ["error", { "allowExpressions": true }],
     "typescript/array-type": ["error", { "default": "generic" }],
     "unicorn/max-nested-calls": ["error", { "max": 5 }],
@@ -104,6 +105,12 @@
       "rules": {
         "no-inline-comments": "allow",
         "capitalized-comments": "allow"
+      }
+    },
+    {
+      "files": ["packages/playground/**/*"],
+      "env": {
+        "browser": true
       }
     }
   ]

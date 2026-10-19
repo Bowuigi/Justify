@@ -20,10 +20,12 @@ async function parseFile<T>(
     }
 
     for (const error of valid.errors) {
-      console.error(`${filename}, /${error.path.join('/')}: ${error.message}`);
+      console.error(`${filename}: ${error.message}\n  In /${error.path.join('/')}`);
       if (error.suggestions.length > 0) {
         console.error(`  Suggestions: ${error.suggestions.join(', ')}`);
       }
+      // Newline
+      console.error('');
     }
     return null;
   } catch (error: unknown) {

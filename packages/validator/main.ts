@@ -16,9 +16,9 @@ function renderRich(parts: RichText): string {
     .join('');
 }
 
-function renderMEI(mei: ModuleErrorInfo): string {
+function renderMEI(filename: string, mei: ModuleErrorInfo): string {
   const fromPath = (p: Array<unknown>): string => styleText('yellow', `/${p.join('/')}`);
-  let output = `Error: ${renderRich(mei.message)}\n`;
+  let output = `${filename}: ${renderRich(mei.message)}\n`;
   output += `  In ${fromPath(mei.location)}\n`;
 
   if (mei.sourceOfTruthLocation !== null) {
@@ -65,14 +65,15 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
-      const system = await parseSystem(rest[0]!);
+      const filename = rest[0]!;
+      const system = await parseSystem(filename);
       if (system === null) {
         process.exitCode = 1;
         return;
       }
       console.log(
         validateSystem(system)
-          .map(mei => renderMEI(mei))
+          .map(mei => renderMEI(filename, mei))
           .join('\n') || 'All good!',
       );
       break;
@@ -87,15 +88,16 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
+      const queryFilename = rest[1]!;
       const system = await parseSystem(rest[0]!);
-      const query = await parseQuery(rest[1]!);
+      const query = await parseQuery(queryFilename);
       if (system === null || query === null) {
         process.exitCode = 1;
         return;
       }
       console.log(
         validateQuery(query, system)
-          .map(mei => renderMEI(mei))
+          .map(mei => renderMEI(queryFilename, mei))
           .join('\n') || 'All good!',
       );
       break;
@@ -110,15 +112,16 @@ async function main(): Promise<void> {
         process.exitCode = 1;
         return;
       }
+      const queryResultFilename = rest[1]!;
       const system = await parseSystem(rest[0]!);
-      const queryResult = await parseQueryResult(rest[1]!);
+      const queryResult = await parseQueryResult(queryResultFilename);
       if (system === null || queryResult === null) {
         process.exitCode = 1;
         return;
       }
       console.log(
         validateQueryResult(queryResult, system)
-          .map(mei => renderMEI(mei))
+          .map(mei => renderMEI(queryResultFilename, mei))
           .join('\n') || 'All good!',
       );
       break;

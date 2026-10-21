@@ -57,9 +57,10 @@ export function displayIterable(
     }
     default: {
       const head: RichText = [];
-      for (const part of itemAsArray.slice(0, -1)) {
+      for (const part of itemAsArray.slice(0, -2)) {
         head.push(part, ', ');
       }
+      head.push(itemAsArray.at(-2)!);
       return [`${plural}: `, ...head, ' or ', itemAsArray.at(-1)!];
     }
   }

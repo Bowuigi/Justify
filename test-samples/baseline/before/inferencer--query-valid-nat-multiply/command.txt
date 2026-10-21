@@ -1,0 +1,1 @@
+node packages/inferencer/main.ts examples/nat/system.json test-samples/query-valid-nat-multiply.jtf.json

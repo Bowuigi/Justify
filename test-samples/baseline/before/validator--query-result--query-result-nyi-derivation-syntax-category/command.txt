@@ -1,0 +1,1 @@
+node packages/validator/main.ts query-result examples/nat/system.json test-samples/query-result-nyi-derivation-syntax-category.jtf.json

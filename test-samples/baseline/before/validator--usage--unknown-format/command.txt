@@ -1,0 +1,1 @@
+node packages/validator/main.ts bogus test-samples/system-valid-nat.jtf.json

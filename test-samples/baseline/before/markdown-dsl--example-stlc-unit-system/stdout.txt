@@ -1,0 +1,294 @@
+{
+  extracted: {
+    description: [32m'Simply-typed lambda calculus with a unit type'[39m,
+    syntax: {
+      term: {
+        description: [32m'Terms'[39m,
+        grammar: [
+          {
+            id: [32m'variable'[39m,
+            description: [32m'Variable $x$'[39m,
+            fixity: [32m'none'[39m,
+            arguments: [ { id: [32m'x'[39m, tex: [32m'x'[39m, from: [32m'literal'[39m } ],
+            tex_parts: []
+          },
+          {
+            id: [32m'lambda'[39m,
+            description: [32m'Binds the applied term of type $t$ to the variable $x$ in $e$'[39m,
+            fixity: [32m'prefix'[39m,
+            arguments: [
+              { id: [32m'x'[39m, tex: [32m'x'[39m, from: [32m'literal'[39m },
+              { id: [32m't'[39m, tex: [32m'\\tau'[39m, from: [32m'type'[39m },
+              { id: [32m'e'[39m, tex: [32m'e'[39m, from: [32m'term'[39m }
+            ],
+            tex_parts: [ [32m'\\lambda'[39m, [32m':'[39m, [32m'.\\,'[39m ]
+          },
+          {
+            id: [32m'apply'[39m,
+            description: [32m'Applies $e_2$ to $e_1$, performing beta reduction'[39m,
+            fixity: [32m'infix'[39m,
+            arguments: [
+              { id: [32m'e1'[39m, tex: [32m'e_1'[39m, from: [32m'term'[39m },
+              { id: [32m'e2'[39m, tex: [32m'e_2'[39m, from: [32m'term'[39m }
+            ],
+            tex_parts: [ [32m'\\;'[39m ]
+          },
+          {
+            id: [32m'star'[39m,
+            description: [32m'The only term of type $\\mathbf{1}$'[39m,
+            fixity: [32m'none'[39m,
+            arguments: [],
+            tex_parts: [ [32m'\\star'[39m ]
+          }
+        ],
+        suggestions: [ [32m'e'[39m ]
+      },
+      type: {
+        description: [32m'Types'[39m,
+        grammar: [
+          {
+            id: [32m'arrow'[39m,
+            description: [32m'A function from $A$ to $B$'[39m,
+            fixity: [32m'infix'[39m,
+            arguments: [
+              { id: [32m't1'[39m, tex: [32m'A'[39m, from: [32m'type'[39m },
+              { id: [32m't2'[39m, tex: [32m'B'[39m, from: [32m'type'[39m }
+            ],
+            tex_parts: [ [32m'\\rightarrow'[39m ]
+          },
+          {
+            id: [32m'unit'[39m,
+            description: [32m'A type with only one inhabitant, $\\star$'[39m,
+            fixity: [32m'none'[39m,
+            arguments: [],
+            tex_parts: [ [32m'\\mathbf{1}'[39m ]
+          }
+        ],
+        suggestions: [ [32m'\\tau'[39m, [32m'A'[39m, [32m'B'[39m ]
+      },
+      context: {
+        description: [32m'Contexts'[39m,
+        grammar: [
+          {
+            id: [32m'empty'[39m,
+            description: [32m'Empty context, empty environment'[39m,
+            fixity: [32m'none'[39m,
+            arguments: [],
+            tex_parts: [ [32m'\\cdot'[39m ]
+          },
+          {
+            id: [32m'extend'[39m,
+            description: [32m'A cons operation for contexts (here, assoc lists)'[39m,
+            fixity: [32m'infix'[39m,
+            arguments: [
+              { id: [32m'ctx'[39m, tex: [32m'\\Gamma'[39m, from: [32m'context'[39m },
+              { id: [32m'x'[39m, tex: [32m'x'[39m, from: [32m'literal'[39m },
+              { id: [32m't'[39m, tex: [32m'\\tau'[39m, from: [32m'type'[39m }
+            ],
+            tex_parts: [ [32m','[39m, [32m':'[39m ]
+          }
+        ],
+        suggestions: [ [32m'\\Gamma'[39m ]
+      }
+    },
+    relations: {
+      judge: {
+        description: [32m'Term $e$ has type $\\tau$ on context $\\Gamma$'[39m,
+        rules: [
+          {
+            rule: { id: [32m'app'[39m, tex: [32m'App'[39m },
+            variables: { e1: [32m'e_1'[39m, e2: [32m'e_2'[39m, a: [32m'A'[39m, b: [32m'B'[39m, ctx: [32m'\\Gamma'[39m },
+            literals: {},
+            premises: [
+              {
+                relation: [32m'judge'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+                  { is: [32m'ref'[39m, to: [32m'e1'[39m },
+                  {
+                    is: [32m'con'[39m,
+                    from: [32m'type'[39m,
+                    tag: [32m'arrow'[39m,
+                    args: [ { is: [32m'ref'[39m, to: [32m'a'[39m }, { is: [32m'ref'[39m, to: [32m'b'[39m } ]
+                  }
+                ]
+              },
+              {
+                relation: [32m'judge'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+                  { is: [32m'ref'[39m, to: [32m'e2'[39m },
+                  { is: [32m'ref'[39m, to: [32m'a'[39m }
+                ]
+              }
+            ],
+            patterns: {
+              ctx: { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+              tm: {
+                is: [32m'con'[39m,
+                from: [32m'term'[39m,
+                tag: [32m'apply'[39m,
+                args: [ { is: [32m'ref'[39m, to: [32m'e1'[39m }, { is: [32m'ref'[39m, to: [32m'e2'[39m } ]
+              },
+              ty: { is: [32m'ref'[39m, to: [32m'b'[39m }
+            }
+          },
+          {
+            rule: { id: [32m'lam'[39m, tex: [32m'Lam'[39m },
+            variables: { ctx: [32m'\\Gamma'[39m, x: [32m'x'[39m, a: [32m'A'[39m, b: [32m'B'[39m, e: [32m'e'[39m },
+            literals: {},
+            premises: [
+              {
+                relation: [32m'judge'[39m,
+                args: [
+                  {
+                    is: [32m'con'[39m,
+                    from: [32m'context'[39m,
+                    tag: [32m'extend'[39m,
+                    args: [
+                      { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+                      { is: [32m'ref'[39m, to: [32m'x'[39m },
+                      { is: [32m'ref'[39m, to: [32m'a'[39m }
+                    ]
+                  },
+                  { is: [32m'ref'[39m, to: [32m'e'[39m },
+                  { is: [32m'ref'[39m, to: [32m'b'[39m }
+                ]
+              }
+            ],
+            patterns: {
+              ctx: { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+              tm: {
+                is: [32m'con'[39m,
+                from: [32m'term'[39m,
+                tag: [32m'lambda'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'x'[39m },
+                  { is: [32m'ref'[39m, to: [32m'a'[39m },
+                  { is: [32m'ref'[39m, to: [32m'e'[39m }
+                ]
+              },
+              ty: {
+                is: [32m'con'[39m,
+                from: [32m'type'[39m,
+                tag: [32m'arrow'[39m,
+                args: [ { is: [32m'ref'[39m, to: [32m'a'[39m }, { is: [32m'ref'[39m, to: [32m'b'[39m } ]
+              }
+            }
+          },
+          {
+            rule: { id: [32m'unit'[39m, tex: [32m'Unit'[39m },
+            variables: { ctx: [32m'\\Gamma'[39m },
+            literals: {},
+            premises: [],
+            patterns: {
+              ctx: { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+              tm: { is: [32m'con'[39m, from: [32m'term'[39m, tag: [32m'star'[39m, args: [] },
+              ty: { is: [32m'con'[39m, from: [32m'type'[39m, tag: [32m'unit'[39m, args: [] }
+            }
+          },
+          {
+            rule: { id: [32m'var'[39m, tex: [32m'Var'[39m },
+            variables: { ctx: [32m'\\Gamma'[39m, x: [32m'x'[39m, t: [32m'\\tau'[39m },
+            literals: {},
+            premises: [
+              {
+                relation: [32m'member'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'x'[39m },
+                  { is: [32m'ref'[39m, to: [32m't'[39m },
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m }
+                ]
+              }
+            ],
+            patterns: {
+              ctx: { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+              tm: {
+                is: [32m'con'[39m,
+                from: [32m'term'[39m,
+                tag: [32m'variable'[39m,
+                args: [ { is: [32m'ref'[39m, to: [32m'x'[39m } ]
+              },
+              ty: { is: [32m'ref'[39m, to: [32m't'[39m }
+            }
+          }
+        ],
+        fixity: [32m'infix'[39m,
+        arguments: [
+          { id: [32m'ctx'[39m, tex: [32m'\\Gamma'[39m, from: [32m'context'[39m },
+          { id: [32m'tm'[39m, tex: [32m'e'[39m, from: [32m'term'[39m },
+          { id: [32m'ty'[39m, tex: [32m'\\tau'[39m, from: [32m'type'[39m }
+        ],
+        tex_parts: [ [32m'\\vdash'[39m, [32m':'[39m ]
+      },
+      member: {
+        description: [32m'Identifier $x$ inside context $\\Gamma$ has type $\\tau$'[39m,
+        rules: [
+          {
+            rule: { id: [32m'found'[39m, tex: [32m'Found'[39m },
+            variables: { x: [32m'x'[39m, t: [32m'\\tau'[39m, ctx: [32m'\\Gamma'[39m },
+            literals: {},
+            premises: [],
+            patterns: {
+              ident: { is: [32m'ref'[39m, to: [32m'x'[39m },
+              ty: { is: [32m'ref'[39m, to: [32m't'[39m },
+              ctx: {
+                is: [32m'con'[39m,
+                from: [32m'context'[39m,
+                tag: [32m'extend'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+                  { is: [32m'ref'[39m, to: [32m'x'[39m },
+                  { is: [32m'ref'[39m, to: [32m't'[39m }
+                ]
+              }
+            }
+          },
+          {
+            rule: { id: [32m'next'[39m, tex: [32m'Next'[39m },
+            variables: {
+              x: [32m'x'[39m,
+              y: [32m'y'[39m,
+              t1: [32m'\\tau'[39m,
+              t2: [32m'\\sigma'[39m,
+              ctx: [32m'\\Gamma'[39m
+            },
+            literals: {},
+            premises: [
+              {
+                relation: [32m'member'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'x'[39m },
+                  { is: [32m'ref'[39m, to: [32m't1'[39m },
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m }
+                ]
+              }
+            ],
+            patterns: {
+              ident: { is: [32m'ref'[39m, to: [32m'x'[39m },
+              ty: { is: [32m'ref'[39m, to: [32m't1'[39m },
+              ctx: {
+                is: [32m'con'[39m,
+                from: [32m'context'[39m,
+                tag: [32m'extend'[39m,
+                args: [
+                  { is: [32m'ref'[39m, to: [32m'ctx'[39m },
+                  { is: [32m'ref'[39m, to: [32m'y'[39m },
+                  { is: [32m'ref'[39m, to: [32m't2'[39m }
+                ]
+              }
+            }
+          }
+        ],
+        fixity: [32m'infix'[39m,
+        arguments: [
+          { id: [32m'ident'[39m, tex: [32m'x'[39m, from: [32m'literal'[39m },
+          { id: [32m'ty'[39m, tex: [32m'\\tau'[39m, from: [32m'type'[39m },
+          { id: [32m'ctx'[39m, tex: [32m'\\Gamma'[39m, from: [32m'context'[39m }
+        ],
+        tex_parts: [ [32m':'[39m, [32m'\\in'[39m ]
+      }
+    }
+  },
+  errors: []
+}

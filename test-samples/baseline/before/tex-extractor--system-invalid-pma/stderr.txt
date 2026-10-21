@@ -1,0 +1,17 @@
+file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:74
+  switch (term.is) {
+               ^
+
+TypeError: Cannot read properties of undefined (reading 'is')
+    at renderTerm (file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:74:16)
+    at file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:186:17
+    at Array.map (<anonymous>)
+    at file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:185:36
+    at Array.map (<anonymous>)
+    at file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:167:24
+    at Array.flatMap (<anonymous>)
+    at extractTeX (file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:166:52)
+    at main (file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:261:15)
+    at async file:///home/bowuigi/projects/Web/Justify/packages/tex-extractor/main.ts:263:1
+
+Node.js v24.18.1

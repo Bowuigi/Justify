@@ -1,0 +1,5 @@
+test-samples/system-invalid-cac.jtf.json: Extra argument: n
+  In /system/relations/equal/rules/ind/patterns/n
+  Conflicts with /system/syntax/number/succ/arguments
+  Expected argument: n
+

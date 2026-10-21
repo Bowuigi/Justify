@@ -1,0 +1,2 @@
+Unknown format specifier 'bogus'.
+Usage: /home/bowuigi/projects/Web/Justify/packages/validator/main.ts {system|query|query-result} filename

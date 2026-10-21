@@ -1,0 +1,1 @@
+node packages/inferencer/main.ts examples/stlc/system.json test-samples/query-valid-stlc-simple.jtf.json

@@ -1,0 +1,1 @@
+test-samples/query-result-invalid-not-json.jtf.json, SyntaxError: Expected double-quoted property name in JSON at position 31 (line 2 column 1)

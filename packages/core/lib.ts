@@ -6,7 +6,7 @@ import { validate as validateSystem, type ValidationResult } from './codegen/sys
 import type { Query, QueryResult, System } from './codegen/types.d.ts';
 import { displayIterable, type Diagnostic } from './diagnostics.ts';
 
-type LoadResult<T> =
+export type LoadResult<T> =
   | { success: true; value: T }
   | { success: false; diagnostics: Array<Diagnostic> };
 
@@ -96,9 +96,26 @@ export function fromJSONString<T>(
   return fromJSON<T>(validate, filename, json);
 }
 
+export function systemFromJSONString(filename: string, jsonString: string): LoadResult<System> {
+  return fromJSONString(validateSystem, filename, jsonString);
+}
+
+export function queryFromJSONString(filename: string, jsonString: string): LoadResult<Query> {
+  return fromJSONString(validateQuery, filename, jsonString);
+}
+
+export function queryResultFromJSONString(
+  filename: string,
+  jsonString: string,
+): LoadResult<QueryResult> {
+  return fromJSONString(validateQueryResult, filename, jsonString);
+}
+
 // --- exports ---
 
 export type * from './codegen/types.d.ts';
+
+export * from './diagnostics.ts';
 
 export async function parseSystem(filename: string): Promise<System | null> {
   const result = await parseFile<System>(validateSystem, filename);

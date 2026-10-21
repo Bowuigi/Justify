@@ -1,0 +1,2 @@
+Wrong number of arguments.
+Usage: /home/bowuigi/projects/Web/Justify/packages/validator/main.ts query-result system-filename query-result-filename

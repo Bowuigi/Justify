@@ -1,0 +1,1 @@
+node packages/validator/main.ts query examples/nat/system.json test-samples/query-invalid-ods.jtf.json

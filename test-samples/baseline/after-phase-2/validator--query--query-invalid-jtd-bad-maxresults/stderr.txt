@@ -1,0 +1,3 @@
+test-samples/query-invalid-jtd-bad-maxresults.jtf.json: expected uint16, got string
+  In /max_results
+

@@ -1,0 +1,1 @@
+node packages/validator/main.ts system test-samples/system-invalid-ods-syntax-category.jtf.json

@@ -1,0 +1,1 @@
+node packages/validator/main.ts query examples/stlc/system.json test-samples/query-valid-stlc-apply.jtf.json

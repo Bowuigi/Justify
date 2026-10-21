@@ -53,7 +53,6 @@ async function main(): Promise<void> {
   }
 
   let machineReadable = false;
-  // oxlint-disable-next-line init-declarations
   let flags: string, systemFile: string, queryFile: string;
   if (process.argv.length === 4) {
     // Depends on the check above

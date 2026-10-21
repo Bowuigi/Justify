@@ -93,7 +93,6 @@ function extractTeX(system: System): string {
   ) => Array<T> = (obj, callback) => Object.entries(obj).map((val, ix) => callback(val, ix));
 
   /// Formatting for \jyGrammar
-  // oxlint-disable-next-line no-map-spread
   const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) =>
     // Format: e ::= & constructor(...args) & description \\
     // On title lines it inserts an extra line with -5pt line spacing

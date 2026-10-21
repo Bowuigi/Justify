@@ -1,13 +1,14 @@
-import type { Query, QueryResult, System } from '@justify/core';
+import type { Diagnostic, Query, QueryResult, System } from '@justify/core';
 import { expect } from 'vitest';
 
-import { validateQuery, validateQueryResult, validateSystem } from './driver.ts';
-import type { ModuleErrorInfo } from './module-common.ts';
+import { validateQuery, validateQueryResult, validateSystem } from './lib.ts';
+
+const TEST_FILENAME = '<test>';
 
 expect.extend({
   toBeAValidSystem(system: System) {
     const { isNot, utils } = this;
-    const givenErrors = validateSystem(system);
+    const givenErrors = validateSystem(system, TEST_FILENAME);
     return {
       pass: givenErrors.length === 0,
       message: () => {
@@ -20,7 +21,7 @@ expect.extend({
   },
   toHaveAValidQuery(system: System, query: Query) {
     const { isNot, utils } = this;
-    const givenErrors = validateQuery(query, system);
+    const givenErrors = validateQuery(query, system, TEST_FILENAME);
     return {
       pass: givenErrors.length === 0,
       message: () => {
@@ -33,7 +34,7 @@ expect.extend({
   },
   toHaveAValidQueryResult(system: System, queryResult: QueryResult) {
     const { isNot, utils } = this;
-    const givenErrors = validateQueryResult(queryResult, system);
+    const givenErrors = validateQueryResult(queryResult, system, TEST_FILENAME);
     return {
       pass: givenErrors.length === 0,
       message: () => {
@@ -44,9 +45,9 @@ expect.extend({
       },
     };
   },
-  toBeASystemReturningValidationErrors(system: System, errors: Partial<ModuleErrorInfo>) {
+  toBeASystemReturningValidationErrors(system: System, errors: Partial<Diagnostic>) {
     const { isNot, utils } = this;
-    const givenErrors = validateSystem(system);
+    const givenErrors = validateSystem(system, TEST_FILENAME);
     const match = givenErrors.every(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
       pass: match,
@@ -58,13 +59,9 @@ expect.extend({
       },
     };
   },
-  toBeAQueryReturningValidationErrors(
-    system: System,
-    query: Query,
-    errors: Partial<ModuleErrorInfo>,
-  ) {
+  toBeAQueryReturningValidationErrors(system: System, query: Query, errors: Partial<Diagnostic>) {
     const { isNot, utils } = this;
-    const givenErrors = validateQuery(query, system);
+    const givenErrors = validateQuery(query, system, TEST_FILENAME);
     const match = givenErrors.some(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
       pass: match,
@@ -79,10 +76,10 @@ expect.extend({
   toBeAQueryResultReturningValidationErrors(
     system: System,
     queryResult: QueryResult,
-    errors: Partial<ModuleErrorInfo>,
+    errors: Partial<Diagnostic>,
   ) {
     const { isNot, utils } = this;
-    const givenErrors = validateQueryResult(queryResult, system);
+    const givenErrors = validateQueryResult(queryResult, system, TEST_FILENAME);
     const match = givenErrors.some(actual => this.equals(actual, expect.objectContaining(errors)));
     return {
       pass: match,

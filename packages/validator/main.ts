@@ -11,7 +11,7 @@ function renderRich(parts: RichText): string {
     .map(part =>
       typeof part === 'string'
         ? part
-        : styleText(part.emphasis === 'good' ? ['bold', 'green'] : ['bold', 'red'], part.text),
+        : styleText(part.style === 'correct' ? ['bold', 'green'] : ['bold', 'red'], part.text),
     )
     .join('');
 }

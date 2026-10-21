@@ -1,6 +1,5 @@
 import 'vitest';
-import type { Query, QueryResult } from '@justify/core';
-import type { ModuleErrorInfo } from '@justify/validator';
+import type { Diagnostic, Query, QueryResult } from '@justify/core';
 
 declare module 'vitest' {
   interface Matchers<R, T> {
@@ -8,11 +7,11 @@ declare module 'vitest' {
     toBeAValidSystem: () => R;
     toHaveAValidQuery: (query: Query) => R;
     toHaveAValidQueryResult: (queryResult: QueryResult) => R;
-    toBeASystemReturningValidationErrors: (errors: Partial<ModuleErrorInfo>) => R;
-    toBeAQueryReturningValidationErrors: (query: Query, errors: Partial<ModuleErrorInfo>) => R;
+    toBeASystemReturningValidationErrors: (errors: Partial<Diagnostic>) => R;
+    toBeAQueryReturningValidationErrors: (query: Query, errors: Partial<Diagnostic>) => R;
     toBeAQueryResultReturningValidationErrors: (
       queryResult: QueryResult,
-      errors: Partial<ModuleErrorInfo>,
+      errors: Partial<Diagnostic>,
     ) => R;
   }
 }

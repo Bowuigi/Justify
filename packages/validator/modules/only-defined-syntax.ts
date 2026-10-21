@@ -89,7 +89,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
   switch (err.id) {
     case 'ODS-S': {
       return {
-        message: ['Undefined syntax category ', C.highlightWrong(err.syncatId)],
+        message: ['Undefined syntax category ', C.highlightError(err.syncatId)],
         hints: [
           [
             'Expected ',
@@ -105,7 +105,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
       return {
         message: [
           'Undefined constructor ',
-          C.highlightWrong(err.conId),
+          C.highlightError(err.conId),
           ' in syntax category ',
           C.highlightCorrect(err.syncatId),
         ],
@@ -119,7 +119,7 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
     }
     case 'ODS-P': {
       return {
-        message: ['Primitive ', C.highlightWrong(err.syncatId), ' not allowed here'],
+        message: ['Primitive ', C.highlightError(err.syncatId), ' not allowed here'],
         hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,

@@ -1,0 +1,10 @@
+{
+  "variables": {},
+  "literals": {},
+  "max_results": 1,
+  "relation": "equal",
+  "args": [
+    { "is": "con", "from": "nonexistent", "tag": "zero", "args": [] },
+    { "is": "con", "from": "number", "tag": "zero", "args": [] }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "solutions": [
+    {
+      "variables": {
+        "p": { "is": "con", "from": "number", "tag": "zero", "args": [] },
+        "q": { "is": "con", "from": "number", "tag": "zero", "args": [] }
+      }
+    }
+  ],
+  "count": 3
+}

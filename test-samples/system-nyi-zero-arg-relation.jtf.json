@@ -1,0 +1,35 @@
+{
+  "description": "Relation with zero arguments (NYI: not checked by validator)",
+  "syntax": {
+    "number": {
+      "description": "Natural number",
+      "suggestions": [],
+      "grammar": [
+        {
+          "id": "zero",
+          "description": "Number zero",
+          "tex_parts": ["0"],
+          "fixity": "none",
+          "arguments": []
+        }
+      ]
+    }
+  },
+  "relations": {
+    "eq": {
+      "description": "eq",
+      "tex_parts": ["="],
+      "fixity": "none",
+      "arguments": [],
+      "rules": [
+        {
+          "rule": { "id": "base", "tex": "Base" },
+          "variables": {},
+          "literals": {},
+          "patterns": {},
+          "premises": []
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variables": { "x": "x" },
+  "literals": { "x": "x" },
+  "max_results": 1,
+  "relation": "equal",
+  "args": [
+    { "is": "ref", "to": "x" },
+    { "is": "con", "from": "number", "tag": "zero", "args": [] }
+  ]
+}

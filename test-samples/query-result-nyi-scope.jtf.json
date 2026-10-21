@@ -1,0 +1,20 @@
+{
+  "solutions": [
+    {
+      "variables": {
+        "p": { "is": "var", "id": "p", "counter": 0 },
+        "q": { "is": "var", "id": "q", "counter": 1 }
+      },
+      "derivation": {
+        "relation": "equal",
+        "rule": "base",
+        "args": [
+          { "is": "var", "id": "p", "counter": 0 },
+          { "is": "var", "id": "undefined", "counter": 99 }
+        ],
+        "premises": []
+      }
+    }
+  ],
+  "count": 1
+}

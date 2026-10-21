@@ -1,0 +1,20 @@
+{
+  "solutions": [
+    {
+      "variables": {
+        "P": { "is": "con", "from": "number", "tag": "zero", "args": [] },
+        "q": { "is": "con", "from": "number", "tag": "zero", "args": [] }
+      },
+      "derivation": {
+        "relation": "Equal",
+        "rule": "base",
+        "args": [
+          { "is": "con", "from": "number", "tag": "zero", "args": [] },
+          { "is": "con", "from": "number", "tag": "zero", "args": [] }
+        ],
+        "premises": []
+      }
+    }
+  ],
+  "count": 1
+}

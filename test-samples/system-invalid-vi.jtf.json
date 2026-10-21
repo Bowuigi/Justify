@@ -1,0 +1,19 @@
+{
+  "description": "Invalid identifier",
+  "syntax": {
+    "Number": {
+      "description": "Natural number",
+      "suggestions": [],
+      "grammar": [
+        {
+          "id": "Zero",
+          "description": "Number zero",
+          "tex_parts": ["0"],
+          "fixity": "none",
+          "arguments": []
+        }
+      ]
+    }
+  },
+  "relations": {}
+}

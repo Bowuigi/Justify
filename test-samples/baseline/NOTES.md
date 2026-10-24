@@ -57,6 +57,7 @@ For `query` and `query-result`, the validator parses the **system file first**, 
 4. `from-markdown` prints `JSON.stringify(extracted)` to stdout; the old markdown-dsl CLI printed an `inspect` dump of its result record.
 5. Subcommand names change; the old CLIs disappear. The mapping lives in the phase-5 steps.
 6. `markdown-dsl` stdout record shape changed: the `errors` field (plain `{ message, provenance }` entries) is replaced by a `diagnostics` field of `Diagnostic` objects (each with `message`, `hints`, `relatedLocations`), as `PipelineError` was removed and `runPipeline` now emits core diagnostics.
+7. `tex-extractor` stack traces now reference `packages/tex-extractor/lib.ts` (and shifted line numbers) instead of `main.ts`, because `extractTeX` and its helpers moved there in phase 4. The error message text, exit codes, and stdout output are unchanged; only the file:line metadata in thrown stack traces differs.
 
 ### Sample-family coverage in `before/`
 

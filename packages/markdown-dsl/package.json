@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "/": "./mod.ts",
-    "/extensions": "./extensions.ts"
+    ".": "./mod.ts",
+    "./extensions": "./extensions.ts"
   },
   "dependencies": {
     "js-yaml": "^5.4.2",

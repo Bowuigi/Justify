@@ -1,0 +1,5 @@
+test-samples/system-invalid-odr-premise.jtf.json: Undefined relation in premise: nonexistent
+  In /system/relations/equal/rules/base/premises/0
+  Conflicts with /system/relations
+  Expected relation: equal
+

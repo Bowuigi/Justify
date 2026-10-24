@@ -68,3 +68,34 @@ For `query` and `query-result`, the validator parses the **system file first**, 
 - `tex-extractor--<system-sample>`: every `test-samples/system-*.jtf.json`.
 - `markdown-dsl--example-<nat|stlc-unit>-system`: both `packages/markdown-dsl/example-*.jtf.md` files.
 - Usage-error records: each tool with a wrong argument count, plus the validator with an unknown format name.
+
+## Phase 5 — merged CLI (`after-cli/`)
+
+`after-cli/` mirrors the `before/` record names one-for-one, so each directory is the direct counterpart of the same-named directory in `before/`. The `command.txt` inside each record holds the new invocation:
+
+- `validator system` → `node packages/cli/main.ts validate system`
+- `validator query` → `node packages/cli/main.ts validate query`
+- `validator query-result` → `node packages/cli/main.ts validate query-result`
+- `inferencer` → `node packages/cli/main.ts infer`
+- `tex-extractor` → `node packages/cli/main.ts to-tex`
+- `markdown-dsl` → `node packages/cli/main.ts from-markdown`
+
+Usage-error records keep their old names but use the equivalent new-CLI invocation (for example `inferencer--usage--no-args` runs `node packages/cli/main.ts infer`).
+
+### What is byte-identical
+
+- Every `infer` stdout file, with and without `-m` (12 records).
+- Every `to-tex` stdout file (all system samples, valid and invalid).
+- Every clean `validate` stdout file: `All good!`, exit 0.
+- All clean-run stdout and stderr files.
+
+### Why the remaining records differ
+
+1. **Usage text changed** (all `*-usage-*` records). The subcommands and option spelling are the phase-5 grammar (`validate ...`, `infer [-m] ...`, `to-tex`, `from-markdown`), and the usage lines name `packages/cli/main.ts`. Exit code stays 1 and the message stays on stderr. This is intentional delta 5.
+2. **`from-markdown` stdout is now data.** The two `markdown-dsl--example-*` records print `JSON.stringify(extracted)` instead of the old `inspect` dump of the pipeline result. This is intentional deltas 4 and 6.
+3. **Semantic validator diagnostics moved to stderr and exit 1.** Every `validator` record whose old stdout carried validation errors now writes them to stderr and exits 1; the diagnostic text itself is unchanged apart from item 5. This is intentional deltas 1 and 2.
+4. **All diagnostics use the shared renderer.** JSON parse failures now render as `source: message` instead of `source, Name: message`. JTD suggestions now render as `Did you mean any of those: ...` hints instead of the old `Suggestions: ...` line. Each diagnostic is followed by a blank line. This is intentional delta 3 (richer diagnostics).
+5. **`displayIterable` no longer emits an extra separator.** The old renderer produced `equal, add,  or multiply` and `n,  or m`; core now produces `equal, add or multiply` and `n or m`. The fix landed in phase 2 (`bdf0810`) and is part of the unified core RichText rendering.
+6. **`to-tex` parse failures use the renderer too.** The JTD suggestion lines change as in item 4, and JSON parse failures change as in item 4. Exit code stays 1.
+7. **`to-tex` crashes keep their stack traces but with new frames.** For `system-invalid-pma` and `system-invalid-vi-ods-pma-odr`, the crash is identical in kind and exit code; only file paths/line numbers move to `packages/tex-extractor/lib.ts` and gain `packages/cli/main.ts` frames. This extends phase-4 delta 7.
+8. **`to-tex` still does not run the semantic validator.** Semantically invalid but JTD-valid systems still emit TeX to stdout and exit 0, exactly as before.

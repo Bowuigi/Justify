@@ -1,0 +1,2 @@
+Wrong number of arguments.
+Usage: /home/bowuigi/projects/Web/Justify/packages/cli/main.ts infer [-m] <system-file> <query-file>

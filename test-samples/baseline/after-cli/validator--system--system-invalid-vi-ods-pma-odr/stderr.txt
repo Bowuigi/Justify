@@ -1,0 +1,50 @@
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Number
+  In /system/syntax/Number
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Zero
+  In /system/syntax/Number/grammar/Zero
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Undefined syntax category undefinedcat
+  In /system/syntax/Number/grammar/Zero/arguments/n
+  Conflicts with /system/syntax
+  Expected identifier: Number
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Eq
+  In /system/relations/Eq
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Number
+  In /system/relations/Eq/arguments/n
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Number
+  In /system/relations/Eq/arguments/m
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier BadRule
+  In /system/relations/Eq/rules/BadRule
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Eq
+  In /system/relations/Eq/rules/BadRule/patterns
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Missing pattern: m
+  In /system/relations/Eq/rules/BadRule/patterns
+  Conflicts with /system/relations/Eq/arguments
+  Expected patterns: n or m
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Number
+  In /system/relations/Eq/rules/BadRule/patterns/n
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier Zero
+  In /system/relations/Eq/rules/BadRule/patterns/n
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Missing arguments in relation call
+  In /system/relations/Eq/rules/BadRule/patterns/n
+  Conflicts with /system/syntax/Number/Zero/arguments
+  Expected argument: n
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Improperly formatted identifier UndefinedRel
+  In /system/relations/Eq/rules/BadRule/premises/0
+
+test-samples/system-invalid-vi-ods-pma-odr.jtf.json: Undefined relation in premise: UndefinedRel
+  In /system/relations/Eq/rules/BadRule/premises/0
+  Conflicts with /system/relations
+  Expected relation: Eq
+

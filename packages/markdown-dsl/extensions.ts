@@ -1,3 +1,4 @@
+import { displayIterable, type Diagnostic } from '@justify/core';
 import { load as loadYAML } from 'js-yaml';
 
 import { validate as validateMetadata } from './codegen/metadata-validator.ts';
@@ -7,6 +8,27 @@ import { validate as validateSyntax } from './codegen/syntax-validator.ts';
 import type { Metadata, RelationMeta, RelationRule, Syntax } from './codegen/types.d.ts';
 import type { Extension } from './mod.ts';
 
+function baseDiagnostic(message: Array<string>): Diagnostic {
+  return { source: '', origin: 'markdown-dsl', message, hints: [], relatedLocations: [] };
+}
+
+function jtdDiagnostic(err: {
+  path: Array<string | number>;
+  message: string;
+  suggestions: Array<string>;
+}): Diagnostic {
+  return {
+    source: '',
+    origin: 'markdown-dsl',
+    message: [err.message],
+    hints:
+      err.suggestions.length > 0
+        ? [['Did you mean ', ...displayIterable('this', 'any of those', err.suggestions)]]
+        : [],
+    relatedLocations: [{ label: 'In', location: { is: 'path', path: err.path } }],
+  };
+}
+
 export const metadataExtension: Extension = {
   handledLanguages: ['metadata'],
   call(input) {
@@ -14,7 +36,9 @@ export const metadataExtension: Extension = {
       return [
         {
           type: 'error',
-          message: `This code block is misplaced. It should be at the top level, but was found in '${input.scope.join(' > ')}'`,
+          diagnostic: baseDiagnostic([
+            `This code block is misplaced. It should be at the top level, but was found in '${input.scope.join(' > ')}'`,
+          ]),
         },
       ];
     }
@@ -23,18 +47,12 @@ export const metadataExtension: Extension = {
     try {
       doc = loadYAML(input.contents);
     } catch (error: unknown) {
-      return [{ type: 'error', message: String(error) }];
+      return [{ type: 'error', diagnostic: baseDiagnostic([String(error)]) }];
     }
 
     const validated = validateMetadata(doc);
     if (!validated.success) {
-      return validated.errors.map(err => ({
-        type: 'error',
-        message:
-          err.suggestions.length === 0
-            ? `Error: ${err.message}\nIn /${err.path.join('/')}`
-            : `Error: ${err.message}\nIn /${err.path.join('/')}\nAllowed options: ${err.suggestions.join(', ')}`,
-      }));
+      return validated.errors.map(err => ({ type: 'error', diagnostic: jtdDiagnostic(err) }));
     }
 
     return [{ type: 'metadata', ...(doc as Metadata) }];
@@ -48,7 +66,9 @@ export const relationMetaExtension: Extension = {
       return [
         {
           type: 'error',
-          message: `This code block is misplaced. It should be in 'Relations > [relation name]', but was found in '${input.scope.join(' > ')}'`,
+          diagnostic: baseDiagnostic([
+            `This code block is misplaced. It should be in 'Relations > [relation name]', but was found in '${input.scope.join(' > ')}'`,
+          ]),
         },
       ];
     }
@@ -57,15 +77,12 @@ export const relationMetaExtension: Extension = {
     try {
       doc = loadYAML(input.contents);
     } catch (error: unknown) {
-      return [{ type: 'error', message: String(error) }];
+      return [{ type: 'error', diagnostic: baseDiagnostic([String(error)]) }];
     }
 
     const validated = validateRelationMeta(doc);
     if (!validated.success) {
-      return validated.errors.map(err => ({
-        type: 'error',
-        message: `Error: ${err.message}\nIn /${err.path.join('/')}`,
-      }));
+      return validated.errors.map(err => ({ type: 'error', diagnostic: jtdDiagnostic(err) }));
     }
 
     return [{ type: 'relation_meta', name: input.scope[1]!, ...(doc as RelationMeta) }];
@@ -79,7 +96,9 @@ export const syntaxExtension: Extension = {
       return [
         {
           type: 'error',
-          message: `This code block is misplaced. It should be in 'Syntax > [syntax category]', but was found in '${input.scope.join(' > ')}'`,
+          diagnostic: baseDiagnostic([
+            `This code block is misplaced. It should be in 'Syntax > [syntax category]', but was found in '${input.scope.join(' > ')}'`,
+          ]),
         },
       ];
     }
@@ -88,15 +107,12 @@ export const syntaxExtension: Extension = {
     try {
       doc = loadYAML(input.contents);
     } catch (error: unknown) {
-      return [{ type: 'error', message: String(error) }];
+      return [{ type: 'error', diagnostic: baseDiagnostic([String(error)]) }];
     }
 
     const validated = validateSyntax(doc);
     if (!validated.success) {
-      return validated.errors.map(err => ({
-        type: 'error',
-        message: `Error: ${err.message}\nIn /${err.path.join('/')}`,
-      }));
+      return validated.errors.map(err => ({ type: 'error', diagnostic: jtdDiagnostic(err) }));
     }
 
     return [{ type: 'syntax', name: input.scope[1]!, ...(doc as Syntax) }];
@@ -110,7 +126,9 @@ export const relationRuleExtension: Extension = {
       return [
         {
           type: 'error',
-          message: `This code block is misplaced. It should be in 'Relations > [relation name]', but was found in '${input.scope.join(' > ')}'`,
+          diagnostic: baseDiagnostic([
+            `This code block is misplaced. It should be in 'Relations > [relation name]', but was found in '${input.scope.join(' > ')}'`,
+          ]),
         },
       ];
     }
@@ -123,14 +141,16 @@ export const relationRuleExtension: Extension = {
         return [
           {
             type: 'error',
-            message: error.format([{ source: '<code block>', text: input.contents }]),
+            diagnostic: baseDiagnostic([
+              error.format([{ source: '<code block>', text: input.contents }]),
+            ]),
           },
         ];
       }
       return [
         {
           type: 'error',
-          message: `Unhandled parsing error: ${error}`,
+          diagnostic: baseDiagnostic([`Unhandled parsing error: ${error}`]),
         },
       ];
     }

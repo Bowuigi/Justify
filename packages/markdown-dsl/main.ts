@@ -18,14 +18,14 @@ async function main(): Promise<void> {
   }
 
   const filename = process.argv[2]!;
-  const contents = await readFile(filename);
+  const contents = await readFile(filename, 'utf8');
   const extensions: Array<Extension> = [
     metadataExtension,
     syntaxExtension,
     relationMetaExtension,
     relationRuleExtension,
   ];
-  const result = runPipeline(contents, extensions);
+  const result = runPipeline(contents, filename, extensions);
 
   console.log(inspect(result, false, Infinity, true));
 }

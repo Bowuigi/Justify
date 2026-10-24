@@ -82,7 +82,9 @@
     ]
   },
   "env": {
-    "builtin": true
+    "builtin": true,
+    "node": false,
+    "browser": false
   },
   "overrides": [
     {
@@ -96,8 +98,8 @@
       "rules": {
         "no-console": "allow"
       },
-      "globals": {
-        "console": "readonly"
+      "env": {
+        "node": true
       }
     },
     {

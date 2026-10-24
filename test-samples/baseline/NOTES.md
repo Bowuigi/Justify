@@ -56,6 +56,7 @@ For `query` and `query-result`, the validator parses the **system file first**, 
 3. Diagnostics render richer: hints and related locations that the old CLIs dropped.
 4. `from-markdown` prints `JSON.stringify(extracted)` to stdout; the old markdown-dsl CLI printed an `inspect` dump of its result record.
 5. Subcommand names change; the old CLIs disappear. The mapping lives in the phase-5 steps.
+6. `markdown-dsl` stdout record shape changed: the `errors` field (plain `{ message, provenance }` entries) is replaced by a `diagnostics` field of `Diagnostic` objects (each with `message`, `hints`, `relatedLocations`), as `PipelineError` was removed and `runPipeline` now emits core diagnostics.
 
 ### Sample-family coverage in `before/`
 

@@ -1,1 +1,0 @@
-node packages/validator/main.ts system test-samples/system-invalid-jtd-missing-required.jtf.json

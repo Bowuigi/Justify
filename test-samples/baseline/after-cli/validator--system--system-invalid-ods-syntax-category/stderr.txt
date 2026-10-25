@@ -1,5 +1,0 @@
-test-samples/system-invalid-ods-syntax-category.jtf.json: Undefined syntax category nonexistent
-  In /system/relations/equal/rules/base/patterns/n
-  Conflicts with /system/syntax
-  Expected identifier: number
-

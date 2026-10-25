@@ -1,5 +1,0 @@
-[33mtest-samples/system-invalid-cac.jtf.json[39m: Extra argument: [1m[32mn[39m[22m
-  In [33m/system/relations/equal/rules/ind/patterns/n[39m
-  Conflicts with [33m/system/syntax/number/succ/arguments[39m
-  Expected argument: [1m[32mn[39m[22m
-

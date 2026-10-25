@@ -1,5 +1,0 @@
-test-samples/query-bare-minimal.jtf.json: Undefined relation in query: eq
-  In /query
-  Conflicts with /system/relations
-  Expected relations: equal, add or multiply
-

@@ -1,9 +1,0 @@
-p = zero()
-q = zero()
-[base] equal(zero(), zero())
-
-p = succ(zero())
-q = succ(zero())
-[ind] equal(succ(zero()), succ(zero()))
-│ [base] equal(zero(), zero())
-

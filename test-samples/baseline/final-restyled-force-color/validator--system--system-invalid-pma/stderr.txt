@@ -1,5 +1,0 @@
-[33mtest-samples/system-invalid-pma.jtf.json[39m: Missing pattern: [1m[32mm[39m[22m
-  In [33m/system/relations/equal/rules/base/patterns[39m
-  Conflicts with [33m/system/relations/equal/arguments[39m
-  Expected patterns: [1m[32mn[39m[22m or [1m[32mm[39m[22m
-

@@ -1,5 +1,0 @@
-test-samples/system-invalid-ods-constructor.jtf.json: Undefined constructor nonexistent in syntax category number
-  In /system/relations/equal/rules/base/patterns/n
-  Conflicts with /system/syntax/number
-  Expected identifier: zero
-

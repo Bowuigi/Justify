@@ -1,1 +1,0 @@
-node packages/validator/main.ts system test-samples/system-bare-minimal.jtf.json

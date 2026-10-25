@@ -1,3 +1,0 @@
-test-samples/system-invalid-ods-primitive.jtf.json: Primitive literal not allowed here
-  In /system/relations/equal/rules/base/patterns/n
-

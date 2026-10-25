@@ -1,1 +1,0 @@
-FORCE_COLOR=1 node packages/cli/main.ts to-tex test-samples/system-valid-nat.jtf.json extra

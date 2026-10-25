@@ -1,1 +1,0 @@
-node packages/tex-extractor/main.ts test-samples/system-valid-stlc-unit.jtf.json

@@ -1,2 +1,0 @@
-Wrong number of arguments.
-Usage: /home/bowuigi/projects/Web/Justify/packages/markdown-dsl/main.ts filename.jtf.md

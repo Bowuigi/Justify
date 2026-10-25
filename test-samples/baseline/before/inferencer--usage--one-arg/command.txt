@@ -1,1 +1,0 @@
-node packages/inferencer/main.ts test-samples/query-valid-nat-equal.jtf.json

@@ -1,1 +1,0 @@
-FORCE_COLOR=1 node packages/cli/main.ts validate system test-samples/system-invalid-pma.jtf.json

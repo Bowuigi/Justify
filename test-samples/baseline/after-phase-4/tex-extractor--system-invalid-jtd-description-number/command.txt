@@ -1,1 +1,0 @@
-node packages/tex-extractor/main.ts test-samples/system-invalid-jtd-description-number.jtf.json

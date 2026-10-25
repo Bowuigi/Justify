@@ -1,3 +1,0 @@
-test-samples/query-invalid-vi.jtf.json: Improperly formatted identifier P
-  In /query/variables
-

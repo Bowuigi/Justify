@@ -1,1 +1,0 @@
-node packages/validator/main.ts query examples/nat/system.json test-samples/query-result-invalid-vi.jtf.json

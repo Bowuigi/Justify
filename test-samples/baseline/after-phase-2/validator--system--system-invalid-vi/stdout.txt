@@ -1,6 +1,0 @@
-test-samples/system-invalid-vi.jtf.json: Improperly formatted identifier Number
-  In /system/syntax/Number
-
-test-samples/system-invalid-vi.jtf.json: Improperly formatted identifier Zero
-  In /system/syntax/Number/grammar/Zero
-

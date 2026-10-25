@@ -1,6 +1,0 @@
-test-samples/query-result-invalid-vi.jtf.json: Improperly formatted identifier P
-  In /query-result/0/variables
-
-test-samples/query-result-invalid-vi.jtf.json: Improperly formatted identifier Equal
-  In /query-result/0/derivation
-

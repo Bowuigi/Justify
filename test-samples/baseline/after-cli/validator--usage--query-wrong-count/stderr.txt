@@ -1,2 +1,0 @@
-Wrong number of arguments.
-Usage: /home/bowuigi/projects/Web/Justify/packages/cli/main.ts validate query <system-file> <query-file>

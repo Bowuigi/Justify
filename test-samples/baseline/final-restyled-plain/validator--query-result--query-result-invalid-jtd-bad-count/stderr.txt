@@ -1,3 +1,0 @@
-test-samples/query-result-invalid-jtd-bad-count.jtf.json: expected uint16, got string
-  In /count
-

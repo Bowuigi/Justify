@@ -1,4 +1,0 @@
-test-samples/system-invalid-jtd-bad-fixity.jtf.json: unexpected "weird"
-  In /relations/eq/fixity
-  Suggestions: infix, prefix, postfix, none
-

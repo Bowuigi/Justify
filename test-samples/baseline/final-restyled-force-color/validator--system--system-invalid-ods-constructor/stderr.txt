@@ -1,5 +1,0 @@
-[33mtest-samples/system-invalid-ods-constructor.jtf.json[39m: Undefined constructor [1m[31mnonexistent[39m[22m in syntax category [1m[32mnumber[39m[22m
-  In [33m/system/relations/equal/rules/base/patterns/n[39m
-  Conflicts with [33m/system/syntax/number[39m
-  Expected identifier: [1m[32mzero[39m[22m
-

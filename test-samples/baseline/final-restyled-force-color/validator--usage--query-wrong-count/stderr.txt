@@ -1,2 +1,0 @@
-[1m[31mWrong number of arguments.[39m[22m
-Usage: [33m/home/bowuigi/projects/Web/Justify/packages/cli/main.ts[39m validate query <system-file> <query-file>

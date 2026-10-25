@@ -1,1 +1,0 @@
-node packages/cli/main.ts infer examples/nat/system.json test-samples/query-valid-nat-equal.jtf.json

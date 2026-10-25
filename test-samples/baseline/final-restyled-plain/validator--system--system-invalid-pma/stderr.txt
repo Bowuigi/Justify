@@ -1,5 +1,0 @@
-test-samples/system-invalid-pma.jtf.json: Missing pattern: m
-  In /system/relations/equal/rules/base/patterns
-  Conflicts with /system/relations/equal/arguments
-  Expected patterns: n or m
-

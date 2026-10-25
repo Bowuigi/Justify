@@ -1,4 +1,0 @@
-[33mtest-samples/system-invalid-jtd-bad-fixity.jtf.json[39m: unexpected "weird"
-  In [33m/relations/eq/fixity[39m
-  Did you mean any of those: [1m[32minfix[39m[22m, [1m[32mprefix[39m[22m, [1m[32mpostfix[39m[22m or [1m[32mnone[39m[22m
-

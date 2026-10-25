@@ -1,1 +1,0 @@
-node packages/markdown-dsl/main.ts packages/markdown-dsl/example-nat-system.jtf.md

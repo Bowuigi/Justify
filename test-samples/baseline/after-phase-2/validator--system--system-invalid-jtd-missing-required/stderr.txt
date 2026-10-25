@@ -1,3 +1,0 @@
-test-samples/system-invalid-jtd-missing-required.jtf.json: missing required property "relations"
-  In /
-

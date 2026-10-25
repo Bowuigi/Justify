@@ -1,6 +1,0 @@
-[33mtest-samples/system-invalid-vi.jtf.json[39m: Improperly formatted identifier [1m[31mNumber[39m[22m
-  In [33m/system/syntax/Number[39m
-
-[33mtest-samples/system-invalid-vi.jtf.json[39m: Improperly formatted identifier [1m[31mZero[39m[22m
-  In [33m/system/syntax/Number/grammar/Zero[39m
-

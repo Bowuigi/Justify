@@ -1,0 +1,3 @@
+[33mtest-samples/query-invalid-jtd-bad-maxresults.jtf.json[39m: expected uint16, got string
+  In [33m/max_results[39m
+

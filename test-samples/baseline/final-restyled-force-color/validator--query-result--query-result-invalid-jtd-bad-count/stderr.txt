@@ -1,0 +1,3 @@
+[33mtest-samples/query-result-invalid-jtd-bad-count.jtf.json[39m: expected uint16, got string
+  In [33m/count[39m
+

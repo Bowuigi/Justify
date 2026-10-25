@@ -1,0 +1,6 @@
+[33mtest-samples/query-result-invalid-vi.jtf.json[39m: Improperly formatted identifier [1m[31mP[39m[22m
+  In [33m/query-result/0/variables[39m
+
+[33mtest-samples/query-result-invalid-vi.jtf.json[39m: Improperly formatted identifier [1m[31mEqual[39m[22m
+  In [33m/query-result/0/derivation[39m
+

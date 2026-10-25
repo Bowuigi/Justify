@@ -1,0 +1,5 @@
+[33mtest-samples/system-invalid-odr-premise.jtf.json[39m: Undefined relation in premise: [1m[31mnonexistent[39m[22m
+  In [33m/system/relations/equal/rules/base/premises/0[39m
+  Conflicts with [33m/system/relations[39m
+  Expected relation: [1m[32mequal[39m[22m
+

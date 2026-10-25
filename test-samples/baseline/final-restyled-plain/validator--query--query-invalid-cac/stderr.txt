@@ -1,0 +1,5 @@
+test-samples/query-invalid-cac.jtf.json: Extra argument: n
+  In /query/args/0
+  Conflicts with /system/syntax/number/succ/arguments
+  Expected argument: n
+

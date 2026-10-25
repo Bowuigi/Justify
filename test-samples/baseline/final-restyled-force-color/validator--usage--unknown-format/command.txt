@@ -1,0 +1,1 @@
+FORCE_COLOR=1 node packages/cli/main.ts validate bogus test-samples/system-valid-nat.jtf.json

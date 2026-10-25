@@ -1,0 +1,28 @@
+% Bindings from namespace 'grammar'
+\newcommand{\jgNumberZero}[0]{0}
+\newcommand{\jgNumberSucc}[1]{S #1}
+% Bindings from namespace 'relation'
+\newcommand{\jrEqual}[2]{#1 = #2}
+% Bindings from namespace 'relationDescription'
+\newcommand{\jrdEqual}[0]{
+        \boxed{
+          \begin{array}{c}
+          \jrEqual{n}{m} \\
+          \text{eq}
+          \end{array}
+        }}
+% Bindings from namespace 'relationRule'
+\newcommand{\jrrEqualBase}[0]{\jyInfer{Base}{}{\jrEqual{\jgNumberZero{}}{\jgNumberZero{}}}}
+\newcommand{\jrrEqualInd}[0]{\jyInfer{Ind}{\jrEqual{x}{<Ref y unbound>}}{\jrEqual{\jgNumberSucc{x}}{\jgNumberSucc{<Ref y unbound>}}}}
+% Bindings from namespace 'relationRuleset'
+\newcommand{\jrrsEqual}[0]{\jrrEqualBase \allowbreak \qquad \jrrEqualInd}
+% Bindings from namespace 'system'
+\newcommand{\jyDescription}[0]{\text{Scope violation: ref to out-of-scope variable (NYI: not checked by validator)}}
+\newcommand{\jyInfer}[3]{\dfrac{\begin{array}{l} #2 \end{array}}{ #3 } \, \text{[#1]}}
+\newcommand{\jyGrammar}[0]{
+  \begin{array}{rll}
+    & & \textbf{Natural number} \\
+     \mathrel{::=} & \jgNumberZero{} & \text{Number zero} \\
+    \mid & \jgNumberSucc{n} & \text{Successor function}
+  \end{array}}
+

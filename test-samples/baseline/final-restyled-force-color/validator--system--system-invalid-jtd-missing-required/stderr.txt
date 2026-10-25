@@ -1,0 +1,3 @@
+[33mtest-samples/system-invalid-jtd-missing-required.jtf.json[39m: missing required property "relations"
+  In [33m/[39m
+

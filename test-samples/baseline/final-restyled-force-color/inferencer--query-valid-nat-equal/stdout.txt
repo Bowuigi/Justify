@@ -1,0 +1,9 @@
+p = [34mzero[39m()
+q = [34mzero[39m()
+[[32mbase[39m] [36mequal[39m([34mzero[39m()[1m, [22m[34mzero[39m())
+
+p = [34msucc[39m([34mzero[39m())
+q = [34msucc[39m([34mzero[39m())
+[[32mind[39m] [36mequal[39m([34msucc[39m([34mzero[39m())[1m, [22m[34msucc[39m([34mzero[39m()))
+[90m│ [39m[[32mbase[39m] [36mequal[39m([34mzero[39m()[1m, [22m[34mzero[39m())
+

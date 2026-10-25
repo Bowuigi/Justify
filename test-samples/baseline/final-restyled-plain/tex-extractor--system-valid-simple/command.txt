@@ -1,0 +1,1 @@
+node packages/cli/main.ts to-tex test-samples/system-valid-simple.jtf.json

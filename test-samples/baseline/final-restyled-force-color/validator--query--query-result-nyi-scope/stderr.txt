@@ -1,0 +1,19 @@
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: missing required property "relation"
+  In [33m/[39m
+
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: missing required property "max_results"
+  In [33m/[39m
+
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: missing required property "variables"
+  In [33m/[39m
+
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: missing required property "literals"
+  In [33m/[39m
+
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: missing required property "args"
+  In [33m/[39m
+
+[33mtest-samples/query-result-nyi-scope.jtf.json[39m: unexpected properties: "solutions", "count"
+  In [33m/[39m
+  Did you mean any of those: [1m[32mrelation[39m[22m, [1m[32mmax_results[39m[22m, [1m[32mvariables[39m[22m, [1m[32mliterals[39m[22m or [1m[32margs[39m[22m
+

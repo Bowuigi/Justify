@@ -1,0 +1,13 @@
+% Bindings from namespace 'grammar'
+% Bindings from namespace 'relation'
+% Bindings from namespace 'relationDescription'
+% Bindings from namespace 'relationRule'
+% Bindings from namespace 'relationRuleset'
+% Bindings from namespace 'system'
+\newcommand{\jyDescription}[0]{\text{A minimal system}}
+\newcommand{\jyInfer}[3]{\dfrac{\begin{array}{l} #2 \end{array}}{ #3 } \, \text{[#1]}}
+\newcommand{\jyGrammar}[0]{
+  \begin{array}{rll}
+    
+  \end{array}}
+

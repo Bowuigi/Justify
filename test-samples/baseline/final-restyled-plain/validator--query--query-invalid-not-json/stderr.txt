@@ -1,0 +1,2 @@
+test-samples/query-invalid-not-json.jtf.json: Expected property name or '}' in JSON at position 56 (line 2 column 1)
+

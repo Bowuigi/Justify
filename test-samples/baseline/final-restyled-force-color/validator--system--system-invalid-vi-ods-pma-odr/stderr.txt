@@ -1,0 +1,50 @@
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mNumber[39m[22m
+  In [33m/system/syntax/Number[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mZero[39m[22m
+  In [33m/system/syntax/Number/grammar/Zero[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Undefined syntax category [1m[31mundefinedcat[39m[22m
+  In [33m/system/syntax/Number/grammar/Zero/arguments/n[39m
+  Conflicts with [33m/system/syntax[39m
+  Expected identifier: [1m[32mNumber[39m[22m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mEq[39m[22m
+  In [33m/system/relations/Eq[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mNumber[39m[22m
+  In [33m/system/relations/Eq/arguments/n[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mNumber[39m[22m
+  In [33m/system/relations/Eq/arguments/m[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mBadRule[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mEq[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/patterns[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Missing pattern: [1m[32mm[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/patterns[39m
+  Conflicts with [33m/system/relations/Eq/arguments[39m
+  Expected patterns: [1m[32mn[39m[22m or [1m[32mm[39m[22m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mNumber[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/patterns/n[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mZero[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/patterns/n[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Missing arguments in relation call
+  In [33m/system/relations/Eq/rules/BadRule/patterns/n[39m
+  Conflicts with [33m/system/syntax/Number/Zero/arguments[39m
+  Expected argument: [1m[32mn[39m[22m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Improperly formatted identifier [1m[31mUndefinedRel[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/premises/0[39m
+
+[33mtest-samples/system-invalid-vi-ods-pma-odr.jtf.json[39m: Undefined relation in premise: [1m[31mUndefinedRel[39m[22m
+  In [33m/system/relations/Eq/rules/BadRule/premises/0[39m
+  Conflicts with [33m/system/relations[39m
+  Expected relation: [1m[32mEq[39m[22m
+

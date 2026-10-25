@@ -1,0 +1,3 @@
+[33mtest-samples/system-invalid-jtd-description-number.jtf.json[39m: expected string, got number
+  In [33m/description[39m
+

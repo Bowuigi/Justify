@@ -1,0 +1,5 @@
+[33mtest-samples/query-invalid-ods.jtf.json[39m: Undefined syntax category [1m[31mnonexistent[39m[22m
+  In [33m/query/args/0[39m
+  Conflicts with [33m/system/syntax[39m
+  Expected identifier: [1m[32mnumber[39m[22m
+

@@ -19,17 +19,17 @@ Validation passes (NYI is "not yet implemented"):
 - (NYI) Relation type checking
 - (NYI) Check that relations have at least one parameter (the lang is pure, zero argument relations are useless aside from log filling)
 
-# Usage
+# Usage (via `@justify/cli`)
 
-From the root of the Justify monorepo, run the following (other TS/JS runtimes are supported):
+From the root of the Justify monorepo, run the following (other JS runtimes are supported):
 
 ```sh
 # For System files
-node packages/validator/main.ts system <your-system.json>
+node packages/cli/main.ts validate system <your-system.json>
 
 # For Query files
-node packages/validator/main.ts query <your-system.json> <your-query.json>
+node packages/cli/main.ts validate query <your-system.json> <your-query.json>
 
 # For QueryResult files
-node packages/validator/main.ts query-result <your-system.json> <your-query-result.json>
+node packages/cli/main.ts validate query-result <your-system.json> <your-query-result.json>
 ```

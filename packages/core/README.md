@@ -1,5 +1,5 @@
 # Core
 
-Types and validators for the formats in the [Justify](https://github.com/Bowuigi/Justify) suite, generated its specifications.
+Types and validators for the formats in the [Justify](https://github.com/Bowuigi/Justify) suite, generated from its specifications.
 
-Requires JSON parsing to operate.
+Usually the output must pass semantic validation too, checked using `@justify/validator`.

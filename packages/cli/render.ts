@@ -53,7 +53,7 @@ export function reportDiagnostics(diagnostics: ReadonlyArray<Diagnostic>): boole
 }
 
 export function renderUsageError(message: string, usage: string): string {
-  return `${styleErr('error', message)}\nUsage: ${styleErr('path', process.argv[1]!)} ${usage}`;
+  return `${styleErr('error', message)}\nUsage: justify ${usage}`;
 }
 
 export function renderReadError(filename: string, error: unknown): string {

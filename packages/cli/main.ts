@@ -278,7 +278,10 @@ async function main(): Promise<void> {
       break;
     }
     case undefined: {
-      process.exitCode = unknownCommand('');
+      process.exitCode = usageError(
+        'No subcommand given.',
+        '{validate|infer|to-tex|from-markdown} ...',
+      );
       break;
     }
     default: {

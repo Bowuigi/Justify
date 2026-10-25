@@ -159,14 +159,14 @@ Steps:
 
 1. Delete `packages/validator/main.ts`, `packages/inferencer/main.ts`, `packages/tex-extractor/main.ts`, and `packages/markdown-dsl/main.ts`.
 2. In `packages/core/lib.ts`, delete `parseSystem`, `parseQuery`, `parseQueryResult`, `parseFile`, and the `node:fs` import. Un-export `fromJSONString`; it stays as an internal helper.
-3. Update `AGENTS.md`: the CLI section shows the new subcommands, the `packages/core` line describes the pure parse functions, the layout line mentions `packages/cli`, and the testing note describes `test-setup.ts` matchers on `Diagnostic`.
+3. Update `AGENTS.md`: the CLI section shows the new subcommands, the `packages/core` line describes the pure parse functions, the layout line mentions `packages/cli`, and the testing note describes `test-setup.ts` matchers on `Diagnostic`, use the `simple-english` and `writing-for-agents` skills, and rewrite the whole `AGENTS.md` properly.
 4. Update the usage sections of `packages/validator/README.md`, `packages/inferencer/README.md`, `packages/tex-extractor/README.md`, and `packages/markdown-dsl/README.md`. Each shows the new CLI command that replaces its tool.
 5. Run the full matrix once more through the new CLI into `test-samples/baseline/final/`. Diff against `after-cli/`; expect no changes.
 
 Completion criteria:
 
 - `npm run lint` and `npm run fmt` pass.
-- A repository-wide search for `parseSystem`, `parseQuery`, and `parseQueryResult` finds hits only in `attic/` and this plan.
-- A repository-wide search for `node:fs` in `packages/core` finds nothing.
+- A repository-wide search for `parseSystem`, `parseQuery`, and `parseQueryResult` finds hits only in this plan.
+- A repository-wide search for `node:fs` finds hits only in this plan and the CLI package.
 - `final/` and `after-cli/` are identical under `diff -r`.
 - Every command shown in `AGENTS.md` and the five READMEs runs and exits 0 on a valid example.

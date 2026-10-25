@@ -82,7 +82,9 @@
     ]
   },
   "env": {
-    "builtin": true
+    "builtin": true,
+    "node": false,
+    "browser": false
   },
   "overrides": [
     {
@@ -92,12 +94,12 @@
       }
     },
     {
-      "files": ["packages/*/main.ts", "packages/core/lib.ts"],
+      "files": ["packages/cli/main.ts"],
       "rules": {
         "no-console": "allow"
       },
-      "globals": {
-        "console": "readonly"
+      "env": {
+        "node": true
       }
     },
     {

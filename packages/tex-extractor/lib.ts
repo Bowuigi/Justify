@@ -1,13 +1,4 @@
-import { default as process } from 'node:process';
-
-import {
-  type Fixity,
-  parseSystem,
-  type System,
-  type Term,
-  type TexMath,
-  type TexMathParts,
-} from '@justify/core';
+import type { Fixity, System, Term, TexMath, TexMathParts } from '@justify/core';
 
 type TeXNamespace =
   | 'system'
@@ -86,14 +77,13 @@ function renderTerm(
 }
 
 // oxlint-disable-next-line max-lines-per-function
-function extractTeX(system: System): string {
+export function extractTeX(system: System): string {
   const mapEntries: <S, T>(
     obj: Record<string, S>,
     callback: (value: [string, S], index: number) => T,
   ) => Array<T> = (obj, callback) => Object.entries(obj).map((val, ix) => callback(val, ix));
 
   /// Formatting for \jyGrammar
-  // oxlint-disable-next-line no-map-spread
   const grammarDef = Object.entries(system.syntax).flatMap(([category, definition], ix) =>
     // Format: e ::= & constructor(...args) & description \\
     // On title lines it inserts an extra line with -5pt line spacing
@@ -244,21 +234,3 @@ function extractTeX(system: System): string {
   }
   return output;
 }
-
-async function main(): Promise<void> {
-  if (process.argv.length !== 3) {
-    console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} filename`);
-    process.exitCode = 1;
-    return;
-  }
-
-  const [filename] = process.argv.toSpliced(0, 2) as [string];
-
-  const system = await parseSystem(filename);
-  if (system === null) {
-    process.exitCode = 1;
-    return;
-  }
-  console.log(extractTeX(system));
-}
-await main();

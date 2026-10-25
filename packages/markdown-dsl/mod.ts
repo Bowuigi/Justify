@@ -1,6 +1,9 @@
 import type {
   Argument,
+  Diagnostic,
+  DiagnosticLocation,
   Fixity,
+  RichText,
   System,
   SystemRelation,
   SystemRelationRulePremise,
@@ -35,7 +38,7 @@ export interface Block {
 
 export interface ErrorBlock {
   type: 'error';
-  message: string;
+  diagnostic: Diagnostic;
 }
 
 export type SystemBlocks =
@@ -55,11 +58,16 @@ type SyntaxConvertible = Extract<
   SystemBlocks & PreservedFields,
   { type: 'syntax' | 'relation_meta' | 'relation_rule' | 'metadata' }
 >;
-type PipelineError = Omit<Extract<SystemBlocks & PreservedFields, { type: 'error' }>, 'type'>;
 
+function baseDiagnostic(message: RichText): Diagnostic {
+  return { source: '', origin: 'markdown-dsl', message, hints: [], relatedLocations: [] };
+}
+function lineSpan(provenance: { start: number; end: number }): DiagnosticLocation {
+  return { is: 'line-span', start: provenance.start, end: provenance.end };
+}
 /** Extracts a code block list from a Markdown buffer */
 // oxlint-disable-next-line max-lines-per-function
-function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & PreservedFields> {
+function parseMarkdown(markdown: string): Array<(Block | ErrorBlock) & PreservedFields> {
   const tree = fromMarkdown(markdown, 'utf8', {
     extensions: [frontmatter(['yaml'])],
     mdastExtensions: [frontmatterFromMarkdown(['yaml'])],
@@ -72,7 +80,7 @@ function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & Preserved
   if (metadata === undefined) {
     blocks.push({
       type: 'error',
-      message: 'No metadata provided at the start of the document',
+      diagnostic: baseDiagnostic(['No metadata provided at the start of the document']),
       provenance: { start: 1, end: 1 },
     });
   } else {
@@ -117,7 +125,6 @@ function parseMarkdown(markdown: Buffer): Array<(Block | ErrorBlock) & Preserved
 
   return blocks;
 }
-
 /** Infers fixity following the standard */
 function inferFixity(
   argsLength: number,
@@ -146,7 +153,6 @@ function inferFixity(
   // `texPartsLength === argsLength + 1` or invalid cases
   return 'none';
 }
-
 /** Extracts a mixfix operator definition from the human-friendly is+where syntax */
 function convertGrammarParts(grammarParts: { is: string; where?: Record<string, string> }): {
   fixity: Fixity;
@@ -178,7 +184,6 @@ function convertGrammarParts(grammarParts: { is: string; where?: Record<string, 
     tex_parts: texParts,
   };
 }
-
 /** Annotates a term with `from` fields, using the available parts of the System file to infer them */
 function convertTerm(system: System, declaration: Argument, term: BlockTerm): Term {
   if (term.is === 'ref') {
@@ -193,7 +198,6 @@ function convertTerm(system: System, declaration: Argument, term: BlockTerm): Te
     args: term.args.map((arg, index) => convertTerm(system, args[index] ?? declaration, arg)),
   };
 }
-
 /** Extracts patterns from a rule's conclusion */
 function convertPatterns(
   system: System,
@@ -287,10 +291,12 @@ function convertToSystem(blocks: Array<SyntaxConvertible>): System {
  * is ran over the whole code block list in the given order. Do note that the System file may be
  * invalid, check with `@justify/validator`
  */
+// oxlint-disable-next-line max-lines-per-function
 export function runPipeline(
-  markdown: Buffer,
+  markdown: string,
+  filename: string,
   extensions: Array<Extension>,
-): { extracted: System; errors: Array<PipelineError> } {
+): { extracted: System; diagnostics: Array<Diagnostic> } {
   let processedInput: Array<SystemBlocks & PreservedFields> = parseMarkdown(markdown);
 
   for (const ext of extensions) {
@@ -303,7 +309,9 @@ export function runPipeline(
         } catch (error: unknown) {
           return {
             type: 'error',
-            message: `Unhandled extension error: ${error}. This is most likely an extension bug`,
+            diagnostic: baseDiagnostic([
+              `Unhandled extension error: ${error}. This is most likely an extension bug`,
+            ]),
             provenance: original.provenance,
           };
         }
@@ -312,15 +320,23 @@ export function runPipeline(
     });
   }
 
-  const errors: Array<PipelineError> = [];
+  const diagnostics: Array<Diagnostic> = [];
   const correct: Array<SyntaxConvertible> = [];
   for (const systemBlock of processedInput) {
     if (systemBlock.type === 'error') {
-      errors.push({ message: systemBlock.message, provenance: systemBlock.provenance });
+      diagnostics.push({
+        ...systemBlock.diagnostic,
+        source: filename,
+        relatedLocations: [
+          ...systemBlock.diagnostic.relatedLocations,
+          { label: 'In', location: lineSpan(systemBlock.provenance) },
+        ],
+      });
     } else if (systemBlock.type === 'block') {
-      errors.push({
-        message: `Unknown extension language ${systemBlock.language}. Maybe you forgot to enable an extension?`,
-        provenance: systemBlock.provenance,
+      diagnostics.push({
+        ...baseDiagnostic([`Unknown extension language ${systemBlock.language}.`]),
+        source: filename,
+        relatedLocations: [{ label: 'In', location: lineSpan(systemBlock.provenance) }],
       });
     } else {
       correct.push(systemBlock);
@@ -329,6 +345,6 @@ export function runPipeline(
 
   return {
     extracted: convertToSystem(correct),
-    errors,
+    diagnostics,
   };
 }

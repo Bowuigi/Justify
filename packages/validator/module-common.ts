@@ -1,5 +1,3 @@
-import { styleText } from 'node:util';
-
 export type SourceOfTruthPath =
   | ['system', 'relations']
   | ['system', 'relations', string, 'arguments']
@@ -8,6 +6,8 @@ export type SourceOfTruthPath =
   | ['system', 'syntax', string]
   | ['system', 'syntax', string, string, 'arguments']
   | ['query', 'relation'];
+
+import type { RichText } from '../core/diagnostics.ts';
 
 export type LocationPath =
   | ['system', 'relations', string]
@@ -45,29 +45,13 @@ export interface ModuleError<ModId extends string, ErrId extends string> {
   sourceOfTruthLocation: SourceOfTruthPath | null;
 }
 
+export type { RichText, RichTextPart } from '../core/diagnostics.ts';
+export { highlightCorrect, highlightError, displayIterable } from '../core/diagnostics.ts';
+
 export interface ModuleErrorInfo {
   id: string;
-  message: string;
-  hints: Array<string>;
+  message: RichText;
+  hints: Array<RichText>;
   location: LocationPath;
   sourceOfTruthLocation: SourceOfTruthPath | null;
-}
-
-export const highlight = (str: string): string => styleText(['bold', 'green'], str);
-export const highlightWrong = (str: string): string => styleText(['bold', 'red'], str);
-
-export function displayIterable(singular: string, plural: string, item: Iterable<string>): string {
-  const itemAsArray = [...item].map(x => highlight(x));
-
-  switch (itemAsArray.length) {
-    case 0: {
-      return `${plural}: <empty>`;
-    }
-    case 1: {
-      return `${singular}: ${itemAsArray[0]}`;
-    }
-    default: {
-      return `${plural}: ${itemAsArray.slice(0, -1).join(', ')} or ${itemAsArray.at(-1)}`;
-    }
-  }
 }

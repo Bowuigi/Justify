@@ -13,12 +13,12 @@ Given a system file it generates:
 - A `\jrr<relation><rule>` (in `PascalCase`) family of macros that refer to a specific inference rule.
 - A `\jrrs<relation>` family of macros that refer to every rule in a relation. Wrap inside the `jyRules` environment provided in `latex-compat.sty` to render those properly (centered, flexible spacing, vertical separation) in LaTeX. Use CSS to get a similar look in KaTeX.
 
-## Usage
+## Usage (via `@justify/cli`)
 
 Assuming `node` is used to run Typescript (other runtimes like `bun` and `deno` are supported). Run the following command from the root directory of the Justify monorepo:
 
 ```shell
-node packages/tex-extractor/main.ts <system file> > my/project/justify-tex.sty
+npx @justify/cli to-tex <system file> > my/project/justify-tex.sty
 ```
 
 This produces a file in `my/project/justify-tex.sty` which you can then use in LaTeX as such:
@@ -30,7 +30,7 @@ This produces a file in `my/project/justify-tex.sty` which you can then use in L
 \usepackage{amsmath}
 \usepackage{amssymb}
 \input{justify-tex.sty}
-% Only required for LaTeX (not for KaTeX). That file specifically is 0BSD so you can vendor it directly instead
+% Only required for LaTeX (not for KaTeX). That file specifically is 0BSD so you can vendor it
 % Copy it from the Justify monorepo, it is on `packages/tex-extractor/latex-compat.sty`
 \input{path/to/the/provided/latex-compat.sty}
 

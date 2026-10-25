@@ -1,58 +1,64 @@
-# Justify — Agent Guide
+# Justify: Agent Guide
 
-Suite for inference-rule logical systems. npm-workspaces TS monorepo Source of truth for types/validators is `formats/*.jtd.json` (JSON Type Definition), then `docs/` Everything runs as `.ts` directly via Node's type stripping — imports use explicit `.ts` extensions
+Justify is a suite for inference-rule logical systems. It is an npm-workspaces TypeScript monorepo.
+
+The source of truth for types and validators is `formats/*.jtd.json` (JSON Type Definition). `docs/` is the next authority.
+
+Node runs the `.ts` files directly with type stripping. All imports use explicit `.ts` extensions.
 
 ## Toolchain
 
-- Node v24+ runs TS natively: `node packages/validator/main.ts system <file>` (works for all package CLIs)
-- Format: `npm run fmt`, `npm run fmt:check`
-- Lint + typecheck: `npm run lint` (oxlint is type-aware via `typeAware`/`typeCheck`; there is **no separate tsc step**). `npm run lint:fix` available
-- Pre-commit hook (husky → lint-staged) runs `oxlint` + `oxfmt` on staged files
-- Verification order: `npm run lint` then `npm run fmt`
+- Node v24+ runs TS natively. Run the CLI with `npx @justify/cli ...`.
+- Format: `npm run fmt`, `npm run fmt:check`.
+- Lint and typecheck: `npm run lint`. oxlint is type-aware through `typeAware` and `typeCheck`. There is no separate tsc step. `npm run lint:fix` is available.
+- The pre-commit hook (husky, then lint-staged) runs `oxlint` and `oxfmt` on staged files.
+- Run `npm run lint` first. Then run `npm run fmt`.
 
 ## Codegen
 
-`formats/*.jtd.json` and `packages/validator/modules/*.ts` are hand-written sources. `npm run codegen` (scripts/codegen.sh) generates into:
+`formats/*.jtd.json` and `packages/validator/modules/*.ts` are hand-written sources. `npm run codegen` (scripts/codegen.sh) generates these files:
 
-- `packages/core/codegen/*-types.d.ts`, `*-validator.ts`, barrel `types.d.ts`
-- `packages/validator/codegen/fused.ts` — fuses the validator `modules/*` passes via awk
+- `packages/core/codegen/*-types.d.ts`, `*-validator.ts`, and the barrel `types.d.ts`.
+- `packages/validator/codegen/fused.ts`. It fuses the validator `modules/*` passes with awk.
 
-Generated output is **committed** but never hand-edited — changes are lost on the next codegen run. After editing a JTD schema or a validator module, run `npm run codegen`
+The generated output is committed. Do not edit it by hand. The next codegen run discards the changes. After you edit a JTD schema or a validator module, run `npm run codegen`.
 
-Prereqs on PATH: `jtd-codegen` (from jtd-codegen npm package) and `deno`, plus `awk`
+Prerequisites on PATH: `jtd-codegen` (from the jtd-codegen npm package), `deno`, and `awk`.
 
 ## Layout
 
-- `formats/*.jtd.json` — System/Query/QueryResult schemas, authoritative over `docs/`
-- `packages/core` — generated types + JTD validators; `lib.ts` = `parseSystem`/`parseQuery`/`parseQueryResult`
-- `packages/validator` — semantic validation: modular passes in `modules/*`, fused into `codegen/fused.ts`, orchestrated by `driver.ts`. CLI: `main.ts`
-- `packages/inferencer` — microKanren query engine (`mk.ts`), CLI `main.ts`, codegen for rules (`mk-codegen.ts`)
-- `packages/tex-extractor` — TeX/KaTeX output
-- `packages/remark-plugin` — WIP, NOT usable
-- `attic/` — deprecated, likely outdated; do not extend
-- `examples/nat`, `examples/stlc-unit` — canonical samples; use as integration oracles after semantic changes
-- `docs/*.md` — human (and agent) readable format specs. Read those before writing examples or tests
+- `formats/*.jtd.json`: the System, Query, and QueryResult schemas. They are authoritative over `docs/`.
+- `packages/core`: generated types, JSON to each format conversion, Diagnostic API.
+- `packages/cli`: the only input and output code. `main.ts` reads the files, runs the library code, renders diagnostics, and sets exit codes.
+- `packages/validator`: semantic validation. Most other packages assume this passes.
+- `packages/inferencer`: the microKanren query engine (`mk.ts`) and the rule codegen (`mk-codegen.ts`).
+- `packages/tex-extractor`: TeX and KaTeX extraction for System files.
+- `packages/markdown-dsl`: the Markdown DSL parsing pipeline, with extension support.
+- `attic/`: deprecated and likely outdated. Do not touch it unless explicitly requested.
+- `examples/*`: the canonical samples. Use them as integration oracles after semantic changes.
+- `docs/*.md`: the human-readable and agent-readable format specifications. Read them before you write examples or tests.
 
-## CLI (from repo root)
+## CLI (from the repo root)
 
 ```sh
-node packages/validator/main.ts system <system.json>
-node packages/validator/main.ts query <system.json> <query.json>
-node packages/validator/main.ts query-result <system.json> <query-result.json>
-node packages/inferencer/main.ts [-m] <system.json> <query.json>   # -m = machine-readable QueryResult
-node packages/tex-extractor/main.ts <system.json> > out.sty
+npx @justify/cli validate system <system.json>
+npx @justify/cli validate query <system.json> <query.json>
+npx @justify/cli validate query-result <system.json> <query-result.json>
+npx @justify/cli infer [-m] <system.json> <query.json>   # -m = machine-readable QueryResult
+npx @justify/cli to-tex <system.json> > out.sty
+npx @justify/cli from-markdown <system.jtf.md>
 ```
+
+Stdout carries data only. Every diagnostic, read error, and usage error goes to stderr. The CLI exits 0 only on a clean run. It exits 1 when it prints a diagnostic.
 
 ## Testing
 
-- Vitest, but only the `validator` project is wired up (root `vitest.config.ts` → `packages/validator`)
-- Custom matchers defined in `packages/validator/test-setup.ts` (`toBeAValidSystem`, `toBeHaveAValidQuery`, `toBeASystemReturningValidationErrors`, ...) and typed in `vitest.d.ts`. Use them in new validator tests
-- **There are currently no test files** — `npm test` exits 1 with "No test files found". Colocate new `*.test.ts` under `packages/validator/modules/` (linked to `@justify/core` + `@justify/validator` TS sources)
-- Focused run: `npx vitest run packages/validator/modules/<file>.test.ts`
+- Vitest is setup using projects. The root `vitest.config.ts` points to `packages/*`.
+- The custom matchers are defined in `packages/*/test-setup.ts` and typed in `vitest.d.ts`. Use them in new tests if available, and extend them if appropiate.
 
 ## Conventions
 
-- Files: `kebab-case`
-- Lint is strict: `func-style: declaration`, explicit return types, `max-lines: 350`, `max-params: 6`, `noUnusedLocals`, `consistent-return`. `main.ts`/`lib.ts` overrides allow `console`
-- `import type` for type-only imports; `verbatimModuleSyntax`
-- CLI error style (`main.ts`): `null` + `console.error` + `process.exitCode = 1`; library code prefers errors-as-values (`Result` type)
+- File names use `kebab-case`.
+- Lint is strict. It enforces `func-style: declaration`, explicit return types, `max-lines: 350`, `max-params: 6`, `noUnusedLocals`, and `consistent-return`.
+- Use `import type` for type-only imports. `verbatimModuleSyntax` is on.
+- Library code prefers errors as values, preferably using the `Diagnostic` API.

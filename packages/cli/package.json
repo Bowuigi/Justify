@@ -1,8 +1,8 @@
 {
   "name": "@justify/cli",
   "version": "0.0.0",
-  "type": "module",
-  "exports": {
-    ".": "./main.ts"
-  }
+  "bin": {
+    "justify": "main.ts"
+  },
+  "type": "module"
 }

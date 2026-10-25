@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { readFile } from 'node:fs/promises';
 import { default as process } from 'node:process';
 

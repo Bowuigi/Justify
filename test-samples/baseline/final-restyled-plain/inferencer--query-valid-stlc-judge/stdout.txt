@@ -1,0 +1,28 @@
+e = star()
+t = unit()
+[unit] judge(empty(), star(), unit())
+
+e = lambda(x@3, a@4, star())
+t = arrow(a@4, unit())
+[lam] judge(empty(), lambda(x@3, a@4, star()), arrow(a@4, unit()))
+│ [unit] judge(extend(empty(), x@3, a@4), star(), unit())
+
+e = lambda(x@10, t@11, variable(x@10))
+t = arrow(t@11, t@11)
+[lam] judge(empty(), lambda(x@10, t@11, variable(x@10)), arrow(t@11, t@11))
+│ [var] judge(extend(empty(), x@10, t@11), variable(x@10), t@11)
+│ │ [found] member(x@10, t@11, extend(empty(), x@10, t@11))
+
+e = lambda(x@3, a@4, lambda(x@8, a@9, star()))
+t = arrow(a@4, arrow(a@9, unit()))
+[lam] judge(empty(), lambda(x@3, a@4, lambda(x@8, a@9, star())), arrow(a@4, arrow(a@9, unit())))
+│ [lam] judge(extend(empty(), x@3, a@4), lambda(x@8, a@9, star()), arrow(a@9, unit()))
+│ │ [unit] judge(extend(extend(empty(), x@3, a@4), x@8, a@9), star(), unit())
+
+e = apply(lambda(x@8, unit(), star()), star())
+t = unit()
+[app] judge(empty(), apply(lambda(x@8, unit(), star()), star()), unit())
+│ [lam] judge(empty(), lambda(x@8, unit(), star()), arrow(unit(), unit()))
+│ │ [unit] judge(extend(empty(), x@8, unit()), star(), unit())
+│ [unit] judge(empty(), star(), unit())
+

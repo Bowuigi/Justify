@@ -1,1 +1,0 @@
-examples/stlc/system.json, Error: ENOENT: no such file or directory, open 'examples/stlc/system.json'

@@ -1,0 +1,4 @@
+[lam] judge(empty(), lambda(!x, unit(), variable(!x)), arrow(unit(), unit()))
+│ [var] judge(extend(empty(), !x, unit()), variable(!x), unit())
+│ │ [found] member(!x, unit(), extend(empty(), !x, unit()))
+

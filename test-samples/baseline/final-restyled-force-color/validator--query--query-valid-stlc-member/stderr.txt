@@ -1,1 +1,0 @@
-[33mexamples/stlc/system.json[39m, [1m[31mError: ENOENT: no such file or directory, open 'examples/stlc/system.json'[39m[22m

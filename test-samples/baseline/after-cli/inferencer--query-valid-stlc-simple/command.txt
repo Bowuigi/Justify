@@ -1,1 +1,1 @@
-node packages/cli/main.ts infer examples/stlc/system.json test-samples/query-valid-stlc-simple.jtf.json
+node packages/cli/main.ts infer examples/stlc-unit/system.json test-samples/query-valid-stlc-simple.jtf.json

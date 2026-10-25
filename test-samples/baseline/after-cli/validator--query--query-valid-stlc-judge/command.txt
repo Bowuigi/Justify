@@ -1,1 +1,1 @@
-node packages/cli/main.ts validate query examples/stlc/system.json test-samples/query-valid-stlc-judge.jtf.json
+node packages/cli/main.ts validate query examples/stlc-unit/system.json test-samples/query-valid-stlc-judge.jtf.json

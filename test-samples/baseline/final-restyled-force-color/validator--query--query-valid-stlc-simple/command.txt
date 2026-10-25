@@ -1,1 +1,1 @@
-FORCE_COLOR=1 node packages/cli/main.ts validate query examples/stlc/system.json test-samples/query-valid-stlc-simple.jtf.json
+FORCE_COLOR=1 node packages/cli/main.ts validate query examples/stlc-unit/system.json test-samples/query-valid-stlc-simple.jtf.json

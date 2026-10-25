@@ -99,3 +99,7 @@ Usage-error records keep their old names but use the equivalent new-CLI invocati
 6. **`to-tex` parse failures use the renderer too.** The JTD suggestion lines change as in item 4, and JSON parse failures change as in item 4. Exit code stays 1.
 7. **`to-tex` crashes keep their stack traces but with new frames.** For `system-invalid-pma` and `system-invalid-vi-ods-pma-odr`, the crash is identical in kind and exit code; only file paths/line numbers move to `packages/tex-extractor/lib.ts` and gain `packages/cli/main.ts` frames. This extends phase-4 delta 7.
 8. **`to-tex` still does not run the semantic validator.** Semantically invalid but JTD-valid systems still emit TeX to stdout and exit 0, exactly as before.
+
+## Update: STLC snapshot path correction
+
+`before/` used the obsolete path `examples/stlc/system.json` and was not rerun. STLC records in `final/`, `after-cli/`, `final-restyled-plain/`, and `final-restyled-force-color/` now use `examples/stlc-unit/system.json` with regenerated outputs; `final/` and `after-cli/` remain identical after this correction.

@@ -1,0 +1,7 @@
+f = lambda(x@8, unit(), star())
+x = star()
+[app] judge(empty(), apply(lambda(x@8, unit(), star()), star()), unit())
+│ [lam] judge(empty(), lambda(x@8, unit(), star()), arrow(unit(), unit()))
+│ │ [unit] judge(extend(empty(), x@8, unit()), star(), unit())
+│ [unit] judge(empty(), star(), unit())
+

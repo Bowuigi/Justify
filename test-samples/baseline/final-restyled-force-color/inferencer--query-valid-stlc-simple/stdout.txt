@@ -1,0 +1,4 @@
+[[32mlam[39m] [36mjudge[39m([34mempty[39m()[1m, [22m[34mlambda[39m([33m!x[39m[1m, [22m[34munit[39m()[1m, [22m[34mvariable[39m([33m!x[39m))[1m, [22m[34marrow[39m([34munit[39m()[1m, [22m[34munit[39m()))
+[90m│ [39m[[32mvar[39m] [36mjudge[39m([34mextend[39m([34mempty[39m()[1m, [22m[33m!x[39m[1m, [22m[34munit[39m())[1m, [22m[34mvariable[39m([33m!x[39m)[1m, [22m[34munit[39m())
+[90m│ [39m[90m│ [39m[[32mfound[39m] [36mmember[39m([33m!x[39m[1m, [22m[34munit[39m()[1m, [22m[34mextend[39m([34mempty[39m()[1m, [22m[33m!x[39m[1m, [22m[34munit[39m()))
+

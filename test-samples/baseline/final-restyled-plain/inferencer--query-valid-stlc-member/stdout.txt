@@ -1,0 +1,11 @@
+x = x@3
+t = t@4
+ctx = extend(ctx@5, x@3, t@4)
+[found] member(x@3, t@4, extend(ctx@5, x@3, t@4))
+
+x = x@8
+t = t@9
+ctx = extend(extend(ctx@10, x@8, t@9), y@4, t2@6)
+[next] member(x@8, t@9, extend(extend(ctx@10, x@8, t@9), y@4, t2@6))
+│ [found] member(x@8, t@9, extend(ctx@10, x@8, t@9))
+

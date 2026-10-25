@@ -1,0 +1,5 @@
+test-samples/query-invalid-odr.jtf.json: Undefined relation in query: nonexistent
+  In /query
+  Conflicts with /system/relations
+  Expected relations: equal, add or multiply
+

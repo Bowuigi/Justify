@@ -1,0 +1,55 @@
+% Bindings from namespace 'grammar'
+\newcommand{\jgTermVariable}[1]{#1}
+\newcommand{\jgTermLambda}[3]{\lambda #1 : #2 .\, #3}
+\newcommand{\jgTermApply}[2]{#1 \; #2}
+\newcommand{\jgTermStar}[0]{\star}
+\newcommand{\jgTypeArrow}[2]{#1 \rightarrow #2}
+\newcommand{\jgTypeUnit}[0]{\mathbf{1}}
+\newcommand{\jgContextEmpty}[0]{\cdot}
+\newcommand{\jgContextExtend}[3]{#1 , #2 : #3}
+% Bindings from namespace 'relation'
+\newcommand{\jrJudge}[3]{#1 \vdash #2 : #3}
+\newcommand{\jrMember}[3]{#1 : #2 \in #3}
+% Bindings from namespace 'relationDescription'
+\newcommand{\jrdJudge}[0]{
+        \boxed{
+          \begin{array}{c}
+          \jrJudge{\Gamma}{e}{\tau} \\
+          \text{Term $e$ has type $\tau$ on context $\Gamma$}
+          \end{array}
+        }}
+\newcommand{\jrdMember}[0]{
+        \boxed{
+          \begin{array}{c}
+          \jrMember{x}{\tau}{\Gamma} \\
+          \text{Identifier $x$ inside context $\Gamma$ has type $\tau$}
+          \end{array}
+        }}
+% Bindings from namespace 'relationRule'
+\newcommand{\jrrJudgeApp}[0]{\jyInfer{App}{\jrJudge{\Gamma}{e_1}{\jgTypeArrow{A}{B}} \\ \jrJudge{\Gamma}{e_2}{A}}{\jrJudge{\Gamma}{\jgTermApply{e_1}{e_2}}{B}}}
+\newcommand{\jrrJudgeLam}[0]{\jyInfer{Lam}{\jrJudge{\jgContextExtend{\Gamma}{x}{A}}{e}{B}}{\jrJudge{\Gamma}{\jgTermLambda{x}{A}{e}}{\jgTypeArrow{A}{B}}}}
+\newcommand{\jrrJudgeUnit}[0]{\jyInfer{Unit}{}{\jrJudge{\Gamma}{\jgTermStar{}}{\jgTypeUnit{}}}}
+\newcommand{\jrrJudgeVar}[0]{\jyInfer{Var}{\jrMember{x}{\tau}{\Gamma}}{\jrJudge{\Gamma}{\jgTermVariable{x}}{\tau}}}
+\newcommand{\jrrMemberFound}[0]{\jyInfer{Found}{}{\jrMember{x}{\tau}{\jgContextExtend{\Gamma}{x}{\tau}}}}
+\newcommand{\jrrMemberNext}[0]{\jyInfer{Next}{\jrMember{x}{\tau}{\Gamma}}{\jrMember{x}{\tau}{\jgContextExtend{\Gamma}{y}{\sigma}}}}
+% Bindings from namespace 'relationRuleset'
+\newcommand{\jrrsJudge}[0]{\jrrJudgeApp \allowbreak \qquad \jrrJudgeLam \allowbreak \qquad \jrrJudgeUnit \allowbreak \qquad \jrrJudgeVar}
+\newcommand{\jrrsMember}[0]{\jrrMemberFound \allowbreak \qquad \jrrMemberNext}
+% Bindings from namespace 'system'
+\newcommand{\jyDescription}[0]{\text{Simply-typed lambda calculus with a unit type}}
+\newcommand{\jyInfer}[3]{\dfrac{\begin{array}{l} #2 \end{array}}{ #3 } \, \text{[#1]}}
+\newcommand{\jyGrammar}[0]{
+  \begin{array}{rll}
+    & & \textbf{Terms} \\
+    e \mathrel{::=} & \jgTermVariable{x} & \text{Variable $x$} \\
+    \mid & \jgTermLambda{x}{\tau}{e} & \text{Binds the applied term of type $t$ to the variable $x$ in $e$} \\
+    \mid & \jgTermApply{e_1}{e_2} & \text{Applies $e_2$ to $e_1$, performing beta reduction} \\
+    \mid & \jgTermStar{} & \text{The only term of type $\mathbf{1}$} \\
+    \\[-5pt] & & \textbf{Types} \\
+    \tau , A , B \mathrel{::=} & \jgTypeArrow{A}{B} & \text{A function from $A$ to $B$} \\
+    \mid & \jgTypeUnit{} & \text{A type with only one inhabitant, $\star$} \\
+    \\[-5pt] & & \textbf{Contexts} \\
+    \Gamma \mathrel{::=} & \jgContextEmpty{} & \text{Empty context, empty environment} \\
+    \mid & \jgContextExtend{\Gamma}{x}{\tau} & \text{A cons operation for contexts (here, assoc lists)}
+  \end{array}}
+

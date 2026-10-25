@@ -1,0 +1,1 @@
+node packages/cli/main.ts validate system test-samples/system-invalid-ods-primitive.jtf.json

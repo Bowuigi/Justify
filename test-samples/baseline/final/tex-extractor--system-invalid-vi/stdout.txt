@@ -1,0 +1,15 @@
+% Bindings from namespace 'grammar'
+\newcommand{\jg_Number_Zero}[0]{0}
+% Bindings from namespace 'relation'
+% Bindings from namespace 'relationDescription'
+% Bindings from namespace 'relationRule'
+% Bindings from namespace 'relationRuleset'
+% Bindings from namespace 'system'
+\newcommand{\jyDescription}[0]{\text{Invalid identifier}}
+\newcommand{\jyInfer}[3]{\dfrac{\begin{array}{l} #2 \end{array}}{ #3 } \, \text{[#1]}}
+\newcommand{\jyGrammar}[0]{
+  \begin{array}{rll}
+    & & \textbf{Natural number} \\
+     \mathrel{::=} & \jg_Number_Zero{} & \text{Number zero}
+  \end{array}}
+

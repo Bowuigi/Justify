@@ -1,0 +1,2 @@
+Wrong number of arguments.
+Usage: /home/bowuigi/projects/Web/Justify/packages/cli/main.ts from-markdown <file.jtf.md>

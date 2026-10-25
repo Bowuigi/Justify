@@ -1,14 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { default as process } from 'node:process';
-import { styleText } from 'node:util';
 
 import {
   type Diagnostic,
-  type DiagnosticLocation,
   queryFromJSONString,
   queryResultFromJSONString,
   type QueryResult,
-  type RichText,
   systemFromJSONString,
 } from '@justify/core';
 import { performQuery } from '@justify/inferencer';
@@ -22,77 +19,34 @@ import {
 import { extractTeX } from '@justify/tex-extractor';
 import { validateQuery, validateQueryResult, validateSystem } from '@justify/validator';
 
-import { prettySolution } from './pretty.ts';
+import { prettySolution, renderReadError, renderUsageError, reportDiagnostics } from './render.ts';
+import { styleErr, styleOut } from './style.ts';
 
-function renderRich(parts: RichText): string {
-  return parts
-    .map(part =>
-      typeof part === 'string'
-        ? part
-        : styleText(part.style === 'correct' ? ['bold', 'green'] : ['bold', 'red'], part.text),
-    )
-    .join('');
-}
-
-function renderLocation(location: DiagnosticLocation): string {
-  switch (location.is) {
-    case 'path': {
-      return styleText('yellow', `/${location.path.join('/')}`);
-    }
-    case 'line-span': {
-      return styleText('yellow', `lines ${location.start}-${location.end}`);
-    }
-  }
-}
-
-function renderDiagnostic(diagnostic: Diagnostic): string {
-  const lines = [`${diagnostic.source}: ${renderRich(diagnostic.message)}`];
-
-  for (const related of diagnostic.relatedLocations) {
-    lines.push(`  ${related.label} ${renderLocation(related.location)}`);
-  }
-  for (const hint of diagnostic.hints) {
-    lines.push(`  ${renderRich(hint)}`);
-  }
-
-  return lines.join('\n');
-}
-
-function reportDiagnostics(diagnostics: Array<Diagnostic>): boolean {
-  for (const diagnostic of diagnostics) {
-    console.error(`${renderDiagnostic(diagnostic)}\n`);
-  }
-  return diagnostics.length > 0;
+function usageError(message: string, usage: string): number {
+  console.error(renderUsageError(message, usage));
+  return 1;
 }
 
 function wrongArgs(usage: string): number {
-  console.error(`Wrong number of arguments.\nUsage: ${process.argv[1]} ${usage}`);
-  return 1;
+  return usageError('Wrong number of arguments.', usage);
 }
 
 function unknownCommand(command: string): number {
-  console.error(
-    `Unknown command '${command}'.\nUsage: ${process.argv[1]} {validate|infer|to-tex|from-markdown} ...`,
-  );
-  return 1;
+  return usageError(`Unknown command '${command}'.`, '{validate|infer|to-tex|from-markdown} ...');
 }
 
 function unknownFormat(format: string): number {
-  console.error(
-    `Unknown format specifier '${format}'.\nUsage: ${process.argv[1]} validate {system|query|query-result} filenames...`,
+  return usageError(
+    `Unknown format specifier '${format}'.`,
+    'validate {system|query|query-result} filenames...',
   );
-  return 1;
 }
 
 async function readInput(filename: string): Promise<string | null> {
   try {
     return await readFile(filename, { encoding: 'utf8' });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(`${filename}, ${error.name}: ${error.message}`);
-    } else {
-      console.error(`${filename}, fatal error: ${error?.toString()}`);
-    }
+    console.error(renderReadError(filename, error));
     return null;
   }
 }
@@ -114,7 +68,7 @@ async function runValidateSystem(args: Array<string>): Promise<number> {
   if (reportDiagnostics(diagnostics)) {
     return 1;
   }
-  console.log('All good!');
+  console.log(styleOut('success', 'All good!'));
   return 0;
 }
 
@@ -144,7 +98,7 @@ async function runValidateQuery(args: Array<string>): Promise<number> {
   if (reportDiagnostics(validateQuery(query.value, system.value, queryFile))) {
     return 1;
   }
-  console.log('All good!');
+  console.log(styleOut('success', 'All good!'));
   return 0;
 }
 
@@ -174,7 +128,7 @@ async function runValidateQueryResult(args: Array<string>): Promise<number> {
   if (reportDiagnostics(validateQueryResult(queryResult.value, system.value, queryResultFile))) {
     return 1;
   }
-  console.log('All good!');
+  console.log(styleOut('success', 'All good!'));
   return 0;
 }
 
@@ -243,7 +197,7 @@ async function runInfer(args: Array<string>): Promise<number> {
 
   const solutions = performQuery(system.value, query.value);
   if (typeof solutions === 'string') {
-    console.error(solutions);
+    console.error(styleErr('error', solutions));
     return 1;
   }
 

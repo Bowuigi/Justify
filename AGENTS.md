@@ -8,7 +8,7 @@ Node runs the `.ts` files directly with type stripping. All imports use explicit
 
 ## Toolchain
 
-- Node v24+ runs TS natively. Run the CLI with `node packages/cli/main.ts ...`.
+- Node v24+ runs TS natively. Run the CLI with `npx @justify/cli ...`.
 - Format: `npm run fmt`, `npm run fmt:check`.
 - Lint and typecheck: `npm run lint`. oxlint is type-aware through `typeAware` and `typeCheck`. There is no separate tsc step. `npm run lint:fix` is available.
 - The pre-commit hook (husky, then lint-staged) runs `oxlint` and `oxfmt` on staged files.
@@ -41,12 +41,12 @@ Prerequisites on PATH: `jtd-codegen` (from the jtd-codegen npm package), `deno`,
 ## CLI (from the repo root)
 
 ```sh
-node packages/cli/main.ts validate system <system.json>
-node packages/cli/main.ts validate query <system.json> <query.json>
-node packages/cli/main.ts validate query-result <system.json> <query-result.json>
-node packages/cli/main.ts infer [-m] <system.json> <query.json>   # -m = machine-readable QueryResult
-node packages/cli/main.ts to-tex <system.json> > out.sty
-node packages/cli/main.ts from-markdown <system.jtf.md>
+npx @justify/cli validate system <system.json>
+npx @justify/cli validate query <system.json> <query.json>
+npx @justify/cli validate query-result <system.json> <query-result.json>
+npx @justify/cli infer [-m] <system.json> <query.json>   # -m = machine-readable QueryResult
+npx @justify/cli to-tex <system.json> > out.sty
+npx @justify/cli from-markdown <system.jtf.md>
 ```
 
 Stdout carries data only. Every diagnostic, read error, and usage error goes to stderr. The CLI exits 0 only on a clean run. It exits 1 when it prints a diagnostic.

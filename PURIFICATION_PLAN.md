@@ -7,7 +7,7 @@ Phases 0 to 6. One phase per session. Every phase ends with `npm run lint` and `
 ## Ground rules
 
 - `EXTEND-*.md` and `FIX-*.md` in the repo root are draft plans. Leave them alone.
-- No new test files. No npm bin wiring. The CLI runs as `node packages/cli/main.ts ...` like every other package.
+- No new test files. No npm bin wiring. The CLI runs as `npx @justify/cli ...` like every other package.
 - `fromJSONString` stays in `packages/core/lib.ts` as an internal helper for the three `*FromJSONString` functions. It loses its export in phase 6.
 - The old `main.ts` CLIs keep working until phase 6 deletes them. A phase must not break them unless explicitly commanded (use the question tool as required).
 
@@ -131,12 +131,12 @@ Steps:
 2. Implement this grammar with a hand-rolled argv switch. No argument-parsing library:
 
    ```sh
-   node packages/cli/main.ts validate system <file>
-   node packages/cli/main.ts validate query <system-file> <query-file>
-   node packages/cli/main.ts validate query-result <system-file> <query-result-file>
-   node packages/cli/main.ts infer [-m] <system-file> <query-file>
-   node packages/cli/main.ts to-tex <system-file>
-   node packages/cli/main.ts from-markdown <file.jtf.md>
+   npx @justify/cli validate system <file>
+   npx @justify/cli validate query <system-file> <query-file>
+   npx @justify/cli validate query-result <system-file> <query-result-file>
+   npx @justify/cli infer [-m] <system-file> <query-file>
+   npx @justify/cli to-tex <system-file>
+   npx @justify/cli from-markdown <file.jtf.md>
    ```
 
 3. Write one shared diagnostic renderer in `main.ts`. Format for each diagnostic: a `source: message` line, then each related location as `  <label> <location>`, then each hint as `  <hint>`. Render core's RichText with `styleText`: green for `correct` parts, red for `error` parts.

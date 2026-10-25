@@ -18,7 +18,7 @@ Given a system file it generates:
 Assuming `node` is used to run Typescript (other runtimes like `bun` and `deno` are supported). Run the following command from the root directory of the Justify monorepo:
 
 ```shell
-node packages/cli/main.ts to-tex <system file> > my/project/justify-tex.sty
+npx @justify/cli to-tex <system file> > my/project/justify-tex.sty
 ```
 
 This produces a file in `my/project/justify-tex.sty` which you can then use in LaTeX as such:

@@ -25,11 +25,11 @@ From the root of the Justify monorepo, run the following (other JS runtimes are 
 
 ```sh
 # For System files
-node packages/cli/main.ts validate system <your-system.json>
+npx @justify/cli validate system <your-system.json>
 
 # For Query files
-node packages/cli/main.ts validate query <your-system.json> <your-query.json>
+npx @justify/cli validate query <your-system.json> <your-query.json>
 
 # For QueryResult files
-node packages/cli/main.ts validate query-result <your-system.json> <your-query-result.json>
+npx @justify/cli validate query-result <your-system.json> <your-query-result.json>
 ```

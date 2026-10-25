@@ -9,7 +9,7 @@ See the examples for usage information.
 From the root of the Justify monorepo, run the following command. It prints the extracted System as JSON to stdout, and diagnostics to stderr.
 
 ```sh
-node packages/cli/main.ts from-markdown <file.jtf.md>
+npx @justify/cli from-markdown <file.jtf.md>
 ```
 
 # Why?

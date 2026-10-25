@@ -94,7 +94,7 @@
       }
     },
     {
-      "files": ["packages/*/main.ts", "packages/core/lib.ts"],
+      "files": ["packages/cli/main.ts"],
       "rules": {
         "no-console": "allow"
       },

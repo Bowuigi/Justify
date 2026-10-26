@@ -6,10 +6,12 @@ interface LocationPathProps {
 
 export function LocationPath({ path }: LocationPathProps): JSX.Element {
   return (
-    <div class="breadcrumbs">
+    <div class="breadcrumbs text-sm">
       <ul>
         {path.map((segment, index) => (
-          <li key={index}>{String(segment)}</li>
+          <li key={index}>
+            <span class="text-primary">{String(segment)}</span>
+          </li>
         ))}
       </ul>
     </div>

@@ -9,14 +9,14 @@ export function ValidateTool(): JSX.Element {
 
   if (state.is === 'valid') {
     return (
-      <div class="p-4 w-full h-full text-sm text-base-content">
-        <p>All good!</p>
+      <div class="p-4 w-full h-full text-xl text-base-content">
+        <p class="text-success">All good!</p>
       </div>
     );
   }
 
   return (
-    <div class="p-4 w-full h-full text-sm text-base-content overflow-auto">
+    <div class="p-4 w-full h-full text-sm text-base-content overflow-auto space-y-3">
       {state.diagnostics.map((diagnostic, index) => (
         <DiagnosticCard key={index} diagnostic={diagnostic} />
       ))}

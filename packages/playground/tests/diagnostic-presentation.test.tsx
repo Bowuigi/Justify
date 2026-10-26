@@ -98,8 +98,8 @@ describe('DiagnosticCard', () => {
     expect(screen.getByText('missing')).not.toBeNull();
     expect(screen.getByText('Did you mean:')).not.toBeNull();
     expect(screen.getByText('add')).not.toBeNull();
-    expect(screen.getByText('In')).not.toBeNull();
-    expect(screen.getByText('Conflicts with')).not.toBeNull();
+    expect(screen.getByText('In:')).not.toBeNull();
+    expect(screen.getByText('Conflicts with:')).not.toBeNull();
   });
 
   it('omits the validator error code', () => {
@@ -115,7 +115,8 @@ describe('DiagnosticCard', () => {
 
   it('shows both line numbers for a line-span location', () => {
     render(<DiagnosticCard diagnostic={validatorDiagnostic()} />);
-    expect(screen.getByText('10-12')).not.toBeNull();
+    expect(screen.getByText('10')).not.toBeNull();
+    expect(screen.getByText('12')).not.toBeNull();
   });
 
   it('shows the Markdown DSL origin label', () => {

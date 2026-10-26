@@ -79,7 +79,7 @@ export interface LiveSystemModel {
 }
 ```
 
-The model also exports the singleton `liveSystemModel`.
+The model also exports the singleton `liveSystem`.
 
 The members have these exact meanings:
 
@@ -141,7 +141,7 @@ A simple `base-system.jtf.md` is placed on `packages/playground/`, containing a 
 
 The live model uses this file (import it using `?raw`, Vite supports it) as its initial `editorBuffer` value. It also uses the file content for the first validation attempt.
 
-The Edit tool passes `liveSystemModel.editorBuffer` to the Editor component. The Editor component keeps its current CodeJar setup.
+The Edit tool passes `liveSystem.editorBuffer` to the Editor component. The Editor component keeps its current CodeJar setup.
 
 ### Acceptance tests
 
@@ -325,7 +325,7 @@ The card omits stack traces and raw exception details.
 
 ### Validate tool
 
-`packages/playground/components/validate-tool.tsx` reads `liveSystemModel.state.value`.
+`packages/playground/components/validate-tool.tsx` reads `liveSystem.state.value`.
 
 A valid state shows a concise success message ("All good!"). An invalid state shows one diagnostic card for every diagnostic.
 
@@ -372,7 +372,7 @@ Tools that need a verified `System` share one fallback and one stale marker. Fut
 
 ### ToolGuard component
 
-`packages/playground/components/tool-guard.tsx` reads `liveSystemModel` directly. It accepts ordinary JSX children.
+`packages/playground/components/tool-guard.tsx` reads `liveSystem` directly. It accepts ordinary JSX children.
 
 The component contains no render-prop function and no callback child.
 
@@ -390,7 +390,7 @@ ToolGuard does not show diagnostic details. The Validate tool remains the only d
 
 ### Try tool
 
-`packages/playground/components/try-tool.tsx` reads `liveSystemModel.verifiedSystem.value` directly.
+`packages/playground/components/try-tool.tsx` reads `liveSystem.verifiedSystem.value` directly.
 
 It passes its tool content to ToolGuard as ordinary JSX children.
 
@@ -400,7 +400,7 @@ Future Try actions use the last verified `System`. A stale `System` does not dis
 
 ### Preview tool
 
-`packages/playground/components/preview-tool.tsx` reads `liveSystemModel.verifiedSystem.value` directly.
+`packages/playground/components/preview-tool.tsx` reads `liveSystem.verifiedSystem.value` directly.
 
 It passes its tool content to ToolGuard as ordinary JSX children.
 
@@ -445,7 +445,7 @@ The tests use a fresh module graph for each scenario. They control public editor
 
 ### Success criteria
 
-- Try and Preview read the verified system directly from `liveSystemModel`.
+- Try and Preview read the verified system directly from `liveSystem`.
 - ToolGuard accepts JSX children without a function.
 - If no verified system exists, ToolGuard shows the fallback.
 - ToolGuard renders its children while the verified system is stale.
@@ -477,7 +477,7 @@ The complete test suite includes every model, component, and integration test. T
 
 ## Definition of done
 
-- `liveSystemModel` exposes the four agreed signal members.
+- `liveSystem` exposes the four agreed signal members.
 - `LiveSystemState` contains only valid and invalid states.
 - The model runs a true 300 ms debounce.
 - The model processes Markdown and semantic validation in phases.

@@ -137,7 +137,7 @@ The playground gains `packages/playground/vitest.config.ts`. The root Vitest con
 
 The project uses the `jsdom` environment. Its `packages/playground/test-setup.ts` file calls `@testing-library/preact` cleanup after each test.
 
-A simple `base-system.jtf.md` is placed on `packages/playground/`, containing a trimmed version of `packages/markdown-dsl/example-nat-system.jtf.md` (no `equal` relation).
+A simple `base-system.jtf.md` is placed on `packages/playground/`, containing a trimmed version of `packages/markdown-dsl/example-nat-system.jtf.md` (no `equal` or `multiply` relations).
 
 The live model uses this file (import it using `?raw`, Vite supports it) as its initial `editorBuffer` value. It also uses the file content for the first validation attempt.
 

@@ -1,15 +1,13 @@
-//// Currently unused, but useful for seeing how tool state will be stored
 import { type Signal, createModel, signal } from '@preact/signals';
+
+import baseSystem from '../base-system.jtf.md?raw';
 
 interface LiveSystem {
   editorBuffer: Signal<string>;
 }
 
 const LiveSystemModel = createModel<LiveSystem>(() => {
-  const editorBuffer = signal('');
-  // Debouncing?
-  // The live syntax tree would be computed()
-  // The latest valid live syntax tree would be computed()
+  const editorBuffer = signal(baseSystem);
 
   return {
     editorBuffer,

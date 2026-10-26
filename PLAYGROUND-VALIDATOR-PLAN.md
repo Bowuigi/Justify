@@ -89,7 +89,7 @@ The members have these exact meanings:
 - `verifiedSystem` contains the last `System` that passed both validation phases.
 - `outOfDate` indicates that the current editor revision has not passed validation.
 
-`packages/playground/models/live-system-context.tsx` exposes a provider and a hook.
+`packages/playground/hooks/use-live-system.tsx` exposes a provider and a hook.
 
 ```ts
 export function LiveSystemProvider(props: {

@@ -1,14 +1,17 @@
 import './app.css';
-import { signal } from '@preact/signals';
+import { signal, useModel } from '@preact/signals';
 import { render, type JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
+import baseSystem from './base-system.jtf.md?raw';
 import { EditTool } from './components/edit-tool.tsx';
 import { NoneTool } from './components/none-tool.tsx';
 import { PreviewTool } from './components/preview-tool.tsx';
 import { ThemePicker } from './components/theme-picker.tsx';
 import { TryTool } from './components/try-tool.tsx';
 import { ValidateTool } from './components/validate-tool.tsx';
+import { LiveSystemProvider } from './hooks/use-live-system.tsx';
+import { LiveSystemModelClass } from './models/live-system.ts';
 
 const toolMapping = {
   edit: { label: 'Edit', component: EditTool },
@@ -161,6 +164,7 @@ function LayoutPicker({
 
 function App(): JSX.Element {
   const [layoutID, setLayoutID] = useState<LayoutID>('sideBySide');
+  const liveSystem = useModel(() => new LiveSystemModelClass(baseSystem));
   const Tree = layoutMapping[layoutID].tree;
 
   const changeLayout = (id: LayoutID): void => {
@@ -169,19 +173,21 @@ function App(): JSX.Element {
   };
 
   return (
-    <div class="flex h-dvh flex-col text-base-content">
-      <nav class="navbar min-h-0 border-b border-base-300 bg-base-300 px-2 py-1.5">
-        <div class="navbar-start">
-          <LayoutPicker layoutID={layoutID} onChange={changeLayout} />
+    <LiveSystemProvider model={liveSystem}>
+      <div class="flex h-dvh flex-col text-base-content">
+        <nav class="navbar min-h-0 border-b border-base-300 bg-base-300 px-2 py-1.5">
+          <div class="navbar-start">
+            <LayoutPicker layoutID={layoutID} onChange={changeLayout} />
+          </div>
+          <div class="navbar-end">
+            <ThemePicker />
+          </div>
+        </nav>
+        <div class="min-h-0 flex-1 bg-base-300 overflow-hidden">
+          <Tree />
         </div>
-        <div class="navbar-end">
-          <ThemePicker />
-        </div>
-      </nav>
-      <div class="min-h-0 flex-1 bg-base-300 overflow-hidden">
-        <Tree />
       </div>
-    </div>
+    </LiveSystemProvider>
   );
 }
 

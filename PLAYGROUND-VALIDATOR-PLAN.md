@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The playground gains a live, guarded `System` model. The model converts Markdown, validates the result, and preserves the last working `System`.
+The playground provides a live, guarded `System` model. The model converts Markdown, validates the result, and preserves the last working `System`.
 
 Try and Preview consume the guarded model. Validate shows the diagnostics from the latest completed validation attempt.
 
@@ -33,7 +33,8 @@ The work includes these features:
 - A shared ToolGuard component for tools that need a verified `System`.
 - A last verified `System` that remains available after an invalid edit.
 - A _Stale_ marker on tools that use an outdated `System`.
-- Vitest model tests that use fake timers.
+- A context-scoped model with no global model instance.
+- Vitest model tests that use `useModel`, fake timers, and automatic cleanup.
 - `@testing-library/preact` component and integration tests.
 
 The work leaves these features outside its scope:
@@ -46,7 +47,7 @@ The work leaves these features outside its scope:
 
 ## Fixed library contracts
 
-The implementation uses the current public library APIs.
+The implementation uses these public library APIs.
 
 - `runPipeline(markdown: string, filename: string, extensions: Array<Extension>)` returns `{ extracted: System, diagnostics: Array<Diagnostic> }`.
 - `validateSystem(system: System, filename: string)` returns an array of core `Diagnostic` objects.
@@ -66,7 +67,7 @@ Both library calls use `<editor>` as the source name / filename.
 
 ## Target model contract
 
-The model exposes the following public types and members.
+`packages/playground/models/live-system.ts` exposes the following public types and members.
 
 ```ts
 export type LiveSystemState = { is: 'valid' } | { is: 'invalid'; diagnostics: Array<Diagnostic> };
@@ -77,9 +78,9 @@ export interface LiveSystemModel {
   verifiedSystem: ReadonlySignal<System | null>;
   outOfDate: ReadonlySignal<boolean>;
 }
-```
 
-The model also exports the singleton `liveSystem`.
+export const LiveSystemModelClass: ModelConstructor<LiveSystemModel, [string]>;
+```
 
 The members have these exact meanings:
 
@@ -88,7 +89,27 @@ The members have these exact meanings:
 - `verifiedSystem` contains the last `System` that passed both validation phases.
 - `outOfDate` indicates that the current editor revision has not passed validation.
 
-`verifiedSystem` starts as `null`. It becomes a `System` only after a successful validation attempt.
+`packages/playground/models/live-system-context.tsx` exposes a provider and a hook.
+
+```ts
+export function LiveSystemProvider(props: {
+  model: LiveSystemModel;
+  children: ComponentChildren;
+}): JSX.Element;
+
+export function useLiveSystem(): LiveSystemModel;
+```
+
+The application creates one model with `useModel`. It passes that model to `LiveSystemProvider`.
+
+`useLiveSystem` returns the model from the nearest provider. It throws an error when no provider exists.
+
+The model module does not export a live model instance. Each component tree owns its model.
+
+The constructor processes the initial source before it returns the model.
+
+- A valid initial source produces a valid state and a verified `System`.
+- An invalid initial source produces an invalid state and a `null` verified `System`.
 
 The model has no empty state. A whitespace-only buffer follows the normal Markdown path. It reports the missing metadata diagnostic.
 
@@ -100,11 +121,17 @@ The last verified `System` survives every invalid attempt. It also survives an e
 
 The tests use three public seams:
 
-- The model seam exposes the public signals of an isolated model instance.
+- The model seam exposes the public signals of a model created by `useModel`.
 - The component seam exposes rendered DOM through `@testing-library/preact`.
 - The integration seam exposes the editor, model, and tools through their public behavior.
 
+Model tests use `renderHook` with `useModel`. The testing-library cleanup unmounts each hook and disposes its model.
+
+Component tests create a model with `useModel`. They pass it through `LiveSystemProvider` to the component under test.
+
 Tests do not inspect private model fields. They do not test private helper functions.
+
+Tests do not call `Symbol.dispose` directly. They do not share a model between test cases.
 
 ### Test tools
 
@@ -112,7 +139,7 @@ Vitest runs all tests. The playground project uses the `jsdom` environment.
 
 `@testing-library/preact` renders components and queries their DOM. The tests use `screen`, `within`, `fireEvent`, and `act` where needed.
 
-Vitest fake timers control the 300 ms debounce. Timer changes inside `act` so Preact finishes each update before the next assertion.
+Vitest fake timers control the 300 ms debounce. Timer changes occur inside `act` so Preact finishes each update before the next assertion.
 
 Diagnostic tests use known literal `Diagnostic` objects. Expected values do not depend on production helper functions.
 
@@ -133,38 +160,46 @@ The playground package lists these development dependencies:
 
 Note that dependencies to local packages (`@justify/validator`, `@justify/markdown-dsl`, etc) are automatically wired.
 
-The playground gains `packages/playground/vitest.config.ts`. The root Vitest configuration includes the playground project.
+The target project includes `packages/playground/vitest.config.ts`. The root Vitest configuration includes the playground project.
 
-The project uses the `jsdom` environment. Its `packages/playground/test-setup.ts` file calls `@testing-library/preact` cleanup after each test.
+The project uses the `jsdom` environment. Its `packages/playground/test-setup.ts` file calls `@testing-library/preact` cleanup after each test. The setup then restores real timers.
 
-A simple `base-system.jtf.md` is placed on `packages/playground/`, containing a trimmed version of `packages/markdown-dsl/example-nat-system.jtf.md` (no `equal` or `multiply` relations).
+The target project includes a simple `base-system.jtf.md` file in `packages/playground/`. It contains a trimmed version of `packages/markdown-dsl/example-nat-system.jtf.md`. The file has no `equal` or `multiply` relations.
 
-The live model uses this file (import it using `?raw`, Vite supports it) as its initial `editorBuffer` value. It also uses the file content for the first validation attempt.
+The application imports this file with `?raw`. It passes the file content to the model constructor.
 
-The Edit tool passes `liveSystem.editorBuffer` to the Editor component. The Editor component keeps its current CodeJar setup.
+The application creates the model with `useModel`. It passes the model through `LiveSystemProvider` to all tools.
+
+The Edit tool calls `useLiveSystem`. It passes `editorBuffer` to the Editor component.
+
+The Editor component uses CodeJar.
 
 ### Acceptance tests
 
-The first vertical slice has two tests. One `@testing-library/preact` test renders the Edit tool and observes the base system in the editor.
+The first vertical slice has two tests.
+
+One `@testing-library/preact` test creates a model with `useModel`. It renders the provider and Edit tool. The test observes the base system in the editor.
 
 The editor test uses a known line from `base-system.jtf.md`. It does not assert the complete editor text.
 
-The second Vitest test observes that the initial model state is valid and contains a verified `System`.
+The second Vitest test uses `renderHook` with `useModel`. It observes that the initial model state is valid. The test also observes a verified `System`.
 
-Configure the test harness and package dependencies first. Then write and run these tests before adding the fixture or changing the model. Observe the expected failures. Then add the minimum seed and initial validation.
+Start with the test harness and package dependencies. Write and run these tests. Confirm that they fail for the missing behavior. Add the minimum seed and initial validation.
 
 ### Success criteria
 
 - The playground manifest declares both test dependencies.
 - The root Vitest configuration includes the playground project.
 - The playground test setup cleans the DOM after each test.
-- The `packages/playground/base-system.jtf.md` file exists and contains what's required only.
+- The `packages/playground/base-system.jtf.md` file contains only the required content.
 - The editor shows the base system after mount.
+- The application passes one model through `LiveSystemProvider`.
 - The initial model contains a valid `System`.
 - The Edit tool acceptance test passes.
+- The model has no global instance.
 - Lint and formatting checks pass for the phase.
 - The playground production build passes.
-- The Editor and Edit tool contain no unrelated changes.
+- The Editor and Edit tool contain only the required code.
 
 ## Phase 2: The live model
 
@@ -175,6 +210,10 @@ The model processes editor revisions after a true debounce. It publishes one ato
 ### Model construction
 
 The model uses `createModel` from `@preact/signals`. It creates one effect that watches `editorBuffer`.
+
+`LiveSystemModelClass` accepts the initial source as its constructor argument.
+
+The application and tests create instances with `useModel`. The hook keeps one instance across renders. It disposes the instance when the component unmounts.
 
 The model processes the initial source during construction. This avoids an empty first state and avoids duplicate work.
 
@@ -196,7 +235,7 @@ During the debounce period:
 
 The model uses revisions or an internal freshness flag for `outOfDate`. It does not compare buffer strings.
 
-An edit back to the last verified text remains stale until a later successful validation. When the user clears and restores the buffer, this rule also applies.
+An edit back to the last verified text remains stale until a later successful validation. This rule also applies when the user clears and restores the buffer.
 
 ### Validation transaction
 
@@ -233,17 +272,23 @@ These last-resort diagnostics contain a short message and no stack trace. Their 
 
 An unexpected error makes the current attempt invalid. The model keeps the last verified `System` and continues to expose it as stale.
 
-The library packages keep their current error behavior. The playground does not change their public APIs.
+The library packages retain their public error behavior. The playground does not change their public APIs.
 
 ### Signal shape
 
 The public `state`, `verifiedSystem`, and `outOfDate` members are read-only signal views. Internal signals hold the latest attempt, the verified record, and the freshness state.
 
-The model cleanup cancels any active timer when the model is disposed.
+The model effect cleanup cancels any active timer. Disposing the model runs this cleanup.
+
+`useModel` performs that disposal when its component unmounts.
 
 ### Acceptance tests
 
-The model module exposes a small factory for isolated test instances. Each test disposes its instance after completion.
+The model test file uses `renderHook` with `useModel`. Each test creates an isolated model.
+
+The testing-library cleanup unmounts the hook after each test. The cleanup disposes the model through `useModel`.
+
+The tests do not call `Symbol.dispose` directly.
 
 The model test file covers these behaviors:
 
@@ -276,6 +321,8 @@ Write one test at a time. Run it and observe the expected failure before each im
 - An invalid attempt keeps the last verified `System`.
 - `outOfDate` becomes `false` only after a successful attempt.
 - Undoing to known-good text does not clear the stale state early.
+- `useModel` owns each test model lifecycle.
+- The model tests do not dispose models directly.
 - The focused model test file passes.
 - The production build resolves the workspace package imports.
 - Lint and formatting checks pass for the phase.
@@ -325,7 +372,7 @@ The card omits stack traces and raw exception details.
 
 ### Validate tool
 
-`packages/playground/components/validate-tool.tsx` reads `liveSystem.state.value`.
+`packages/playground/components/validate-tool.tsx` calls `useLiveSystem`. It reads `state.value` from that model.
 
 A valid state shows a concise success message ("All good!"). An invalid state shows one diagnostic card for every diagnostic.
 
@@ -335,7 +382,9 @@ The Markdown short-circuit means that a conversion error does not produce a casc
 
 ### Acceptance tests
 
-The component tests use `@testing-library/preact`. They cover these behaviors:
+The component tests use `@testing-library/preact`. They provide the model through `LiveSystemProvider`.
+
+The tests cover these behaviors:
 
 - Rich text shows plain, correct, and error parts with the expected text and classes.
 - A location path shows every segment in order.
@@ -372,9 +421,9 @@ Tools that need a verified `System` share one fallback and one stale marker. Fut
 
 ### ToolGuard component
 
-`packages/playground/components/tool-guard.tsx` reads `liveSystem` directly. It accepts ordinary JSX children.
+`packages/playground/components/tool-guard.tsx` calls `useLiveSystem`. It accepts ordinary JSX children.
 
-Consider using the `For` and `Show` components from `@preact/signals`, as they ease showing the values of signals efficiently.
+Consider using the `For` and `Show` components from `@preact/signals`. They can show signal values efficiently.
 
 The component contains no render-prop function and no callback child.
 
@@ -392,27 +441,29 @@ ToolGuard does not show diagnostic details. The Validate tool remains the only d
 
 ### Try tool
 
-`packages/playground/components/try-tool.tsx` reads `liveSystem.verifiedSystem.value` directly.
+`packages/playground/components/try-tool.tsx` calls `useLiveSystem`. It reads `verifiedSystem.value` from that model.
 
 It passes its tool content to ToolGuard as ordinary JSX children.
 
-The current content shows the syntax and relation counts. It also states that query execution remains a placeholder.
+The content shows the syntax and relation counts. It also states that query execution remains a placeholder.
 
 Future Try actions use the last verified `System`. A stale `System` does not disable those actions.
 
 ### Preview tool
 
-`packages/playground/components/preview-tool.tsx` reads `liveSystem.verifiedSystem.value` directly.
+`packages/playground/components/preview-tool.tsx` calls `useLiveSystem`. It reads `verifiedSystem.value` from that model.
 
 It passes its tool content to ToolGuard as ordinary JSX children.
 
-The current content shows the syntax count. It also states that rendering remains a placeholder.
+The content shows the syntax count. It also states that rendering remains a placeholder.
 
 Future Preview actions use the last verified `System`. A stale `System` does not disable those actions.
 
 ### Acceptance tests
 
-The ToolGuard tests use `@testing-library/preact`. They cover these behaviors:
+The ToolGuard tests use `@testing-library/preact`. They provide the model through `LiveSystemProvider`.
+
+The tests cover these behaviors:
 
 - No verified system produces the fallback message.
 - A verified system produces the tool children.
@@ -421,7 +472,7 @@ The ToolGuard tests use `@testing-library/preact`. They cover these behaviors:
 
 The Try and Preview tests cover these behaviors:
 
-- Both tools read the verified system directly.
+- Both tools read the verified system from `useLiveSystem`.
 - Try shows the syntax and relation counts.
 - Preview shows the syntax count.
 - Both tools keep their content while the verified system is stale.
@@ -443,11 +494,11 @@ The integration test file covers these behaviors:
 - Repairing the source removes the **Stale** badge.
 - Clearing the editor reports missing metadata and keeps the last verified system stale.
 
-The tests use a fresh module graph for each scenario. They control public editor input and observable time only.
+Each scenario mounts a fresh provider and model. The tests control public editor input and observable time only.
 
 ### Success criteria
 
-- Try and Preview read the verified system directly from `liveSystem`.
+- Try and Preview read the verified system through `useLiveSystem`.
 - ToolGuard accepts JSX children without a function.
 - If no verified system exists, ToolGuard shows the fallback.
 - ToolGuard renders its children while the verified system is stale.
@@ -457,6 +508,7 @@ The tests use a fresh module graph for each scenario. They control public editor
 - An invalid edit does not remove the last verified system from either tool.
 - The focused ToolGuard test file passes.
 - The integration test file passes.
+- Every integration scenario uses an isolated model.
 
 ### Final checks
 
@@ -479,16 +531,19 @@ The complete test suite includes every model, component, and integration test. T
 
 ## Definition of done
 
-- `liveSystem` exposes the four agreed signal members.
+- `LiveSystemModelClass` exposes the four agreed signal members.
 - `LiveSystemState` contains only valid and invalid states.
 - The model runs a true 300 ms debounce.
 - The model processes Markdown and semantic validation in phases.
 - The model keeps the last verified `System` after every invalid attempt.
 - The stale state ends only after a successful validation attempt.
+- The application passes one model through `LiveSystemProvider`.
+- No model module exports a global model instance.
+- `useModel` owns each model lifecycle in the application and tests.
 - The Validate tool shows unified core diagnostics with visual breadcrumbs.
 - The Validate tool omits validator error codes.
 - ToolGuard provides the shared fallback and **Stale** badge.
-- Try and Preview consume the last verified `System` directly.
+- Try and Preview consume the last verified `System` through `useLiveSystem`.
 - Query execution and TeX rendering remain placeholders.
 - The playground Vitest project runs in `jsdom`.
 - `@testing-library/preact` drives every component and integration test.

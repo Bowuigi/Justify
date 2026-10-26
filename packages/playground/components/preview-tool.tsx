@@ -5,7 +5,7 @@ import { ToolGuard } from './tool-guard.tsx';
 
 export function PreviewTool(): JSX.Element {
   const { verifiedSystem } = useLiveSystem();
-  const system = verifiedSystem.value!;
+  const system = verifiedSystem.value;
 
   return (
     <ToolGuard>

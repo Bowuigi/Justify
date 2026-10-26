@@ -21,14 +21,13 @@ export type LiveSystemState = { is: 'valid' } | { is: 'invalid'; diagnostics: Ar
 export interface LiveSystemModel {
   editorBuffer: Signal<string>;
   state: ReadonlySignal<LiveSystemState>;
-  verifiedSystem: ReadonlySignal<System | null>;
+  verifiedSystem: ReadonlySignal<System>;
   outOfDate: ReadonlySignal<boolean>;
 }
 
-interface ProcessingResult {
-  state: LiveSystemState;
-  system: System | null;
-}
+type ProcessingResult =
+  | { status: 'valid'; system: System }
+  | { status: 'invalid'; diagnostics: Array<Diagnostic> };
 
 const FILENAME = '<editor>';
 const DEBOUNCE_MS = 300;
@@ -50,42 +49,46 @@ function process(markdown: string): ProcessingResult {
     result = runPipeline(markdown, FILENAME, EXTENSIONS);
   } catch {
     return {
-      state: {
-        is: 'invalid',
-        diagnostics: [boundaryDiagnostic('markdown-dsl', 'The Markdown DSL failed unexpectedly.')],
-      },
-      system: null,
+      status: 'invalid',
+      diagnostics: [boundaryDiagnostic('markdown-dsl', 'The Markdown DSL failed unexpectedly.')],
     };
   }
 
   const { extracted, diagnostics } = result;
 
   if (diagnostics.length > 0) {
-    return { state: { is: 'invalid', diagnostics }, system: null };
+    return { status: 'invalid', diagnostics };
   }
 
   try {
     const semanticDiagnostics = validateSystem(extracted, FILENAME);
     if (semanticDiagnostics.length > 0) {
-      return { state: { is: 'invalid', diagnostics: semanticDiagnostics }, system: null };
+      return { status: 'invalid', diagnostics: semanticDiagnostics };
     }
   } catch {
     return {
-      state: {
-        is: 'invalid',
-        diagnostics: [boundaryDiagnostic('validator', 'The validator failed unexpectedly.')],
-      },
-      system: null,
+      status: 'invalid',
+      diagnostics: [boundaryDiagnostic('validator', 'The validator failed unexpectedly.')],
     };
   }
 
-  return { state: { is: 'valid' }, system: extracted };
+  return { status: 'valid', system: extracted };
+}
+
+function initialSystemError(diagnostics: Array<Diagnostic>): Error {
+  const details = diagnostics
+    .map(diagnostic =>
+      diagnostic.message.map(part => (typeof part === 'string' ? part : part.text)).join(''),
+    )
+    .join('\n');
+
+  return new Error(`The initial system must be valid.\n${details}`);
 }
 
 interface InternalSignals {
   editorBuffer: Signal<string>;
   state: Signal<LiveSystemState>;
-  verifiedSystem: Signal<System | null>;
+  verifiedSystem: Signal<System>;
   outOfDate: Signal<boolean>;
 }
 
@@ -108,8 +111,8 @@ function startValidationLoop(signals: InternalSignals): void {
       timer = null;
       const result = process(markdown);
 
-      if (result.system === null) {
-        state.value = result.state;
+      if (result.status === 'invalid') {
+        state.value = { is: 'invalid', diagnostics: result.diagnostics };
         return;
       }
 
@@ -133,10 +136,14 @@ export const LiveSystemModelClass = createModel<LiveSystemModel, [string]>(
   (initialSource: string) => {
     const initialResult = process(initialSource);
 
+    if (initialResult.status === 'invalid') {
+      throw initialSystemError(initialResult.diagnostics);
+    }
+
     const signals: InternalSignals = {
       editorBuffer: signal(initialSource),
-      state: signal<LiveSystemState>(initialResult.state),
-      verifiedSystem: signal<System | null>(initialResult.system),
+      state: signal<LiveSystemState>({ is: 'valid' }),
+      verifiedSystem: signal(initialResult.system),
       outOfDate: signal(false),
     };
 

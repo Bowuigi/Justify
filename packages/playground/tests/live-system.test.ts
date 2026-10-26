@@ -55,8 +55,12 @@ describe('live system model initial state', () => {
     const live = create();
 
     expect(live.state.value).toEqual({ is: 'valid' });
-    expect(live.verifiedSystem.value).not.toBeNull();
+    expect(live.verifiedSystem.value).toBeDefined();
     expect(live.outOfDate.value).toBe(false);
+  });
+
+  it('rejects an invalid initial system', () => {
+    expect(() => create('   \n')).toThrow('The initial system must be valid');
   });
 });
 

@@ -8,7 +8,7 @@ import { ToolGuard } from '../components/tool-guard.tsx';
 import { LiveSystemProvider } from '../hooks/use-live-system.tsx';
 import { LiveSystemModelClass, type LiveSystemModel } from '../models/live-system.ts';
 
-function create(initial: string): Model<LiveSystemModel> {
+function create(initial: string = baseSystem): Model<LiveSystemModel> {
   const { result } = renderHook(() => useModel(() => new LiveSystemModelClass(initial)));
   return result.current;
 }
@@ -28,24 +28,11 @@ beforeEach(() => {
 });
 
 describe('ToolGuard', () => {
-  it('shows the fallback message when no verified system exists', () => {
-    const live = create('   \n');
-    render(<Guarded model={live} />);
-
-    expect(
-      screen.getByText('Fix the validation errors first. Open the Validate tool.'),
-    ).not.toBeNull();
-    expect(screen.queryByTestId('tool-content')).toBeNull();
-  });
-
   it('shows the tool children when a verified system exists', () => {
     const live = create(baseSystem);
     render(<Guarded model={live} />);
 
     expect(screen.getByTestId('tool-content')).not.toBeNull();
-    expect(
-      screen.queryByText('Fix the validation errors first. Open the Validate tool.'),
-    ).toBeNull();
   });
 
   it('shows both children and the Stale badge when the system is stale', () => {

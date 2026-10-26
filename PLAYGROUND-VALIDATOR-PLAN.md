@@ -374,6 +374,8 @@ Tools that need a verified `System` share one fallback and one stale marker. Fut
 
 `packages/playground/components/tool-guard.tsx` reads `liveSystem` directly. It accepts ordinary JSX children.
 
+Consider using the `For` and `Show` components from `@preact/signals`, as they ease showing the values of signals efficiently.
+
 The component contains no render-prop function and no callback child.
 
 When `verifiedSystem` is `null`, ToolGuard shows this fallback message:

@@ -9,6 +9,7 @@ export default defineConfig({
       'packages/tex-extractor',
       'packages/markdown-dsl',
       'packages/cli',
+      'packages/playground',
     ],
   },
 });

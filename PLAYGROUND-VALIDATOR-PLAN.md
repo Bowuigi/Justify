@@ -345,15 +345,13 @@ It shows plain string parts without extra styling. It shows `correct` parts with
 
 `packages/playground/components/location-path.tsx` accepts an array of string and number path segments.
 
-The component uses a visual daisyUI breadcrumb. Each segment appears in path order. Number segments appear as strings.
-
-The component contains no link destination. Path segments do not navigate the editor.
+The component uses a visual daisyUI breadcrumb. Each segment appears in path order. Segments appear as strings and are highlighted in a distinct color. The component contains no link destination. Path segments do not navigate the editor.
 
 ### Diagnostic card component
 
 `packages/playground/components/diagnostic-card.tsx` accepts one core `Diagnostic`.
 
-The card uses `alert alert-error` styling. Every diagnostic blocks the current attempt, so both diagnostic origins use error styling.
+The card uses a compact modern design: `bg-base-200` background with a bold left `border-error` accent, no rounded corners, and an origin badge anchored bottom-right. The message is prefixed with "Error:". Location labels keep original casing.
 
 The card contains these parts:
 

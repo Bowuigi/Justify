@@ -78,7 +78,7 @@ For a visual criterion, start the playground and capture a narrow-pane screensho
 ```sh
 npm run dev -w @justify/playground -- --host 127.0.0.1
 chromium --headless --disable-gpu --no-sandbox --hide-scrollbars \
-  --window-size=340,900 --screenshot=$EXP_DIR/preview-tool.png <url>
+  --window-size=900,600 --screenshot=$EXP_DIR/preview-tool.png <url>
 ```
 
 Where `$EXP_DIR` is the directory where experiments can be performed (you replace it, it's not an env variable). On OpenCode, that's `/tmp/opencode/`. On Pi, that's `/tmp/pi-experiments/`.

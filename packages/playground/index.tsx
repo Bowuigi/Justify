@@ -1,4 +1,6 @@
 import './app.css';
+// For KaTeX
+import 'katex/dist/katex.min.css';
 import { signal, useModel } from '@preact/signals';
 import { render, type JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';

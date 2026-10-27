@@ -116,7 +116,7 @@ Provide tested playground utilities that turn a verified System into Preview sec
 
 ### Description
 
-Create `packages/playground/models/preview.ts` with these exports:
+Create `packages/playground/lib/preview.ts` with these exports:
 
 ```ts
 export interface PreviewRelation {

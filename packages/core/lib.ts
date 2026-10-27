@@ -32,7 +32,8 @@ function fromJSON<T>(
         error.suggestions.length > 0
           ? [['Did you mean ', ...displayIterable('this', 'any of those', error.suggestions)]]
           : [],
-      relatedLocations: [{ label: 'In', location: { is: 'path', path: error.path } }],
+      relatedLocations:
+        error.path.length > 0 ? [{ label: 'In', location: { is: 'path', path: error.path } }] : [],
     });
   }
 

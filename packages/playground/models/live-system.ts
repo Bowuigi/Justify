@@ -1,19 +1,154 @@
-//// Currently unused, but useful for seeing how tool state will be stored
-import { type Signal, createModel, signal } from '@preact/signals';
+import type { Diagnostic, System } from '@justify/core';
+import { type Extension, runPipeline } from '@justify/markdown-dsl';
+import {
+  metadataExtension,
+  relationMetaExtension,
+  relationRuleExtension,
+  syntaxExtension,
+} from '@justify/markdown-dsl/extensions';
+import { validateSystem } from '@justify/validator';
+import {
+  type ReadonlySignal,
+  type Signal,
+  batch,
+  createModel,
+  effect,
+  signal,
+} from '@preact/signals';
 
-interface LiveSystem {
+export type LiveSystemState = { is: 'valid' } | { is: 'invalid'; diagnostics: Array<Diagnostic> };
+
+export interface LiveSystemModel {
   editorBuffer: Signal<string>;
+  state: ReadonlySignal<LiveSystemState>;
+  verifiedSystem: ReadonlySignal<System>;
+  outOfDate: ReadonlySignal<boolean>;
 }
 
-const LiveSystemModel = createModel<LiveSystem>(() => {
-  const editorBuffer = signal('');
-  // Debouncing?
-  // The live syntax tree would be computed()
-  // The latest valid live syntax tree would be computed()
+type ProcessingResult =
+  | { status: 'valid'; system: System }
+  | { status: 'invalid'; diagnostics: Array<Diagnostic> };
 
-  return {
-    editorBuffer,
-  };
-});
+const FILENAME = '<editor>';
+const DEBOUNCE_MS = 300;
+const EXTENSIONS: Array<Extension> = [
+  metadataExtension,
+  syntaxExtension,
+  relationMetaExtension,
+  relationRuleExtension,
+];
 
-export const liveSystem = new LiveSystemModel();
+function boundaryDiagnostic(origin: Diagnostic['origin'], message: string): Diagnostic {
+  return { source: FILENAME, origin, message: [message], hints: [], relatedLocations: [] };
+}
+
+function process(markdown: string): ProcessingResult {
+  let result: ReturnType<typeof runPipeline>;
+
+  try {
+    result = runPipeline(markdown, FILENAME, EXTENSIONS);
+  } catch {
+    return {
+      status: 'invalid',
+      diagnostics: [boundaryDiagnostic('markdown-dsl', 'The Markdown DSL failed unexpectedly.')],
+    };
+  }
+
+  const { extracted, diagnostics } = result;
+
+  if (diagnostics.length > 0) {
+    return { status: 'invalid', diagnostics };
+  }
+
+  try {
+    const semanticDiagnostics = validateSystem(extracted, FILENAME);
+    if (semanticDiagnostics.length > 0) {
+      return { status: 'invalid', diagnostics: semanticDiagnostics };
+    }
+  } catch {
+    return {
+      status: 'invalid',
+      diagnostics: [boundaryDiagnostic('validator', 'The validator failed unexpectedly.')],
+    };
+  }
+
+  return { status: 'valid', system: extracted };
+}
+
+function initialSystemError(diagnostics: Array<Diagnostic>): Error {
+  const details = diagnostics
+    .map(diagnostic =>
+      diagnostic.message.map(part => (typeof part === 'string' ? part : part.text)).join(''),
+    )
+    .join('\n');
+
+  return new Error(`The initial system must be valid.\n${details}`);
+}
+
+interface InternalSignals {
+  editorBuffer: Signal<string>;
+  state: Signal<LiveSystemState>;
+  verifiedSystem: Signal<System>;
+  outOfDate: Signal<boolean>;
+}
+
+function startValidationLoop(signals: InternalSignals): void {
+  const { editorBuffer, state, verifiedSystem, outOfDate } = signals;
+
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let isFirstRun = true;
+
+  effect(() => {
+    const markdown = editorBuffer.value;
+
+    if (isFirstRun) {
+      isFirstRun = false;
+      return;
+    }
+
+    outOfDate.value = true;
+    timer = setTimeout(() => {
+      timer = null;
+      const result = process(markdown);
+
+      if (result.status === 'invalid') {
+        state.value = { is: 'invalid', diagnostics: result.diagnostics };
+        return;
+      }
+
+      batch(() => {
+        state.value = { is: 'valid' };
+        verifiedSystem.value = result.system;
+        outOfDate.value = false;
+      });
+    }, DEBOUNCE_MS);
+
+    return () => {
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+  });
+}
+
+export const LiveSystemModelClass = createModel<LiveSystemModel, [string]>(
+  (initialSource: string) => {
+    const initialResult = process(initialSource);
+
+    if (initialResult.status === 'invalid') {
+      throw initialSystemError(initialResult.diagnostics);
+    }
+
+    const signals: InternalSignals = {
+      editorBuffer: signal(initialSource),
+      state: signal<LiveSystemState>({ is: 'valid' }),
+      verifiedSystem: signal(initialResult.system),
+      outOfDate: signal(false),
+    };
+
+    startValidationLoop(signals);
+
+    return signals;
+  },
+);

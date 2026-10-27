@@ -1,6 +1,6 @@
 import type { Fixity, System, Term, TexMath, TexMathParts } from '@justify/core';
 
-type TeXNamespace =
+export type TeXNamespace =
   | 'system'
   | 'grammar'
   | 'relation'
@@ -21,7 +21,11 @@ function interleave<T>(arr1: Array<T>, arr2: Array<T>): Array<T> {
   return result;
 }
 
-function commandOf(namespace: TeXNamespace, invocation: string, args?: Array<string>): string {
+export function commandOf(
+  namespace: TeXNamespace,
+  invocation: string,
+  args?: Array<string>,
+): string {
   const mappings: Record<TeXNamespace, string> = {
     system: 'y',
     grammar: 'g',

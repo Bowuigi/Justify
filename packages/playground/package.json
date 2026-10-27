@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@preact/signals": "^2.11.2",
+    "@types/react-katex": "^3.0.4",
     "codejar": "^4.3.0",
     "codejar-linenumbers": "^1.0.1",
     "preact": "^10.29.8",

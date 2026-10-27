@@ -116,8 +116,6 @@ Provide tested playground utilities that turn a verified System into Preview sec
 
 ### Description
 
-Add `@justify/tex-extractor` to the `@justify/playground` dependencies in `packages/playground/package.json`.
-
 Create `packages/playground/models/preview.ts` with these exports:
 
 ```ts

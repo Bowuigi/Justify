@@ -18,7 +18,7 @@ Each relation section contains:
 
 A relation with zero rules shows its header and a muted text placeholder.
 
-The `extractTeX(system)` preamble goes before every `BlockMath` expression. The pane uses the default KaTeX error behavior. A bad expression renders red and does not crash the pane. `ToolGuard` keeps the existing stale-system behavior.
+The `extractTeX(system)` preamble goes before every KaTeX expression. A bad expression renders red and does not crash the pane. `ToolGuard` keeps the existing stale-system behavior.
 
 ## Required context
 
@@ -30,7 +30,7 @@ The `extractTeX(system)` preamble goes before every `BlockMath` expression. The 
 - `commandOf('relationDescription', relation)` gives `\jrd<Relation>`.
 - `commandOf('relationRuleset', relation)` gives `\jrrs<Relation>`.
 - System relation keys are snake_case identifiers. Example: `judge_member`.
-- `react-katex` `BlockMath` takes the complete math string through its `math` prop.
+- `katex.renderToString` takes the complete math string.
 - KaTeX 0.19 splits `\allowbreak` points into `.katex-base` elements. CSS can make these elements wrap.
 - The verified System signal is `verifiedSystem.value`. `ToolGuard` supplies the stale badge.
 
@@ -148,7 +148,7 @@ export function previewSections(system: System): PreviewSections;
 
 Use `Object.entries(system.relations)` to keep insertion order. Set `hasRules` to `relation.rules.length > 0`.
 
-Create `packages/playground/components/tex-block.tsx`. It renders `BlockMath` with `math={`${preamble}\n${expression}`}`. Its props are `preamble`, `expression`, and an optional `class`.
+Create `packages/playground/components/tex-block.tsx`. It renders `katex.renderToString` of `${preamble}\n${expression}` with `displayMode: true` and `throwOnError: false`. Its props are `preamble`, `expression`, and an optional `class`.
 
 ### Acceptance criteria
 
@@ -215,7 +215,7 @@ Harden Preview against unusual Systems. Confirm the semantic structure and the w
 
 ### Description
 
-Keep the default KaTeX error handler. An unsupported command must color only its own expression red. The other sections must stay visible.
+Use `throwOnError: false`. An unsupported command must color only its own expression red. The other sections must stay visible.
 
 Use semantic `<section>` elements. Use `<h2>` for Description and Grammar. Use `<h3>` for relation titles.
 

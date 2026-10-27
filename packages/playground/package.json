@@ -9,14 +9,13 @@
   },
   "dependencies": {
     "@preact/signals": "^2.11.2",
-    "@types/react-katex": "^3.0.4",
     "codejar": "^4.3.0",
     "codejar-linenumbers": "^1.0.1",
+    "katex": "^0.19.1",
     "preact": "^10.29.8",
     "prismjs": "^1.30.0",
     "react": "npm:@preact/compat",
-    "react-dom": "npm:@preact/compat",
-    "react-katex": "^3.1.0"
+    "react-dom": "npm:@preact/compat"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",

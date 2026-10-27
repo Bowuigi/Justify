@@ -14,7 +14,8 @@
     "preact": "^10.29.8",
     "prismjs": "^1.30.0",
     "react": "npm:@preact/compat",
-    "react-dom": "npm:@preact/compat"
+    "react-dom": "npm:@preact/compat",
+    "react-katex": "^3.1.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
@@ -24,6 +25,7 @@
     "daisyui": "^5.7.42",
     "jsdom": "^30.1.3",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vite-plugin-static-copy": "^4.1.1"
   }
 }

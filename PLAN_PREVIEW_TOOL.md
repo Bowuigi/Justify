@@ -155,7 +155,7 @@ Create `packages/playground/components/tex-block.tsx`. It renders `katex.renderT
 - **[Vitest]** `humanizeIdentifier('add')` returns `Add`.
 - **[Vitest]** `humanizeIdentifier('judge_member')` returns `Judge Member`.
 - **[Vitest]** `humanizeIdentifier` keeps digits in an identifier.
-- **[Vitest]** `previewSections` returns Description and Grammar expressions for the base system.
+- **[Vitest]** `previewSections` returns Description, Relations and Grammar expressions for the base system.
 - **[Vitest]** `previewSections` returns relations in System insertion order.
 - **[Vitest]** The base relation `add` has `header` equal to `\jrdAdd` and `rules` equal to `\jrrsAdd`.
 - **[Vitest]** A relation with zero rules has `hasRules === false`.
@@ -215,11 +215,11 @@ Harden Preview against unusual Systems. Confirm the semantic structure and the w
 
 ### Description
 
-Use `throwOnError: false`. An unsupported command must color only its own expression red. The other sections must stay visible.
+Use `throwOnError: false` and `trust: false`. An unsupported command must color only its own expression red. The other sections must stay visible.
 
-Use semantic `<section>` elements. Use `<h2>` for Description and Grammar. Use `<h3>` for relation titles.
+Use semantic `<section>` elements. Use `<h2>` for Description, Relations and Grammar. Use `<h3>` for relation titles.
 
-Make sure that Description and Grammar render when the System has no relations. A System with no relations must not crash.
+Make sure that Description, Relations and Grammar render when the System has no relations. A System with no relations must not crash.
 
 Confirm that the preamble and section objects use `useMemo` with the verified System as the dependency.
 
@@ -227,9 +227,9 @@ Confirm that the preamble and section objects use `useMemo` with the verified Sy
 
 - **[Vitest]** A System with an unsupported LaTeX command shows a `.katex-error` in that expression.
 - **[Vitest]** The same System still renders the Grammar section and all relation sections.
-- **[Vitest]** A System with no relations renders Description and Grammar.
+- **[Vitest]** A System with no relations renders Description, Relations and Grammar.
 - **[Vitest]** A System with no relations renders zero relation sections.
-- **[Vitest]** Description and Grammar are `<h2>` elements.
+- **[Vitest]** Description, Relations and Grammar are `<h2>` elements.
 - **[Vitest]** Relation titles are `<h3>` elements.
 - **[Vitest]** All playground tests pass.
 - **[Vitest]** The full `npm test` suite passes.

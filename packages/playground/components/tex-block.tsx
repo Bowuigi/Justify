@@ -11,6 +11,7 @@ export function TexBlock({ preamble, expression, class: className }: TexBlockPro
   const html = katex.renderToString(`${preamble}\n${expression}`, {
     displayMode: true,
     throwOnError: false,
+    trust: false,
   });
 
   return <div class={className} dangerouslySetInnerHTML={{ __html: html }} />;

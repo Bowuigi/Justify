@@ -45,6 +45,50 @@ where:
 \`\`\`
 `;
 
+const badExpressionMarkdown = `---
+description: 'Bad \\frac{1}'
+---
+
+# Syntax
+## Unit
+
+\`\`\`jtf-syntax
+desc: Unit
+suggest: [u]
+grammar:
+  - name: unit
+    desc: One thing
+    is: \\star
+\`\`\`
+
+# Relations
+## test_ing
+
+\`\`\`jtf-relation
+desc: $x$ exists
+is: 'x \\text{exists}'
+where:
+  x: unit
+\`\`\`
+`;
+
+const noRelationsMarkdown = `---
+description: No Relations System
+---
+
+# Syntax
+## Unit
+
+\`\`\`jtf-syntax
+desc: Unit
+suggest: [u]
+grammar:
+  - name: unit
+    desc: One thing
+    is: \\star
+\`\`\`
+`;
+
 function create(source: string): Model<LiveSystemModel> {
   const { result } = renderHook(() => useModel(() => new LiveSystemModelClass(source)));
   return result.current;
@@ -114,6 +158,36 @@ describe('PreviewTool relations', () => {
     expect(screen.getByRole('heading', { level: 3, name: 'Test Ing' })).not.toBeNull();
     expect(screen.getByText('No rules defined')).not.toBeNull();
     expect(screen.queryByTestId('rules-test_ing')).toBeNull();
+  });
+});
+
+describe('PreviewTool resilience', () => {
+  it('shows a .katex-error only in the bad expression', () => {
+    const { container } = mount(badExpressionMarkdown);
+
+    expect(container.querySelectorAll('.katex-error')).toHaveLength(1);
+  });
+
+  it('still renders Grammar and all relation sections beside a bad expression', () => {
+    mount(badExpressionMarkdown);
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Grammar' })).not.toBeNull();
+    expect(screen.getByTestId('relation-test_ing')).not.toBeNull();
+    expect(screen.getByRole('heading', { level: 3, name: 'Test Ing' })).not.toBeNull();
+  });
+
+  it('renders Description, Grammar and Relations when there are no relations', () => {
+    mount(noRelationsMarkdown);
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Description' })).not.toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: 'Grammar' })).not.toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: 'Relations' })).not.toBeNull();
+  });
+
+  it('renders zero relations when there are no relations', () => {
+    mount(noRelationsMarkdown);
+
+    expect(screen.queryAllByTestId(/^relation-/)).toHaveLength(0);
   });
 });
 

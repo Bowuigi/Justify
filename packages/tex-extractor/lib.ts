@@ -1,4 +1,12 @@
-import type { Fixity, System, Term, TexMath, TexMathParts } from '@justify/core';
+import type {
+  Derivation,
+  DerivationTerm,
+  Fixity,
+  System,
+  Term,
+  TexMath,
+  TexMathParts,
+} from '@justify/core';
 
 export type TeXNamespace =
   | 'system'
@@ -36,6 +44,11 @@ export function commandOf(
   };
   const renderedArgs = args === undefined ? '' : `{${args.join('}{')}}`;
   return `\\${snakeToCamel(`j${mappings[namespace]}_${invocation}`)}${renderedArgs}`;
+}
+
+export interface TeXScope {
+  variables: Record<string, TexMath>;
+  literals: Record<string, TexMath>;
 }
 
 function renderMixfix(fixity: Fixity, texParts: TexMathParts, args: Array<string>): string {
@@ -78,6 +91,49 @@ function renderTerm(
       );
     }
   }
+}
+export function extractDerivationTermTeX(term: DerivationTerm, scope: TeXScope): string {
+  switch (term.is) {
+    case 'con': {
+      return commandOf(
+        'grammar',
+        `${term.from}_${term.tag}`,
+        term.args.map(arg => extractDerivationTermTeX(arg, scope)),
+      );
+    }
+    case 'lit': {
+      return scope.literals[term.id] ?? term.id;
+    }
+    case 'var': {
+      const base = scope.variables[term.id] ?? term.id;
+      return `${base}^{${term.counter}}`;
+    }
+  }
+}
+
+export function extractDerivationTeX(
+  system: System,
+  derivation: Derivation,
+  rootScope: TeXScope,
+): string {
+  const relation = system.relations[derivation.relation];
+  const rule = relation?.rules.find(candidate => candidate.rule.id === derivation.rule);
+
+  const conclusion = commandOf(
+    'relation',
+    derivation.relation,
+    derivation.args.map(term => extractDerivationTermTeX(term, rootScope)),
+  );
+
+  const nodeScope = rule ? { variables: rule.variables, literals: rule.literals } : rootScope;
+
+  const premises = derivation.premises
+    .map(premise => extractDerivationTeX(system, premise, nodeScope))
+    .join(String.raw` \qquad `);
+
+  const ruleTex = rule?.rule.tex ?? derivation.rule;
+
+  return commandOf('system', 'tree', [ruleTex, premises, conclusion]);
 }
 
 // oxlint-disable-next-line max-lines-per-function
@@ -210,6 +266,14 @@ export function extractTeX(system: System): string {
         {
           arguments: 3,
           definition: `\\dfrac{\\begin{array}{l} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
+        },
+      ],
+      // \jyTree{rule name}{premise1 \\qquad premise2}{conclusion}
+      [
+        'tree',
+        {
+          arguments: 3,
+          definition: `\\dfrac{\\begin{array}{c} #2 \\end{array}}{ #3 } \\, \\text{[#1]}`,
         },
       ],
       [

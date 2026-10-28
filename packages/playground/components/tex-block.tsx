@@ -10,7 +10,7 @@ export interface TexBlockProps {
 
 export function TexBlock({ expression, class: className }: TexBlockProps): JSX.Element {
   const liveSystem = useLiveSystem();
-  const preamble = liveSystem?.preamble.value;
+  const preamble = liveSystem.texPreamble.value;
 
   const html = katex.renderToString(`${preamble}\n${expression}`, {
     displayMode: true,

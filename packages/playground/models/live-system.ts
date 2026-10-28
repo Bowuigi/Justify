@@ -24,7 +24,7 @@ export interface LiveSystemModel {
   editorBuffer: Signal<string>;
   state: ReadonlySignal<LiveSystemState>;
   verifiedSystem: ReadonlySignal<System>;
-  preamble: ReadonlySignal<string>;
+  texPreamble: ReadonlySignal<string>;
   outOfDate: ReadonlySignal<boolean>;
 }
 
@@ -92,7 +92,7 @@ interface InternalSignals {
   editorBuffer: Signal<string>;
   state: Signal<LiveSystemState>;
   verifiedSystem: Signal<System>;
-  preamble: Signal<string>;
+  texPreamble: Signal<string>;
   outOfDate: Signal<boolean>;
 }
 
@@ -150,7 +150,7 @@ export const LiveSystemModelClass = createModel<LiveSystemModel, [string]>(
       editorBuffer: signal(initialSource),
       state: signal<LiveSystemState>({ is: 'valid' }),
       verifiedSystem,
-      preamble: computed(() => extractTeX(verifiedSystem.value)),
+      texPreamble: computed(() => extractTeX(verifiedSystem.value)),
       outOfDate: signal(false),
     };
 

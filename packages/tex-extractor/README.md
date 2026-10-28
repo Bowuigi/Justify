@@ -4,7 +4,7 @@ Extract TeX source (currently targets LaTeX and KaTeX) from [Justify](https://gi
 
 Given a system file it generates:
 
-- A `\jyInfer{rulename}{rule name}{\\-separated premises}{conclusion}` rule that can be used to style content like an inference rule. Combine with the `jyRules` environment (in LaTeX) or separate rules with `\allowbreak \qquad` (in KaTeX and similar) to get a minimal variant of the `mathpartir` package for other uses.
+- A `\jyInfer{rule name}{\\-separated premises}{conclusion}` rule that can be used to style content like an inference rule. Combine with the `jyRules` environment (in LaTeX) or separate rules with `\allowbreak \qquad` (in KaTeX and similar) to get a minimal variant of the `mathpartir` package for other uses.
 - A `\jyDescription` macro that outputs the system's description wrapped in `\text{...}`.
 - A `\jyGrammar` macro that outputs the system's grammar.
 - A `\jg<category><constructor>` (both converted from `snake_case` to `PascalCase`) family of macros that correspond to each constructor. Use those for consistent styling across the document if required, at the cost of increased verbosity.

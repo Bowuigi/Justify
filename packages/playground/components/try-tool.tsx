@@ -79,10 +79,10 @@ interface QueryEditorProps {
 
 function QueryEditor({ value, onChange, onClear, disabled }: QueryEditorProps): JSX.Element {
   return (
-    <div class="shrink-0 min-h-0 h-7 overflow-hidden flex flex-row gap-2">
+    <div class="shrink-0 min-h-0 overflow-hidden flex flex-row gap-2 items-center">
       <label class="mb-1">Query (JSON)</label>
       <textarea
-        class="inline textarea textarea-bordered w-50 min-h-0"
+        class="inline textarea textarea-bordered w-50 h-8 min-h-0 overflow-hidden resize-none"
         value={value}
         onInput={ev => {
           onChange(ev.currentTarget.value);

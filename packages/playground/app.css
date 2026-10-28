@@ -81,3 +81,17 @@
   --depth: 0;
   --noise: 0;
 }
+
+/* KaTeX CSS for auto-wrapping */
+
+.preview-rules .katex-display {
+  margin: 0;
+}
+
+.preview-rules .katex-display > .katex {
+  white-space: normal;
+}
+
+.preview-rules .katex .katex-base {
+  width: auto;
+}

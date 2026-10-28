@@ -6,11 +6,13 @@ import {
   relationRuleExtension,
   syntaxExtension,
 } from '@justify/markdown-dsl/extensions';
+import { extractTeX } from '@justify/tex-extractor';
 import { validateSystem } from '@justify/validator';
 import {
   type ReadonlySignal,
   type Signal,
   batch,
+  computed,
   createModel,
   effect,
   signal,
@@ -22,6 +24,7 @@ export interface LiveSystemModel {
   editorBuffer: Signal<string>;
   state: ReadonlySignal<LiveSystemState>;
   verifiedSystem: ReadonlySignal<System>;
+  texPreamble: ReadonlySignal<string>;
   outOfDate: ReadonlySignal<boolean>;
 }
 
@@ -89,6 +92,7 @@ interface InternalSignals {
   editorBuffer: Signal<string>;
   state: Signal<LiveSystemState>;
   verifiedSystem: Signal<System>;
+  texPreamble: Signal<string>;
   outOfDate: Signal<boolean>;
 }
 
@@ -140,10 +144,13 @@ export const LiveSystemModelClass = createModel<LiveSystemModel, [string]>(
       throw initialSystemError(initialResult.diagnostics);
     }
 
+    const verifiedSystem = signal(initialResult.system);
+
     const signals: InternalSignals = {
       editorBuffer: signal(initialSource),
       state: signal<LiveSystemState>({ is: 'valid' }),
-      verifiedSystem: signal(initialResult.system),
+      verifiedSystem,
+      texPreamble: computed(() => extractTeX(verifiedSystem.value)),
       outOfDate: signal(false),
     };
 

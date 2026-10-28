@@ -1,13 +1,17 @@
 import katex from 'katex';
 import type { JSX } from 'preact/jsx-runtime';
 
+import { useLiveSystem } from '../hooks/use-live-system.tsx';
+
 export interface TexBlockProps {
-  preamble: string;
   expression: string;
   class?: string;
 }
 
-export function TexBlock({ preamble, expression, class: className }: TexBlockProps): JSX.Element {
+export function TexBlock({ expression, class: className }: TexBlockProps): JSX.Element {
+  const liveSystem = useLiveSystem();
+  const preamble = liveSystem.texPreamble.value;
+
   const html = katex.renderToString(`${preamble}\n${expression}`, {
     displayMode: true,
     throwOnError: false,

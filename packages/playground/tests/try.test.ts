@@ -120,7 +120,7 @@ describe('tryQuery performs', () => {
     if (outcome.status !== 'success') return;
     expect(outcome.solutions).toHaveLength(1);
     expect(outcome.solutions[0]!.bindings).toEqual([
-      { name: 'p', tex: String.raw`\jgNumberZero{}` },
+      { id: 'p', texId: 'p', texValue: String.raw`\jgNumberZero{}` },
     ]);
     expect(outcome.solutions[0]!.derivationTeX).toBeNull();
   });

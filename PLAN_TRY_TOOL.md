@@ -10,7 +10,7 @@ The feature must reuse the System TeX preamble. It must also add derivation-tree
 
 ## Relevant context
 
-### Current behavior
+### Behavior before implementing this plan
 
 - `packages/playground/components/try-tool.tsx` contains a placeholder. It only shows System counts.
 - `packages/playground/index.tsx` already registers the Try tool in the tool picker and layouts.
@@ -19,7 +19,7 @@ The feature must reuse the System TeX preamble. It must also add derivation-tree
 - An invalid System edit leaves the previous verified System in place.
 - `packages/playground/components/tool-guard.tsx` shows the `Stale` badge when the System is out of date.
 - `packages/playground/components/preview-tool.tsx` computes its own preamble with `extractTeX(system)`.
-- `packages/playground/components/tex-block.tsx` currently requires a `preamble` prop.
+- `packages/playground/components/tex-block.tsx` requires a `preamble` prop.
 - The Query text must remain local to `TryTool`. A tool switch can discard it.
 - The Try tool does not need a Run button, a query delay, query persistence, zoom, or pan.
 
@@ -109,17 +109,17 @@ Store one generated TeX preamble in the live-system model. Make `TexBlock` use t
 
 #### Description of phase 1
 
-Add a read-only preamble signal to `LiveSystemModel`. Initialize it with `extractTeX` for the initial verified System. Update it in the same signal batch that stores a newly verified System.
+Add a read-only `texPreamble` signal to `LiveSystemModel`. Initialize it with `extractTeX` for the initial verified System. Update it in the same signal batch that stores a newly verified System.
 
 Keep the old preamble when a System edit fails validation. This behavior must match the preserved `verifiedSystem` value.
 
 The simplest way to do all of this is by using a `computed` Preact signal linked to `verifiedSystem`, changing on demand automatically. See if a computed signal handles both this and initialization instead of relying on a separate `signal` set manually.
 
-Allow `TexBlock` to read the shared preamble through the live-system context. Keep an explicit `preamble` prop as an override. An explicit prop must work without a live-system provider. The default path must fail with a clear error when no shared preamble exists.
+Allow `TexBlock` to read the shared preamble through the live-system context.
 
 Update `PreviewTool` to use the default preamble. Remove its duplicate `extractTeX` call and preamble memo. This change proves that Preview and later Try-tool blocks share one preamble.
 
-Add focused tests for the model update rules and the `TexBlock` prop behavior. Update the existing Preview tests so that they exercise the shared path.
+Add focused tests for the model update rules and the `TexBlock` behavior. Update the existing Preview tests so that they exercise the shared path.
 
 #### Acceptance criteria of phase 1
 
@@ -131,11 +131,10 @@ Add focused tests for the model update rules and the `TexBlock` prop behavior. U
 
 ##### Test-in-code-tested
 
-- The initial live-system preamble equals `extractTeX` for the initial verified System.
+- The initial live-system `texPreamble` equals `extractTeX` for the initial verified System.
 - A valid System update changes the live-system preamble and the verified System together.
 - An invalid System update preserves both the previous preamble and the previous verified System.
-- `TexBlock` uses the shared preamble when the `preamble` prop is absent.
-- An explicit `preamble` prop overrides the shared preamble and works without a provider.
+- `TexBlock` uses the shared preamble.
 - `PreviewTool` uses the default `TexBlock` preamble path.
 - The existing Preview and live-system test suites pass.
 
@@ -147,11 +146,11 @@ Add public TeX extraction functions for derivation terms and derivation trees.
 
 #### Description of phase 2
 
-Extend `@justify/tex-extractor` with focused functions for derivation terms and trees. Keep the System preamble as the source of all constructor, relation, and layout macros.
+Extend `@justify/tex-extractor` with focused functions for derivation terms and trees. Keep the System `texPreamble` as the source of all constructor, relation, and layout macros.
 
 Name the public API `TeXScope`, `extractDerivationTermTeX(system, term, scope)`, and `extractDerivationTeX(system, derivation, rootScope)`. `TeXScope` must contain the variable and literal mappings.
 
-Add a horizontal tree macro named `\jyTree` to the System preamble. It must mirror `\jyInfer` but place its premise argument in a horizontal array. Its shape must remain equivalent to this conceptual form:
+Add a horizontal tree macro named `\jyTree` to the output of `extractTeX` (from `@justify/tex-extractor`). It must mirror `\jyInfer` but place its premise argument in a horizontal array. Its shape must remain equivalent to this conceptual form:
 
 ```tex
 \dfrac{\begin{array}{c} <premises> \end{array}}{ <conclusion> } \,\text{[<rule tex>]}
@@ -177,7 +176,7 @@ Add unit tests for leaves, nested nodes, sibling premises, constructors, relatio
 
 ##### Test-in-code-tested
 
-- The System preamble defines the horizontal tree macro and retains the existing `\jyInfer` macro.
+- `extractTeX` (from `@justify/tex-extractor`) defines the horizontal tree macro and retains the existing `\jyInfer` macro.
 - A leaf tree uses an empty premise argument and the System rule's `tex` value.
 - A multi-premise tree separates immediate premises with `\qquad`.
 - Nested premise trees appear inside their parent premise argument.

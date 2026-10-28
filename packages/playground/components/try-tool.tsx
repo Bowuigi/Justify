@@ -10,18 +10,18 @@ import { ToolGuard } from './tool-guard.tsx';
 function Solution({ solution, index }: { solution: TrySolution; index: number }): JSX.Element {
   return (
     <div class="rounded-lg p-3 mb-2" data-testid="try-solution">
-      <h2>Solution N° {index + 1}:</h2>
+      <h2 class="text-xl font-bold">Solution N° {index + 1}:</h2>
       {solution.bindings.length > 0 && (
-        <div class="mb-2">
-          <h3 class="font-semibold mb-1">Bindings</h3>
-          <div class="space-y-1 ml-4">
+        <div class="mb-0">
+          <h3 class="text-lg font-semibold mb-1">Bindings</h3>
+          <div class="space-y-1 ml-4 flex flex-col gap-0">
             {solution.bindings.map((binding, ix) => (
               <div key={ix} class="flex items-baseline gap-1">
                 <span class="font-semibold">{binding.id}</span>
-                {', '}
+                {' / '}
                 <span class="font-semibold">{binding.texId}</span>
                 {' = '}
-                <TexBlock expression={binding.texValue} class="inline-block" />
+                <TexBlock expression={binding.texValue} />
               </div>
             ))}
           </div>
@@ -29,7 +29,7 @@ function Solution({ solution, index }: { solution: TrySolution; index: number })
       )}
       {solution.derivationTeX !== null && (
         <div class="mt-1">
-          <h3 class="font-semibold mb-1">Derivation</h3>
+          <h3 class="text-lg font-semibold mb-1">Derivation</h3>
           <TexBlock expression={solution.derivationTeX} />
         </div>
       )}
@@ -79,20 +79,18 @@ interface QueryEditorProps {
 
 function QueryEditor({ value, onChange, onClear, disabled }: QueryEditorProps): JSX.Element {
   return (
-    <div class="flex-1 min-h-0 overflow-hidden flex flex-col">
-      <label class="mb-1 block">Query (JSON)</label>
+    <div class="shrink-0 min-h-0 h-7 overflow-hidden flex flex-row gap-2">
+      <label class="mb-1">Query (JSON)</label>
       <textarea
-        class="h-full w-full textarea textarea-bordered flex-1 min-h-0"
+        class="inline textarea textarea-bordered w-50 min-h-0"
         value={value}
         onInput={ev => {
           onChange(ev.currentTarget.value);
         }}
       />
-      <div class="mt-2 flex gap-2">
-        <button class="btn btn-sm btn-error" onClick={onClear} disabled={disabled}>
-          Clear
-        </button>
-      </div>
+      <button class="inline btn btn-sm btn-error" onClick={onClear} disabled={disabled}>
+        Clear
+      </button>
     </div>
   );
 }

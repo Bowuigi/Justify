@@ -1,4 +1,3 @@
-import { extractTeX } from '@justify/tex-extractor';
 import { useMemo } from 'preact/hooks';
 import type { JSX } from 'preact/jsx-runtime';
 
@@ -11,7 +10,6 @@ export function PreviewTool(): JSX.Element {
   const { verifiedSystem } = useLiveSystem();
   const system = verifiedSystem.value;
 
-  const preamble = useMemo(() => extractTeX(system), [system]);
   const sections = useMemo(() => previewSections(system), [system]);
 
   return (
@@ -19,12 +17,12 @@ export function PreviewTool(): JSX.Element {
       <div class="p-4 w-full h-full text-sm text-base-content" data-testid="preview-tool">
         <section>
           <h2 class="text-lg font-semibold">Description</h2>
-          <TexBlock preamble={preamble} expression={sections.description} />
+          <TexBlock expression={sections.description} />
         </section>
         <hr />
         <section>
           <h2 class="text-lg font-semibold">Grammar</h2>
-          <TexBlock preamble={preamble} expression={sections.grammar} />
+          <TexBlock expression={sections.grammar} />
         </section>
         <hr />
         <section>
@@ -32,12 +30,12 @@ export function PreviewTool(): JSX.Element {
           {sections.relations.map(relation => {
             const header = (
               <div class="text-center">
-                <TexBlock preamble={preamble} expression={relation.header} />
+                <TexBlock expression={relation.header} />
               </div>
             );
             const rules = relation.hasRules ? (
               <div class="preview-rules" data-testid={`rules-${relation.id}`}>
-                <TexBlock preamble={preamble} expression={relation.rules} />
+                <TexBlock expression={relation.rules} />
               </div>
             ) : (
               <p class="opacity-60 text-center">No rules defined</p>

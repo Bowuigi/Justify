@@ -1,4 +1,5 @@
 import type * as MarkdownDsl from '@justify/markdown-dsl';
+import { extractTeX } from '@justify/tex-extractor';
 import type * as Validator from '@justify/validator';
 import { type Model, useModel } from '@preact/signals';
 import { renderHook } from '@testing-library/preact';
@@ -183,6 +184,39 @@ describe('live system model undo', () => {
 
     advance(1);
     expect(live.outOfDate.value).toBe(false);
+  });
+});
+
+describe('live system model preamble', () => {
+  it('initializes the preamble from the initial verified system', () => {
+    const live = create();
+
+    expect(live.preamble.value).toEqual(extractTeX(live.verifiedSystem.value));
+  });
+
+  it('changes the preamble together with the verified system after a valid update', () => {
+    const live = create();
+    const previousPreamble = live.preamble.value;
+
+    live.editorBuffer.value = changeDescription(baseSystem, 'Changed');
+    advance(300);
+
+    expect(live.state.value.is).toBe('valid');
+    expect(live.preamble.value).toEqual(extractTeX(live.verifiedSystem.value));
+    expect(live.preamble.value).not.toEqual(previousPreamble);
+  });
+
+  it('preserves the preamble and verified system after an invalid update', () => {
+    const live = create();
+    const previousSystem = live.verifiedSystem.value;
+    const previousPreamble = live.preamble.value;
+
+    live.editorBuffer.value = changeDescription(baseSystem, '[');
+    advance(300);
+
+    expect(live.state.value.is).toBe('invalid');
+    expect(live.verifiedSystem.value).toBe(previousSystem);
+    expect(live.preamble.value).toBe(previousPreamble);
   });
 });
 

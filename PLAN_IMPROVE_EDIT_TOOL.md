@@ -35,7 +35,7 @@ The app must use the last valid system as the base system. The app must also res
   - Start the dev server from `packages/playground` with `npx vite`.
 - The playground tests use jsdom. jsdom does not apply imported CSS files, so visual claims must be checked in a browser.
 - Experiments are permitted in `/tmp/opencode/` (OpenCode) or `/tmp/pi-experiments/` (Pi). Remove temporary files from the project folder when done.
-- You can use the `browser` tool from the `browsermcp` MCP server to test things in a real browser.
+- You can use the `browser` tool from the `browsermcp` MCP server to test things in a real browser. If it happens to ask for an "Allow" click for permissions (which you can't perform as an AI agent), inform the user, sleep for 20 seconds and then retry (this is so the user can click the button to give you browser permissions).
 
 ## Methodology
 

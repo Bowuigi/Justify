@@ -63,6 +63,10 @@ pre[class*='language-'] {
   font-style: italic;
 }
 
+.token.punctuation {
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+}
+
 .token.property,
 .token.tag,
 .token.boolean,

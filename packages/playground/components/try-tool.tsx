@@ -19,7 +19,7 @@ function Solution({ solution, index }: { solution: TrySolution; index: number })
               <div key={ix} class="flex items-baseline gap-1">
                 <span class="font-semibold">{binding.id}</span>
                 {' / '}
-                <span class="font-semibold">{binding.texId}</span>
+                <TexBlock expression={binding.texId} />
                 {' = '}
                 <TexBlock expression={binding.texValue} />
               </div>

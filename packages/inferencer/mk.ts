@@ -335,9 +335,15 @@ export function eq(termA: Term, termB: Term): Goal {
 /// Relations and relation combinators
 
 export function disjN(...goals: Array<Goal>): Goal {
+  if (goals.length === 0) {
+    return (_st: State) => ({ is: 'nil' });
+  }
   return goals.reduceRight((prev, cur) => (st: State) => appendStream(cur(st), prev(st)));
 }
 
 export function conjN(...goals: Array<Goal>): Goal {
+  if (goals.length === 0) {
+    return (st: State) => ({ is: 'cons', solution: st, next: { is: 'nil' } });
+  }
   return goals.reduceRight((prev, cur) => (st: State) => appendMapStream(prev, cur(st)));
 }

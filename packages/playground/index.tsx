@@ -12,8 +12,11 @@ import { PreviewTool } from './components/preview-tool.tsx';
 import { ThemePicker } from './components/theme-picker.tsx';
 import { TryTool } from './components/try-tool.tsx';
 import { ValidateTool } from './components/validate-tool.tsx';
+import { resolveEditorStartup, useEditorPersistence } from './hooks/use-editor-persistence.ts';
 import { LiveSystemProvider } from './hooks/use-live-system.tsx';
 import { LiveSystemModelClass } from './models/live-system.ts';
+
+const startup = resolveEditorStartup(baseSystem);
 
 const toolMapping = {
   edit: { label: 'Edit', component: EditTool },
@@ -166,8 +169,10 @@ function LayoutPicker({
 
 function App(): JSX.Element {
   const [layoutID, setLayoutID] = useState<LayoutID>('sideBySide');
-  const liveSystem = useModel(() => new LiveSystemModelClass(baseSystem));
+  const liveSystem = useModel(() => new LiveSystemModelClass(startup.baseSource));
   const Tree = layoutMapping[layoutID].tree;
+
+  useEditorPersistence(liveSystem, startup.initialBuffer);
 
   const changeLayout = (id: LayoutID): void => {
     usedTools.value = new Set();

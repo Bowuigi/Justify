@@ -28,7 +28,7 @@ export interface LiveSystemModel {
   outOfDate: ReadonlySignal<boolean>;
 }
 
-type ProcessingResult =
+export type ProcessingResult =
   | { status: 'valid'; system: System }
   | { status: 'invalid'; diagnostics: Array<Diagnostic> };
 
@@ -45,7 +45,7 @@ function boundaryDiagnostic(origin: Diagnostic['origin'], message: string): Diag
   return { source: FILENAME, origin, message: [message], hints: [], relatedLocations: [] };
 }
 
-function process(markdown: string): ProcessingResult {
+export function processSystemSource(markdown: string): ProcessingResult {
   let result: ReturnType<typeof runPipeline>;
 
   try {
@@ -113,7 +113,7 @@ function startValidationLoop(signals: InternalSignals): void {
     outOfDate.value = true;
     timer = setTimeout(() => {
       timer = null;
-      const result = process(markdown);
+      const result = processSystemSource(markdown);
 
       if (result.status === 'invalid') {
         state.value = { is: 'invalid', diagnostics: result.diagnostics };
@@ -138,7 +138,7 @@ function startValidationLoop(signals: InternalSignals): void {
 
 export const LiveSystemModelClass = createModel<LiveSystemModel, [string]>(
   (initialSource: string) => {
-    const initialResult = process(initialSource);
+    const initialResult = processSystemSource(initialSource);
 
     if (initialResult.status === 'invalid') {
       throw initialSystemError(initialResult.diagnostics);

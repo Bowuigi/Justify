@@ -1,4 +1,4 @@
-import type { Signal } from '@preact/signals';
+import { effect, type Signal } from '@preact/signals';
 import { CodeJar } from 'codejar';
 import { withLineNumbers } from 'codejar-linenumbers';
 import { useEffect, useRef } from 'preact/hooks';
@@ -30,7 +30,17 @@ export function Editor(props: PropsWithoutRef<EditorProps>): JSX.Element {
     };
 
     ref.current.addEventListener('input', handleInput);
+
+    // The props.buffer signal must stay stable for the lifetime of the editor.
+    const dispose = effect(() => {
+      const next = props.buffer.value;
+      if (jar.toString() !== next) {
+        jar.updateCode(next);
+      }
+    });
+
     return () => {
+      dispose();
       ref.current?.removeEventListener('input', handleInput);
     };
   }, []);

@@ -206,4 +206,18 @@ describe('extractDerivationTeX scopes', () => {
       jyTree('Step', premiseTeX, rJudge(gZero)),
     );
   });
+
+  it('keeps the query literal mapping in nested premise derivations', () => {
+    const premise = leafDerivation({ is: 'lit', id: 'zero' });
+    const derivation: Derivation = {
+      relation: 'judge',
+      rule: 'step',
+      args: [zeroCon],
+      premises: [premise],
+    };
+    const premiseTeX = jyTree('Base', '', rJudge('0'));
+    expect(extractDerivationTeX(system, derivation, literalScope)).toBe(
+      jyTree('Step', premiseTeX, rJudge(gZero)),
+    );
+  });
 });

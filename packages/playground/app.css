@@ -95,3 +95,7 @@
 .preview-rules .katex .katex-base {
   width: auto;
 }
+
+.katex-base {
+  margin-bottom: 1em;
+}

@@ -125,7 +125,12 @@ export function extractDerivationTeX(
     derivation.args.map(term => extractDerivationTermTeX(term, rootScope)),
   );
 
-  const nodeScope = rule ? { variables: rule.variables, literals: rule.literals } : rootScope;
+  const nodeScope = rule
+    ? {
+        variables: { ...rootScope.variables, ...rule.variables },
+        literals: { ...rootScope.literals, ...rule.literals },
+      }
+    : rootScope;
 
   const premises = derivation.premises
     .map(premise => extractDerivationTeX(system, premise, nodeScope))

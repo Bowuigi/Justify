@@ -34,13 +34,19 @@ pre[class*='language-'] {
 }
 
 .codejar-linenumbers {
-  background-color: color-mix(in oklch, var(--color-base-content) 5%, transparent) !important;
+  position: relative;
+  z-index: 2;
+  background-color: var(--color-base-100) !important;
 }
 
 .codejar-linenumber {
   color: color-mix(in oklch, var(--color-base-content) 60%, transparent) !important;
   text-align: right;
   padding-right: 0.3em;
+}
+
+.codejar-linenumbers-inner-wrap {
+  z-index: 2;
 }
 
 .code[class*='language-'] {
@@ -55,6 +61,10 @@ pre[class*='language-'] {
 .token.cdata {
   color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
   font-style: italic;
+}
+
+.token.punctuation {
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
 }
 
 .token.property,

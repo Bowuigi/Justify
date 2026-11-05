@@ -1,3 +1,4 @@
+// oxlint-disable max-lines
 import type { Term as STerm } from '@justify/core';
 
 /*
@@ -330,6 +331,10 @@ export function eq(termA: Term, termB: Term): Goal {
       next: { is: 'nil' },
     };
   };
+}
+
+export function neq(_termA: Term, _termB: Term): Goal {
+  throw new Error('Not yet implemented');
 }
 
 /// Relations and relation combinators

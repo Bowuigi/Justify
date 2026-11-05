@@ -100,6 +100,9 @@ describe('conjN', () => {
     expect(run(1, conjN())).toMatchInlineSnapshot(`
       [
         {
+          "constraints": {
+            "neq": [],
+          },
           "counter": 0,
           "log": [],
           "subst": AssocArray {

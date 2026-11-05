@@ -36,6 +36,10 @@ export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
+interface Constraints {
+  neq: Array<{ a: Term; b: Term }>;
+}
+
 export interface RuleLog {
   rule: string;
   relation: string;
@@ -44,6 +48,7 @@ export interface RuleLog {
 }
 interface State {
   subst: Substitution;
+  constraints: Constraints;
   log: Array<RuleLog>;
   counter: number;
 }
@@ -267,13 +272,19 @@ export function toIdempotent(subst: Substitution): Substitution {
   return new AssocArray(subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) })));
 }
 
-// The substitution should be idempotent for efficiency
+// The substitution should be idempotent for display purposes
 export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   return {
     rule: log.rule,
     relation: log.relation,
     args: log.args.map(a => walkAll(a, subst)),
     premises: log.premises.map(p => walkLog(p, subst)),
+  };
+}
+
+export function walkConstraints(c: Constraints, subst: Substitution): Constraints {
+  return {
+    neq: c.neq.map(({ a, b }) => ({ a: walkAll(a, subst), b: walkAll(b, subst) })),
   };
 }
 
@@ -290,7 +301,7 @@ export function fresh(ids: Array<string>, block: (pool: VarPool) => Goal): Goal 
       count++;
     }
 
-    return block(pool)({ subst: st.subst, log: st.log, counter: count });
+    return block(pool)({ ...st, counter: count });
   };
 }
 
@@ -314,7 +325,7 @@ export function delay(goal: Goal): Goal {
 export function run(solutions: number, goal: Goal): Array<State> {
   return takeStream(
     solutions,
-    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })),
+    pullStream(goal({ subst: new AssocArray([]), constraints: { neq: [] }, log: [], counter: 0 })),
   );
 }
 
@@ -327,7 +338,7 @@ export function eq(termA: Term, termB: Term): Goal {
     if (newSubst === null) return { is: 'nil' };
     return {
       is: 'cons',
-      solution: { subst: newSubst, log: st.log, counter: st.counter },
+      solution: { ...st, subst: newSubst },
       next: { is: 'nil' },
     };
   };

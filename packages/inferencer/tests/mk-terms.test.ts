@@ -186,6 +186,15 @@ describe('eq with constructors', () => {
 
     expect(solutions).toHaveLength(0);
   });
+
+  it('fails for nested constructors with different tags', () => {
+    const left = con('term', 'pair', [con('term', 'unit', [])]);
+    const right = con('term', 'pair', [con('term', 'pair', [])]);
+
+    const solutions = run(1, eq(left, right));
+
+    expect(solutions).toHaveLength(0);
+  });
 });
 
 describe('eq with the occurs check', () => {

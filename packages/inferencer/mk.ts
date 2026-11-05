@@ -162,7 +162,12 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
   if (termA.is === 'lit' && termB.is === 'lit') {
     return termA.id === termB.id ? subst : null;
   }
-  if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
+  if (
+    termA.is === 'con' &&
+    termB.is === 'con' &&
+    termA.from === termB.from &&
+    termA.tag === termB.tag
+  ) {
     // `unify` and `unifyArray` are mutually recursive
     // oxlint-disable-next-line no-use-before-define
     return unifyArray(termA.args, termB.args, subst);

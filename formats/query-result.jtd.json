@@ -37,19 +37,6 @@
           "elements": { "ref": "derivation" }
         }
       }
-    },
-    "constraint": {
-      "elements": {
-        "discriminator": "is",
-        "mapping": {
-          "neq": {
-            "properties": {
-              "a": { "ref": "derivation-term" },
-              "b": { "ref": "derivation-term" }
-            }
-          }
-        }
-      }
     }
   },
   "properties": {
@@ -59,7 +46,18 @@
           "variables": {
             "values": { "ref": "derivation-term" }
           },
-          "constraints": { "ref": "constraint" }
+          "constraints": {
+            "properties": {
+              "neq": {
+                "elements": {
+                  "properties": {
+                    "a": { "ref": "derivation-term" },
+                    "b": { "ref": "derivation-term" }
+                  }
+                }
+              }
+            }
+          }
         },
         "optionalProperties": {
           "derivation": { "ref": "derivation" }

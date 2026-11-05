@@ -111,7 +111,7 @@ Add a test group for trivial success. Each case must return one solution with no
 - Two different literals.
 - A literal and a constructor.
 - Two constructors with different tags.
-- Two constructors with equal tags and different `from` fields must fail, because `eq` unifies them.
+- Two constructors with equal tags and different `from` values.
 - An occurs-check pair: `neq(x, pair(x))`.
 
 Add a test group for trivial failure. Each case must return no solutions. Cover these cases:

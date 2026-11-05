@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { AssocArray } from '../assoc-array.ts';
 import { conjN, eq, run, toIdempotent, walkLog, wrapLogs, type RuleLog, type Term } from '../mk.ts';
-import { constructorTerm, literal, variable, type VariableTerm } from './helpers.ts';
+import { con, lit, var_, type VariableTerm } from './helpers.ts';
 
 function substitution(entries: Array<[VariableTerm, Term]>): AssocArray<VariableTerm, Term> {
   return new AssocArray(entries.map(([key, value]) => ({ key, value })));
@@ -20,16 +20,16 @@ function onlySolution(solutions: Array<Solution>): Solution {
 
 describe('wrapLogs metadata', () => {
   it('records nested rules and keeps premise arguments and order', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
-    const z = variable('z', 2);
-    const first = wrapLogs('first-rule', 'first-relation', [x], eq(x, literal('first-value')));
-    const second = wrapLogs('second-rule', 'second-relation', [y], eq(y, literal('second-value')));
+    const x = var_('x', 0);
+    const y = var_('y', 1);
+    const z = var_('z', 2);
+    const first = wrapLogs('first-rule', 'first-relation', [x], eq(x, lit('first-value')));
+    const second = wrapLogs('second-rule', 'second-relation', [y], eq(y, lit('second-value')));
     const outer = wrapLogs(
       'outer-rule',
       'outer-relation',
       [z],
-      conjN(eq(z, literal('outer-value')), first, second),
+      conjN(eq(z, lit('outer-value')), first, second),
     );
 
     const solution = onlySolution(run(1, outer));
@@ -60,8 +60,8 @@ describe('wrapLogs metadata', () => {
 
 describe('wrapLogs arguments', () => {
   it('resolves stored arguments against the final substitution', () => {
-    const x = variable('x', 0);
-    const wrapped = wrapLogs('rule', 'relation', [x], eq(x, literal('resolved-value')));
+    const x = var_('x', 0);
+    const wrapped = wrapLogs('rule', 'relation', [x], eq(x, lit('resolved-value')));
 
     const solution = onlySolution(run(1, wrapped));
     const [log] = solution.log;
@@ -71,24 +71,14 @@ describe('wrapLogs arguments', () => {
 
     const resolved = walkLog(log, solution.subst);
 
-    expect(resolved.args).toEqual([literal('resolved-value')]);
+    expect(resolved.args).toEqual([lit('resolved-value')]);
   });
 });
 
 describe('wrapLogs isolation', () => {
   it('isolates child premises without duplicating parent logs', () => {
-    const parent = wrapLogs(
-      'parent-rule',
-      'parent-relation',
-      [],
-      eq(literal('parent'), literal('parent')),
-    );
-    const nested = wrapLogs(
-      'nested-rule',
-      'nested-relation',
-      [],
-      eq(literal('nested'), literal('nested')),
-    );
+    const parent = wrapLogs('parent-rule', 'parent-relation', [], eq(lit('parent'), lit('parent')));
+    const nested = wrapLogs('nested-rule', 'nested-relation', [], eq(lit('nested'), lit('nested')));
     const child = wrapLogs('child-rule', 'child-relation', [], nested);
 
     const solution = onlySolution(run(1, conjN(parent, child)));
@@ -120,48 +110,41 @@ describe('wrapLogs isolation', () => {
 
 describe('walkLog', () => {
   it('resolves constructors, literals, variables, and nested premises', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
-    const z = variable('z', 2);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
+    const z = var_('z', 2);
     const log: RuleLog = {
       rule: 'root-rule',
       relation: 'root-relation',
-      args: [
-        literal('literal-value'),
-        x,
-        constructorTerm('term', 'pair', [y, literal('nested-literal')]),
-      ],
+      args: [lit('literal-value'), x, con('term', 'pair', [y, lit('nested-literal')])],
       premises: [
         {
           rule: 'premise-rule',
           relation: 'premise-relation',
-          args: [z, constructorTerm('term', 'unit', [])],
+          args: [z, con('term', 'unit', [])],
           premises: [],
         },
       ],
     };
     const subst = substitution([
-      [x, literal('x-value')],
-      [y, constructorTerm('term', 'unit', [])],
-      [z, literal('z-value')],
+      [x, lit('x-value')],
+      [y, con('term', 'unit', [])],
+      [z, lit('z-value')],
     ]);
 
     expect(walkLog(log, subst)).toEqual({
       rule: 'root-rule',
       relation: 'root-relation',
       args: [
-        literal('literal-value'),
-        literal('x-value'),
-        constructorTerm('term', 'pair', [
-          constructorTerm('term', 'unit', []),
-          literal('nested-literal'),
-        ]),
+        lit('literal-value'),
+        lit('x-value'),
+        con('term', 'pair', [con('term', 'unit', []), lit('nested-literal')]),
       ],
       premises: [
         {
           rule: 'premise-rule',
           relation: 'premise-relation',
-          args: [literal('z-value'), constructorTerm('term', 'unit', [])],
+          args: [lit('z-value'), con('term', 'unit', [])],
           premises: [],
         },
       ],
@@ -171,51 +154,51 @@ describe('walkLog', () => {
 
 describe('toIdempotent direct bindings', () => {
   it('resolves a direct binding', () => {
-    const x = variable('x', 0);
-    const subst = substitution([[x, literal('value')]]);
+    const x = var_('x', 0);
+    const subst = substitution([[x, lit('value')]]);
 
-    expect(toIdempotent(subst).data).toEqual([{ key: x, value: literal('value') }]);
+    expect(toIdempotent(subst).data).toEqual([{ key: x, value: lit('value') }]);
   });
 
   it('resolves a binding nested in a constructor', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
     const subst = substitution([
-      [x, constructorTerm('term', 'pair', [y])],
-      [y, literal('nested-value')],
+      [x, con('term', 'pair', [y])],
+      [y, lit('nested-value')],
     ]);
 
     expect(toIdempotent(subst).data).toEqual([
-      { key: x, value: constructorTerm('term', 'pair', [literal('nested-value')]) },
-      { key: y, value: literal('nested-value') },
+      { key: x, value: con('term', 'pair', [lit('nested-value')]) },
+      { key: y, value: lit('nested-value') },
     ]);
   });
 });
 
 describe('toIdempotent chained bindings', () => {
   it('resolves a chain of bindings', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
-    const z = variable('z', 2);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
+    const z = var_('z', 2);
     const subst = substitution([
       [x, y],
       [y, z],
-      [z, literal('chained-value')],
+      [z, lit('chained-value')],
     ]);
 
     expect(toIdempotent(subst).data).toEqual([
-      { key: x, value: literal('chained-value') },
-      { key: y, value: literal('chained-value') },
-      { key: z, value: literal('chained-value') },
+      { key: x, value: lit('chained-value') },
+      { key: y, value: lit('chained-value') },
+      { key: z, value: lit('chained-value') },
     ]);
   });
 
   it('does not change the result when applied again', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
     const subst = substitution([
       [x, y],
-      [y, literal('value')],
+      [y, lit('value')],
     ]);
     const once = toIdempotent(subst);
     const twice = toIdempotent(once);

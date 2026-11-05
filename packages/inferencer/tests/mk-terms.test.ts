@@ -1,21 +1,8 @@
 import type { Term as STerm } from '@justify/core';
 import { describe, expect, it } from 'vitest';
 
-import { convertTermWithPool, eq, fresh, run, type Term, type VarPool } from '../mk.ts';
-
-type PoolVariable = VarPool[string];
-
-function variable(id: string, counter: number): PoolVariable {
-  return { is: 'var', id, counter };
-}
-
-function literal(id: string): Term {
-  return { is: 'lit', id };
-}
-
-function con(from: string, tag: string, args: Array<Term>): Term {
-  return { is: 'con', from, tag, args };
-}
+import { convertTermWithPool, eq, fresh, run, type VarPool } from '../mk.ts';
+import { con, lit, var_ } from './helpers.ts';
 
 function captureError(callback: () => unknown): unknown {
   try {
@@ -49,7 +36,7 @@ describe('convertTermWithPool', () => {
   });
 
   it('uses the existing variable from the pool', () => {
-    const pooledVariable = variable('x', 3);
+    const pooledVariable = var_('x', 3);
     const pool: VarPool = { x: pooledVariable };
 
     const term = convertTermWithPool({ is: 'ref', to: 'x' }, pool, []);
@@ -60,7 +47,7 @@ describe('convertTermWithPool', () => {
 
 describe('convertTermWithPool constructors', () => {
   it('converts nested constructor arguments', () => {
-    const pooledVariable = variable('x', 3);
+    const pooledVariable = var_('x', 3);
     const pool: VarPool = { x: pooledVariable };
     const sterm: STerm = {
       is: 'con',
@@ -101,7 +88,7 @@ describe('convertTermWithPool constructors', () => {
 
 describe('convertTermWithPool errors', () => {
   it('reports an unbound identifier with its available names', () => {
-    const pool: VarPool = { x: variable('x', 0) };
+    const pool: VarPool = { x: var_('x', 0) };
 
     const error = captureError(() =>
       convertTermWithPool({ is: 'ref', to: 'missing' }, pool, ['var']),
@@ -120,7 +107,7 @@ describe('convertTermWithPool errors', () => {
 
 describe('eq with variables and literals', () => {
   it('succeeds for identical variables without adding a substitution', () => {
-    const x = variable('x', 0);
+    const x = var_('x', 0);
 
     const solutions = run(1, eq(x, x));
 
@@ -129,8 +116,8 @@ describe('eq with variables and literals', () => {
   });
 
   it('binds a variable to another term', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
 
     const solutions = run(1, eq(x, y));
 
@@ -139,14 +126,14 @@ describe('eq with variables and literals', () => {
   });
 
   it('succeeds for matching literals', () => {
-    const solutions = run(1, eq(literal('var'), literal('var')));
+    const solutions = run(1, eq(lit('var'), lit('var')));
 
     expect(solutions).toHaveLength(1);
     expect(solutions[0]?.subst.data).toEqual([]);
   });
 
   it('fails for mismatched literals', () => {
-    const solutions = run(1, eq(literal('var'), literal('false')));
+    const solutions = run(1, eq(lit('var'), lit('false')));
 
     expect(solutions).toHaveLength(0);
   });
@@ -164,17 +151,17 @@ describe('eq with constructors', () => {
   });
 
   it('unifies variables inside nested constructors', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
     const left = con('term', 'pair', [x, con('term', 'pair', [y])]);
-    const right = con('term', 'pair', [literal('first'), con('term', 'pair', [literal('second')])]);
+    const right = con('term', 'pair', [lit('first'), con('term', 'pair', [lit('second')])]);
 
     const solutions = run(1, eq(left, right));
 
     expect(solutions).toHaveLength(1);
     expect(solutions[0]?.subst.data).toEqual([
-      { key: x, value: literal('first') },
-      { key: y, value: literal('second') },
+      { key: x, value: lit('first') },
+      { key: y, value: lit('second') },
     ]);
   });
 
@@ -199,15 +186,15 @@ describe('eq with constructors', () => {
 
 describe('eq with the occurs check', () => {
   it('rejects a direct recursive binding', () => {
-    const x = variable('x', 0);
+    const x = var_('x', 0);
     const recursive = con('term', 'pair', [x]);
 
     expectOccursCheckFailure(() => run(1, eq(x, recursive)), 'x', 0);
   });
 
   it('rejects an indirect nested recursive binding', () => {
-    const x = variable('x', 0);
-    const y = variable('y', 1);
+    const x = var_('x', 0);
+    const y = var_('y', 1);
     const [solution] = run(1, eq(x, y));
     const recursive = con('term', 'pair', [con('term', 'pair', [x])]);
 

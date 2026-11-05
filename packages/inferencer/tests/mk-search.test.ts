@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { conjN, delay, disjN, eq, run, type Goal } from '../mk.ts';
-import { literal, variable } from './helpers.ts';
+import { lit, var_ } from './helpers.ts';
 
 type Solution = ReturnType<typeof run>[number];
 
 function boundGoal(variableId: string, label: string): Goal {
-  return eq(variable(variableId, 0), literal(label));
+  return eq(var_(variableId, 0), lit(label));
 }
 
 function failedGoal(): Goal {
-  return eq(literal('expected'), literal('actual'));
+  return eq(lit('expected'), lit('actual'));
 }
 
 function controlledDisjunction(): Goal {

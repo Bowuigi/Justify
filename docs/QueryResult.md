@@ -18,7 +18,7 @@ A QueryResult document is a JSON object with the following top-level keys:
 Each element of `solutions` has:
 
 - `variables`: a map from query metavariable to a resolved term giving that metavariable's final binding in this solution. Only the query's own variables appear here. Other metavariables introduced during solving are internal and MUST NOT surface as keys in this map, even though they may appear inside the derivation.
-- `constraints`: An array of constraints that the variables must follow on instantiation for the solution to be valid. If it is empty, no extra constraints are to be assumed.
+- `constraints`: a map from constraint names to arrays of argument objects (each member of the array is a separate constraint), with each element representing one restriction on the solution shape. An array of constraints that the variables must follow on instantiation for the solution to be valid. If it is empty, no extra constraints are to be assumed.
 - `derivation`: optional. When present, it is a derivation tree proving the solution.
 
 ## Derivation trees
@@ -32,11 +32,11 @@ A derivation tree is a proof that the relation holds for the given arguments. It
 
 ## Constraints
 
-A constraint is a restriction on a solution's bindings required for it to hold. Each constraint is a JSON object with an `is` discriminator field. The following constraints are supported:
+A constraint is a restriction on a solution's possible bindings, required for that solution to hold. Constraints are grouped together based on their type, with each type of constraint requiring different arguments:
 
 ### `neq` constraint
 
-Asserts that two terms must never be equal for the solution to hold. It has the following fields:
+Asserts that two terms must never be equal for the solution to hold. It has the following arguments:
 
 - `a`: a resolved term, part of the comparison.
 - `b`: a resolved term, part of the comparison.

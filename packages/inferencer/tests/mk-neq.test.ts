@@ -12,14 +12,14 @@ function expectUnchangedState(solution: Solution): void {
 }
 
 describe('neq with trivially different terms', () => {
-  it.fails('succeeds for different literals', () => {
+  it('succeeds for different literals', () => {
     const solutions = run(1, neq(lit('a'), lit('b')));
 
     expect(solutions).toHaveLength(1);
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for a literal and a constructor', () => {
+  it('succeeds for a literal and a constructor', () => {
     const constr = con('term', 'pair', []);
 
     const solutions = run(1, neq(lit('a'), constr));
@@ -28,7 +28,7 @@ describe('neq with trivially different terms', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for constructors with different tags', () => {
+  it('succeeds for constructors with different tags', () => {
     const left = con('term', 'left', []);
     const right = con('term', 'right', []);
 
@@ -38,7 +38,7 @@ describe('neq with trivially different terms', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for constructors with equal tags and different sources', () => {
+  it('succeeds for constructors with equal tags and different sources', () => {
     const left = con('term', 'pair', []);
     const right = con('other', 'pair', []);
 
@@ -48,7 +48,7 @@ describe('neq with trivially different terms', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for an occurs-check pair', () => {
+  it('succeeds for an occurs-check pair', () => {
     const x = var_('x', 0);
     const recursive = con('term', 'pair', [x]);
 
@@ -60,7 +60,7 @@ describe('neq with trivially different terms', () => {
 });
 
 describe('neq with trivially equal terms', () => {
-  it.fails('fails for identical variables', () => {
+  it('fails for identical variables', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, neq(x, x));
@@ -68,7 +68,7 @@ describe('neq with trivially equal terms', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('fails for equal literals', () => {
+  it('fails for equal literals', () => {
     const solutions = run(1, neq(lit('a'), lit('a')));
 
     expect(solutions).toHaveLength(0);
@@ -76,7 +76,7 @@ describe('neq with trivially equal terms', () => {
 });
 
 describe('neq with bound equal terms', () => {
-  it.fails('fails for a variable bound to an equal literal', () => {
+  it('fails for a variable bound to an equal literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, conjN(eq(x, lit('a')), neq(x, lit('a'))));
@@ -84,7 +84,7 @@ describe('neq with bound equal terms', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('fails for a variable bound through a chain to an equal literal', () => {
+  it('fails for a variable bound through a chain to an equal literal', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -95,7 +95,7 @@ describe('neq with bound equal terms', () => {
 });
 
 describe('neq with equal constructors', () => {
-  it.fails('fails for equal constructors', () => {
+  it('fails for equal constructors', () => {
     const left = con('term', 'pair', []);
     const right = con('term', 'pair', []);
 
@@ -104,7 +104,7 @@ describe('neq with equal constructors', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('fails for nested constructors that become equal after bindings', () => {
+  it('fails for nested constructors that become equal after bindings', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);
@@ -117,7 +117,7 @@ describe('neq with equal constructors', () => {
 });
 
 describe('neq with deferred constraints', () => {
-  it.fails('succeeds for a variable and a literal', () => {
+  it('succeeds for a variable and a literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, neq(x, lit('a')));
@@ -126,7 +126,7 @@ describe('neq with deferred constraints', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for two variables', () => {
+  it('succeeds for two variables', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -136,7 +136,7 @@ describe('neq with deferred constraints', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for a variable inside a constructor', () => {
+  it('succeeds for a variable inside a constructor', () => {
     const x = var_('x', 0);
     const constr = con('term', 'pair', [lit('a')]);
 
@@ -146,7 +146,7 @@ describe('neq with deferred constraints', () => {
     expectUnchangedState(solutions[0]!);
   });
 
-  it.fails('succeeds for variables inside both constructors', () => {
+  it('succeeds for variables inside both constructors', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);
@@ -160,7 +160,7 @@ describe('neq with deferred constraints', () => {
 });
 
 describe('neq constraint resolution', () => {
-  it.fails('rejects a later binding that makes a variable equal to a literal', () => {
+  it('rejects a later binding that makes a variable equal to a literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, conjN(neq(x, lit('a')), eq(x, lit('a'))));
@@ -168,7 +168,7 @@ describe('neq constraint resolution', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('rejects an earlier binding that makes a variable equal to a literal', () => {
+  it('rejects an earlier binding that makes a variable equal to a literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, conjN(eq(x, lit('a')), neq(x, lit('a'))));
@@ -176,7 +176,7 @@ describe('neq constraint resolution', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('accepts a later binding that makes a variable different from a literal', () => {
+  it('accepts a later binding that makes a variable different from a literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, conjN(neq(x, lit('a')), eq(x, lit('b'))));
@@ -187,7 +187,7 @@ describe('neq constraint resolution', () => {
     expect(solutions[0]?.counter).toBe(0);
   });
 
-  it.fails('accepts an earlier binding that makes a variable different from a literal', () => {
+  it('accepts an earlier binding that makes a variable different from a literal', () => {
     const x = var_('x', 0);
 
     const solutions = run(1, conjN(eq(x, lit('b')), neq(x, lit('a'))));
@@ -200,7 +200,7 @@ describe('neq constraint resolution', () => {
 });
 
 describe('neq constraint resolution for variables', () => {
-  it.fails('rejects a later binding that makes two variables equal', () => {
+  it('rejects a later binding that makes two variables equal', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -209,7 +209,7 @@ describe('neq constraint resolution for variables', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('rejects an earlier binding that makes two variables equal', () => {
+  it('rejects an earlier binding that makes two variables equal', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -218,7 +218,7 @@ describe('neq constraint resolution for variables', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('accepts later bindings that make two variables different', () => {
+  it('accepts later bindings that make two variables different', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -233,7 +233,7 @@ describe('neq constraint resolution for variables', () => {
     expect(solutions[0]?.counter).toBe(0);
   });
 
-  it.fails('accepts earlier bindings that make two variables different', () => {
+  it('accepts earlier bindings that make two variables different', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
 
@@ -250,7 +250,7 @@ describe('neq constraint resolution for variables', () => {
 });
 
 describe('neq with nested constraint resolution', () => {
-  it.fails('rejects a later binding that makes nested variables equal', () => {
+  it('rejects a later binding that makes nested variables equal', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);
@@ -261,7 +261,7 @@ describe('neq with nested constraint resolution', () => {
     expect(solutions).toHaveLength(0);
   });
 
-  it.fails('rejects an earlier binding that makes nested variables equal', () => {
+  it('rejects an earlier binding that makes nested variables equal', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);
@@ -274,7 +274,7 @@ describe('neq with nested constraint resolution', () => {
 });
 
 describe('neq with different nested constraint resolution', () => {
-  it.fails('accepts later bindings that make nested variables different', () => {
+  it('accepts later bindings that make nested variables different', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);
@@ -291,7 +291,7 @@ describe('neq with different nested constraint resolution', () => {
     expect(solutions[0]?.counter).toBe(0);
   });
 
-  it.fails('accepts earlier bindings that make nested variables different', () => {
+  it('accepts earlier bindings that make nested variables different', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const left = con('term', 'pair', [x]);

@@ -4,5 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./lib.ts"
+  },
+  "dependencies": {
+    "fast-equals": "^6.2.2"
   }
 }

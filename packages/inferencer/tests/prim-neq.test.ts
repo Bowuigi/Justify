@@ -28,6 +28,45 @@ function pair(left: Term, right: Term): TermCon {
   return con('value', 'pair', [left, right]);
 }
 
+type Relation = System['relations'][string];
+type Rule = Relation['rules'][number];
+type Premise = Rule['premises'][number];
+
+function makeRelation(
+  description: string,
+  argumentIds: Array<string>,
+  rules: Array<Rule>,
+): Relation {
+  return {
+    description,
+    tex_parts: [],
+    fixity: 'none',
+    arguments: argumentIds.map(id => ({ from: 'value', id, tex: id })),
+    rules,
+  };
+}
+
+function rule(
+  id: string,
+  variables: Record<string, string>,
+  patterns: Record<string, Term>,
+  premises: Array<Premise>,
+): Rule {
+  return {
+    rule: { id, tex: id },
+    variables,
+    literals: {},
+    patterns,
+    premises,
+  };
+}
+
+const primNeq: Premise = { relation: 'prim_neq', args: [ref('left'), ref('right')] };
+
+function differentRule(id: string, premises: Array<Premise>): Rule {
+  return rule(id, { left: 'l', right: 'r' }, { left: ref('left'), right: ref('right') }, premises);
+}
+
 const fixtureSystem = {
   description: 'A minimal system for prim_neq premise tests',
   syntax: {
@@ -63,39 +102,64 @@ const fixtureSystem = {
     },
   },
   relations: {
-    different: {
-      description: 'Two different values',
-      tex_parts: [],
-      fixity: 'none',
-      arguments: [
-        { from: 'value', id: 'left', tex: 'l' },
-        { from: 'value', id: 'right', tex: 'r' },
+    different: makeRelation(
+      'Two different values',
+      ['left', 'right'],
+      [differentRule('diff', [primNeq])],
+    ),
+    differentPair: makeRelation(
+      'A pair with different values',
+      ['item'],
+      [
+        rule('diff-pair', { left: 'l', right: 'r' }, { item: pair(ref('left'), ref('right')) }, [
+          primNeq,
+        ]),
       ],
-      rules: [
-        {
-          rule: { id: 'diff', tex: 'Diff' },
-          variables: { left: 'l', right: 'r' },
-          literals: {},
-          patterns: { left: ref('left'), right: ref('right') },
-          premises: [{ relation: 'prim_neq', args: [ref('left'), ref('right')] }],
-        },
+    ),
+    zeroValue: makeRelation('A zero value', ['item'], [rule('zero', {}, { item: zero }, [])]),
+    successorValue: makeRelation(
+      'A successor value',
+      ['item'],
+      [rule('successor', {}, { item: successor }, [])],
+    ),
+    differentAfterBindings: makeRelation(
+      'Different values after bindings',
+      ['left', 'right'],
+      [
+        differentRule('diff-after-bindings', [
+          { relation: 'zeroValue', args: [ref('left')] },
+          { relation: 'successorValue', args: [ref('right')] },
+          primNeq,
+        ]),
       ],
-    },
-    differentPair: {
-      description: 'A pair with different values',
-      tex_parts: [],
-      fixity: 'none',
-      arguments: [{ from: 'value', id: 'item', tex: 'v' }],
-      rules: [
-        {
-          rule: { id: 'diff-pair', tex: 'Diff pair' },
-          variables: { left: 'l', right: 'r' },
-          literals: {},
-          patterns: { item: pair(ref('left'), ref('right')) },
-          premises: [{ relation: 'prim_neq', args: [ref('left'), ref('right')] }],
-        },
+    ),
+    differentWithBoundSide: makeRelation(
+      'Different values with one bound side',
+      ['left', 'right'],
+      [differentRule('diff-bound-side', [{ relation: 'zeroValue', args: [ref('left')] }, primNeq])],
+    ),
+    differentBeforeBindings: makeRelation(
+      'Different values before bindings',
+      ['left', 'right'],
+      [
+        differentRule('diff-before-bindings', [
+          primNeq,
+          { relation: 'zeroValue', args: [ref('left')] },
+          { relation: 'successorValue', args: [ref('right')] },
+        ]),
       ],
-    },
+    ),
+    differentBeforeEqualBindings: makeRelation(
+      'Equal values before bindings',
+      ['left', 'right'],
+      [
+        differentRule('diff-before-equal-bindings', [
+          primNeq,
+          { relation: 'zeroValue', args: [ref('left')] },
+          { relation: 'zeroValue', args: [ref('right')] },
+        ]),
+      ],
+    ),
   },
 } satisfies System;
 
@@ -107,6 +171,12 @@ function expectSolutions(result: Array<QueryResultSolution> | string): Array<Que
   return result;
 }
 
+function expectOneSolution(system: System, querySpec: Query): QueryResultSolution {
+  const solutions = expectSolutions(performQuery(system, querySpec));
+  expect(solutions).toHaveLength(1);
+  return solutions[0]!;
+}
+
 function derivationOf(solution: QueryResultSolution): Derivation {
   if (solution.derivation === undefined) {
     throw new Error('Expected a derivation.');
@@ -116,11 +186,9 @@ function derivationOf(solution: QueryResultSolution): Derivation {
 
 describe('prim_neq query results', () => {
   it.fails('returns a solution for different ground constructors', () => {
-    const solutions = expectSolutions(
-      performQuery(fixtureSystem, query('different', [zero, successor])),
-    );
+    const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
 
-    expect(solutions).toHaveLength(1);
+    expect(solution).toBeDefined();
   });
 
   it.fails('returns no solutions for equal ground constructors', () => {
@@ -135,11 +203,9 @@ describe('prim_neq query results', () => {
     const left = pair(zero, successor);
     const right = pair(successor, zero);
 
-    const solutions = expectSolutions(
-      performQuery(fixtureSystem, query('different', [left, right])),
-    );
+    const solution = expectOneSolution(fixtureSystem, query('different', [left, right]));
 
-    expect(solutions).toHaveLength(1);
+    expect(solution).toBeDefined();
   });
 
   it.fails('returns no solutions for equal nested constructors', () => {
@@ -156,13 +222,12 @@ describe('prim_neq query results', () => {
 
 describe('prim_neq matched pair results', () => {
   it.fails('returns a solution when a matched pair contains different values', () => {
-    const solutions = expectSolutions(
-      performQuery(fixtureSystem, query('differentPair', [pair(zero, successor)])),
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('differentPair', [pair(zero, successor)]),
     );
-    const [solution] = solutions;
 
-    expect(solutions).toHaveLength(1);
-    expect(solution?.variables).toEqual({});
+    expect(solution.variables).toEqual({});
   });
 
   it.fails('returns no solutions when a matched pair contains equal values', () => {
@@ -174,30 +239,18 @@ describe('prim_neq matched pair results', () => {
   });
 
   it.fails('returns a pending solution for two unbound query variables', () => {
-    const solutions = expectSolutions(
-      performQuery(
-        fixtureSystem,
-        query('different', [ref('left'), ref('right')], ['left', 'right']),
-      ),
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('different', [ref('left'), ref('right')], ['left', 'right']),
     );
 
-    expect(solutions).toHaveLength(1);
-    expect(Object.keys(solutions[0]!.variables)).toEqual(['left', 'right']);
+    expect(Object.keys(solution.variables)).toEqual(['left', 'right']);
   });
 });
 
 describe('prim_neq derivation', () => {
   it.fails('records a resolved prim_neq premise', () => {
-    const solutions = expectSolutions(
-      performQuery(fixtureSystem, query('different', [zero, successor])),
-    );
-    const [solution] = solutions;
-
-    expect(solution).toBeDefined();
-    if (solution === undefined) {
-      throw new Error('Expected one solution.');
-    }
-
+    const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
     const [premise] = derivationOf(solution).premises;
 
     expect(premise).toBeDefined();
@@ -205,5 +258,86 @@ describe('prim_neq derivation', () => {
     expect(premise?.rule).toBe('prim');
     expect(premise?.premises).toEqual([]);
     expect(premise?.args).toEqual([zero, successor]);
+  });
+});
+
+describe('surfaced pending prim_neq constraints', () => {
+  it.fails('surfaces a pending constraint for two unbound query variables', () => {
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('different', [ref('left'), ref('right')], ['left', 'right']),
+    );
+
+    expect(solution.constraints).toMatchInlineSnapshot(`
+      {
+        "neq": [
+          {
+            "a": {
+              "counter": 2,
+              "id": "left",
+              "is": "var",
+            },
+            "b": {
+              "counter": 3,
+              "id": "right",
+              "is": "var",
+            },
+          },
+        ],
+      }
+    `);
+  });
+});
+
+describe('surfaced absent prim_neq constraints', () => {
+  it.fails('returns no constraints for different ground constructors', () => {
+    const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
+
+    expect(solution.constraints).toEqual({ neq: [] });
+  });
+
+  it.fails('returns no constraints when earlier bindings make the terms different', () => {
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('differentAfterBindings', [ref('left'), ref('right')], ['left', 'right']),
+    );
+
+    expect(solution.constraints).toEqual({ neq: [] });
+  });
+});
+
+describe('surfaced resolved prim_neq constraints', () => {
+  it.fails('keeps a constraint with one bound side and one unbound side', () => {
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('differentWithBoundSide', [ref('left'), ref('right')], ['left', 'right']),
+    );
+
+    expect(solution.constraints.neq).toEqual([
+      {
+        a: zero,
+        b: { is: 'var', id: 'right', counter: 3 },
+      },
+    ]);
+  });
+
+  it.fails('removes a constraint when later bindings make the terms different', () => {
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('differentBeforeBindings', [ref('left'), ref('right')], ['left', 'right']),
+    );
+
+    expect(solution.constraints).toEqual({ neq: [] });
+  });
+
+  it.fails('rejects a constraint when later bindings make the terms equal', () => {
+    const solutions = expectSolutions(
+      performQuery(
+        fixtureSystem,
+        query('differentBeforeEqualBindings', [ref('left'), ref('right')], ['left', 'right']),
+      ),
+    );
+
+    expect(solutions).toEqual([]);
   });
 });

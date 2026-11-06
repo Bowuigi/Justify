@@ -1,5 +1,6 @@
 // oxlint-disable max-lines
 import type { Term as STerm } from '@justify/core';
+import { deepEqual } from 'fast-equals';
 
 /*
   MicroKanren implementation with the following augments:
@@ -190,6 +191,24 @@ function unifyArray(
   return oldSubst;
 }
 
+function equalTerms(termA: Term, termB: Term, subst: Substitution): boolean {
+  try {
+    const unifier = unify(walk(termA, subst), walk(termB, subst), subst);
+    return deepEqual(unifier?.data, subst.data);
+  } catch {
+    return false;
+  }
+}
+
+function isSubstitutionInconsistent(subst: Substitution, constraints: Constraints): boolean {
+  for (const { a, b } of constraints.neq.values()) {
+    if (equalTerms(a, b, subst)) return true;
+  }
+  return false;
+}
+
+//// Stream operations
+
 function appendStream(streamA: Stream, streamB: Stream): Stream {
   switch (streamA.is) {
     case 'nil': {
@@ -341,6 +360,8 @@ export function eq(termA: Term, termB: Term): Goal {
     const newSubst = unify(walk(termA, st.subst), walk(termB, st.subst), st.subst);
 
     if (newSubst === null) return { is: 'nil' };
+    if (isSubstitutionInconsistent(newSubst, st.constraints)) return { is: 'nil' };
+
     return {
       is: 'cons',
       solution: { ...st, subst: newSubst },
@@ -349,8 +370,21 @@ export function eq(termA: Term, termB: Term): Goal {
   };
 }
 
-export function neq(_termA: Term, _termB: Term): Goal {
-  throw new Error('Not yet implemented');
+export function neq(termA: Term, termB: Term): Goal {
+  return (st: State) => {
+    const constraints: Constraints = {
+      ...st.constraints,
+      neq: [...st.constraints.neq, { a: termA, b: termB }],
+    };
+
+    if (isSubstitutionInconsistent(st.subst, constraints)) return { is: 'nil' };
+
+    return {
+      is: 'cons',
+      solution: { ...st, constraints },
+      next: { is: 'nil' },
+    };
+  };
 }
 
 /// Relations and relation combinators

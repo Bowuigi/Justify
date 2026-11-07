@@ -174,12 +174,12 @@ Do not add CLI test files. Verify the output with a temporary System and Query u
 - A query with two unbound variables and a pending `prim_neq` constraint prints one inequality line in non-machine mode.
 - A query with no constraints prints no inequality line.
 - `npm test -- --project cli` passes.
-- `npx @justify/cli infer -m` still prints the same QueryResult JSON shape.
-- `npm run lint`, `npm run fmt`, and `npm run fmt:check` pass.
+- `npx @justify/cli infer -m` still prints the same QueryResult JSON shape (snapshot on `/tmp/pi-experiments/` before and diff after changes).
+- `npm run lint`, `npm run fmt`, and `npm run test` pass.
 
 **Test-in-code-tested**
 
-- None. The user chose playground and integration testing for this display change.
+- None.
 
 ### Phase 4: Render `prim_neq` in TeX
 

@@ -313,6 +313,13 @@
                 { "is": "ref", "to": "t1" },
                 { "is": "ref", "to": "ctx" }
               ]
+            },
+            {
+              "relation": "prim_neq",
+              "args": [
+                { "is": "ref", "to": "x" },
+                { "is": "ref", "to": "y" }
+              ]
             }
           ]
         }

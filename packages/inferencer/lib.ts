@@ -42,7 +42,7 @@ export function performQuery(system: System, query: Query): Array<QueryResultSol
       );
 
       const derivation: Derivation = MK.walkLog(rslt.log[0]!, idempotentSubst);
-      const constraints: QueryResultSolutionConstraints = MK.walkConstraints(
+      const constraints: QueryResultSolutionConstraints = MK.cleanConstraints(
         rslt.constraints,
         idempotentSubst,
       );

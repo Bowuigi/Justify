@@ -1,3 +1,4 @@
+// oxlint-disable max-lines
 import type { Derivation, Query, QueryResultSolution, System, Term, TermCon } from '@justify/core';
 import { describe, expect, it } from 'vitest';
 
@@ -185,13 +186,13 @@ function derivationOf(solution: QueryResultSolution): Derivation {
 }
 
 describe('prim_neq query results', () => {
-  it.fails('returns a solution for different ground constructors', () => {
+  it('returns a solution for different ground constructors', () => {
     const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
 
     expect(solution).toBeDefined();
   });
 
-  it.fails('returns no solutions for equal ground constructors', () => {
+  it('returns no solutions for equal ground constructors', () => {
     const solutions = expectSolutions(
       performQuery(fixtureSystem, query('different', [zero, zero])),
     );
@@ -199,7 +200,7 @@ describe('prim_neq query results', () => {
     expect(solutions).toEqual([]);
   });
 
-  it.fails('returns a solution for different nested constructors', () => {
+  it('returns a solution for different nested constructors', () => {
     const left = pair(zero, successor);
     const right = pair(successor, zero);
 
@@ -208,7 +209,7 @@ describe('prim_neq query results', () => {
     expect(solution).toBeDefined();
   });
 
-  it.fails('returns no solutions for equal nested constructors', () => {
+  it('returns no solutions for equal nested constructors', () => {
     const left = pair(zero, successor);
     const right = pair(zero, successor);
 
@@ -221,7 +222,7 @@ describe('prim_neq query results', () => {
 });
 
 describe('prim_neq matched pair results', () => {
-  it.fails('returns a solution when a matched pair contains different values', () => {
+  it('returns a solution when a matched pair contains different values', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('differentPair', [pair(zero, successor)]),
@@ -230,7 +231,7 @@ describe('prim_neq matched pair results', () => {
     expect(solution.variables).toEqual({});
   });
 
-  it.fails('returns no solutions when a matched pair contains equal values', () => {
+  it('returns no solutions when a matched pair contains equal values', () => {
     const solutions = expectSolutions(
       performQuery(fixtureSystem, query('differentPair', [pair(zero, zero)])),
     );
@@ -238,7 +239,7 @@ describe('prim_neq matched pair results', () => {
     expect(solutions).toEqual([]);
   });
 
-  it.fails('returns a pending solution for two unbound query variables', () => {
+  it('returns a pending solution for two unbound query variables', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('different', [ref('left'), ref('right')], ['left', 'right']),
@@ -249,7 +250,7 @@ describe('prim_neq matched pair results', () => {
 });
 
 describe('prim_neq derivation', () => {
-  it.fails('records a resolved prim_neq premise', () => {
+  it('records a resolved prim_neq premise', () => {
     const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
     const [premise] = derivationOf(solution).premises;
 
@@ -262,7 +263,7 @@ describe('prim_neq derivation', () => {
 });
 
 describe('surfaced pending prim_neq constraints', () => {
-  it.fails('surfaces a pending constraint for two unbound query variables', () => {
+  it('surfaces a pending constraint for two unbound query variables', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('different', [ref('left'), ref('right')], ['left', 'right']),
@@ -290,13 +291,13 @@ describe('surfaced pending prim_neq constraints', () => {
 });
 
 describe('surfaced absent prim_neq constraints', () => {
-  it.fails('returns no constraints for different ground constructors', () => {
+  it('returns no constraints for different ground constructors', () => {
     const solution = expectOneSolution(fixtureSystem, query('different', [zero, successor]));
 
     expect(solution.constraints).toEqual({ neq: [] });
   });
 
-  it.fails('returns no constraints when earlier bindings make the terms different', () => {
+  it('returns no constraints when earlier bindings make the terms different', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('differentAfterBindings', [ref('left'), ref('right')], ['left', 'right']),
@@ -307,7 +308,7 @@ describe('surfaced absent prim_neq constraints', () => {
 });
 
 describe('surfaced resolved prim_neq constraints', () => {
-  it.fails('keeps a constraint with one bound side and one unbound side', () => {
+  it('keeps a constraint with one bound side and one unbound side', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('differentWithBoundSide', [ref('left'), ref('right')], ['left', 'right']),
@@ -321,7 +322,7 @@ describe('surfaced resolved prim_neq constraints', () => {
     ]);
   });
 
-  it.fails('removes a constraint when later bindings make the terms different', () => {
+  it('removes a constraint when later bindings make the terms different', () => {
     const solution = expectOneSolution(
       fixtureSystem,
       query('differentBeforeBindings', [ref('left'), ref('right')], ['left', 'right']),
@@ -330,7 +331,7 @@ describe('surfaced resolved prim_neq constraints', () => {
     expect(solution.constraints).toEqual({ neq: [] });
   });
 
-  it.fails('rejects a constraint when later bindings make the terms equal', () => {
+  it('rejects a constraint when later bindings make the terms equal', () => {
     const solutions = expectSolutions(
       performQuery(
         fixtureSystem,
@@ -339,5 +340,28 @@ describe('surfaced resolved prim_neq constraints', () => {
     );
 
     expect(solutions).toEqual([]);
+  });
+});
+
+describe('top-level prim_neq query', () => {
+  it('returns no solutions for equal ground constructors', () => {
+    const solutions = expectSolutions(performQuery(fixtureSystem, query('prim_neq', [zero, zero])));
+
+    expect(solutions).toEqual([]);
+  });
+
+  it('returns a solution without constraints for different ground constructors', () => {
+    const solution = expectOneSolution(fixtureSystem, query('prim_neq', [zero, successor]));
+
+    expect(solution.constraints).toEqual({ neq: [] });
+  });
+
+  it('returns a solution with one constraint for two unbound variables', () => {
+    const solution = expectOneSolution(
+      fixtureSystem,
+      query('prim_neq', [ref('left'), ref('right')], ['left', 'right']),
+    );
+
+    expect(solution.constraints.neq).toHaveLength(1);
   });
 });

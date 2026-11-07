@@ -306,9 +306,25 @@ export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   };
 }
 
-export function walkConstraints(c: Constraints, subst: Substitution): Constraints {
+function hasVariable(term: Term): boolean {
+  switch (term.is) {
+    case 'var': {
+      return true;
+    }
+    case 'lit': {
+      return false;
+    }
+    case 'con': {
+      return term.args.some(a => hasVariable(a));
+    }
+  }
+}
+
+export function cleanConstraints(c: Constraints, subst: Substitution): Constraints {
   return {
-    neq: c.neq.map(({ a, b }) => ({ a: walkAll(a, subst), b: walkAll(b, subst) })),
+    neq: c.neq
+      .map(({ a, b }) => ({ a: walkAll(a, subst), b: walkAll(b, subst) }))
+      .filter(({ a, b }) => hasVariable(a) || hasVariable(b)),
   };
 }
 

@@ -1,7 +1,7 @@
 {
   "variables": { "ctx": "\\Gamma", "x": "x", "t": "\\tau" },
   "literals": {},
-  "max_results": 2,
+  "max_results": 5,
   "relation": "member",
   "args": [
     { "is": "ref", "to": "x" },

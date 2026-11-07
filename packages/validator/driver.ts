@@ -196,6 +196,20 @@ export function validateQueryResult(
       );
       onDerivationTerm(errors, ['query-result', solIx, 'variables', solVarId], solVarDef, system);
     }
+    for (const [constraintIx, constraint] of sol.constraints.neq.entries()) {
+      onDerivationTerm(
+        errors,
+        ['query-result', solIx, 'constraints', 'neq', constraintIx, 'a'],
+        constraint.a,
+        system,
+      );
+      onDerivationTerm(
+        errors,
+        ['query-result', solIx, 'constraints', 'neq', constraintIx, 'b'],
+        constraint.b,
+        system,
+      );
+    }
     if (sol.derivation !== undefined) {
       onDerivation(errors, ['query-result', solIx, 'derivation'], sol.derivation, system);
     }

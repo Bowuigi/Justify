@@ -14,7 +14,32 @@ export interface UndefinedRelationInQuery extends C.ModuleError<'ODR', 'Q'> {
   allRelationIds: Array<string>;
 }
 
-export type PushedError = UndefinedRelationInPremise | UndefinedRelationInQuery;
+export interface ReservedRelationName extends C.ModuleError<'ODR', 'R'> {
+  relationId: string;
+}
+
+export type PushedError =
+  | UndefinedRelationInPremise
+  | UndefinedRelationInQuery
+  | ReservedRelationName;
+
+export function onRelation(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  relId: T.Identifier,
+  relDef: T.SystemRelation,
+  system: T.System,
+): void {
+  if (relId === 'prim_neq') {
+    errors.push({
+      moduleId: 'ODR',
+      id: 'ODR-R',
+      sourceOfTruthLocation: null,
+      location: path,
+      relationId: relId,
+    });
+  }
+}
 
 export function onQuery(
   errors: C.ErrorStack<PushedError>,
@@ -22,7 +47,7 @@ export function onQuery(
   query: T.Query,
   system: T.System,
 ): void {
-  if (!(query.relation in system.relations)) {
+  if (query.relation !== 'prim_neq' && !(query.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',
       id: 'ODR-Q',
@@ -40,7 +65,7 @@ export function onPremise(
   premise: T.SystemRelationRulePremise,
   system: T.System,
 ): void {
-  if (!(premise.relation in system.relations)) {
+  if (premise.relation !== 'prim_neq' && !(premise.relation in system.relations)) {
     errors.push({
       moduleId: 'ODR',
       id: 'ODR-P',
@@ -67,6 +92,19 @@ export function formatError(err: PushedError): C.ModuleErrorInfo {
       return {
         message: ['Undefined relation in query: ', C.highlightError(err.relationId)],
         hints: [['Expected ', ...C.displayIterable('relation', 'relations', err.allRelationIds)]],
+        location: err.location,
+        sourceOfTruthLocation: err.sourceOfTruthLocation,
+        id: err.id,
+      };
+    }
+    case 'ODR-R': {
+      return {
+        message: [
+          'Cannot define relation named ',
+          C.highlightError(err.relationId),
+          ', name reserved',
+        ],
+        hints: [],
         location: err.location,
         sourceOfTruthLocation: err.sourceOfTruthLocation,
         id: err.id,

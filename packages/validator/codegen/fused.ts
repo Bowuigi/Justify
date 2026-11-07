@@ -34,16 +34,6 @@ export function onPatterns(
   PMA.onPatterns(errors, path, relationId, patterns, system);
 }
 
-export function onRelation(
-  errors: C.ErrorStack<PushedError>,
-  path: C.LocationPath,
-  relId: T.Identifier,
-  relDef: T.SystemRelation,
-  system: T.System,
-): void {
-  VI.onRelation(errors, path, relId, relDef, system);
-}
-
 export function onSynCat(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -70,6 +60,17 @@ export function onDerivation(
   system: T.System,
 ): void {
   VI.onDerivation(errors, path, derivation, system);
+}
+
+export function onRelation(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  relId: T.Identifier,
+  relDef: T.SystemRelation,
+  system: T.System,
+): void {
+  VI.onRelation(errors, path, relId, relDef, system);
+  ODR.onRelation(errors, path, relId, relDef, system);
 }
 
 export function onTermCon(
@@ -168,6 +169,7 @@ export function onQuery(
 ): void {
   VI.onQuery(errors, path, query, system);
   ODR.onQuery(errors, path, query, system);
+  CAC.onQuery(errors, path, query, system);
 }
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {

@@ -190,7 +190,7 @@ describe('canonical context-membership example', () => {
     );
     const solutions = expectSolutions(performQuery(system, query));
 
-    expect(solutions).toHaveLength(2);
+    expect(solutions).toHaveLength(5);
     const rules = solutions.map(solution => solution.derivation?.rule);
     expect(rules).toContain('found');
     expect(rules).toContain('next');
@@ -232,4 +232,20 @@ describe('canonical open-ended judging example', () => {
     expect(premiseRules).toContain('lam');
     expect(premiseRules).toContain('unit');
   });
+
+  it.each([9, 10])(
+    'prunes infinite-type branches instead of aborting with max_results %i',
+    async maxResults => {
+      const { system, query } = await loadExample(
+        'examples/stlc-unit/system.json',
+        'examples/stlc-unit/query-judge.json',
+      );
+      const solutions = expectSolutions(
+        performQuery(system, { ...query, max_results: maxResults }),
+      );
+
+      expect(solutions).toHaveLength(maxResults);
+      expect(solutions.every(solution => solution.derivation !== undefined)).toBe(true);
+    },
+  );
 });

@@ -13,21 +13,6 @@ function captureError(callback: () => unknown): unknown {
   throw new Error('Expected the callback to throw.');
 }
 
-function expectOccursCheckFailure(
-  callback: () => unknown,
-  variableId: string,
-  counter: number,
-): void {
-  const error = captureError(callback);
-
-  expect(error).toBeInstanceOf(Error);
-  expect(error).toMatchObject({
-    name: 'OccursCheckFailedError',
-    message: expect.stringContaining(`Occurs check failed for variable ${variableId}@${counter}`),
-    variable: { id: variableId, counter },
-  });
-}
-
 describe('convertTermWithPool', () => {
   it('converts a literal reference to a literal term', () => {
     const term = convertTermWithPool({ is: 'ref', to: 'var' }, {}, ['var']);
@@ -185,21 +170,21 @@ describe('eq with constructors', () => {
 });
 
 describe('eq with the occurs check', () => {
-  it('rejects a direct recursive binding', () => {
+  it('fails instead of throwing for a direct recursive binding', () => {
     const x = var_('x', 0);
     const recursive = con('term', 'pair', [x]);
 
-    expectOccursCheckFailure(() => run(1, eq(x, recursive)), 'x', 0);
+    expect(run(1, eq(x, recursive))).toHaveLength(0);
   });
 
-  it('rejects an indirect nested recursive binding', () => {
+  it('fails instead of throwing for an indirect nested recursive binding', () => {
     const x = var_('x', 0);
     const y = var_('y', 1);
     const [solution] = run(1, eq(x, y));
     const recursive = con('term', 'pair', [con('term', 'pair', [x])]);
 
     expect(solution).toBeDefined();
-    expectOccursCheckFailure(() => eq(y, recursive)(solution!), 'y', 1);
+    expect(eq(y, recursive)(solution!)).toMatchObject({ is: 'nil' });
   });
 });
 

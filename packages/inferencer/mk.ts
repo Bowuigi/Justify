@@ -65,20 +65,6 @@ export type Goal = (st: State) => Stream;
 
 export type VarPool = Record<string, Var>;
 
-class OccursCheckFailedError extends Error {
-  public variable: Var;
-  public term: Term;
-  public subst: Substitution;
-
-  public constructor(variable: Var, term: Term, subst: Substitution) {
-    super(`Occurs check failed for variable ${variable.id}@${variable.counter}.`);
-    this.name = 'OccursCheckFailedError';
-    this.variable = variable;
-    this.term = term;
-    this.subst = subst;
-  }
-}
-
 class UnboundIdentifierError extends Error {
   public variable: string;
   public variableList: Array<string>;
@@ -143,9 +129,9 @@ function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
   }
 }
 
-function extendSubstitution(variable: Var, term: Term, subst: Substitution): Substitution {
+function extendSubstitution(variable: Var, term: Term, subst: Substitution): Substitution | null {
   if (occursCheck(variable, term, subst)) {
-    throw new OccursCheckFailedError(variable, term, subst);
+    return null;
   }
   return subst.insert(variable, term);
 }
@@ -192,12 +178,8 @@ function unifyArray(
 }
 
 function equalTerms(termA: Term, termB: Term, subst: Substitution): boolean {
-  try {
-    const unifier = unify(walk(termA, subst), walk(termB, subst), subst);
-    return deepEqual(unifier?.data, subst.data);
-  } catch {
-    return false;
-  }
+  const unifier = unify(walk(termA, subst), walk(termB, subst), subst);
+  return deepEqual(unifier?.data, subst.data);
 }
 
 function isSubstitutionInconsistent(subst: Substitution, constraints: Constraints): boolean {

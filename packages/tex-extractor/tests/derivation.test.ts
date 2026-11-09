@@ -1,4 +1,4 @@
-import type { Derivation, DerivationTerm, System } from '@justify/core';
+import type { Derivation, DerivationTerm, System, Term } from '@justify/core';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -74,6 +74,29 @@ const jyTree = (rule: string, premises: string, conclusion: string): string =>
   commandOf('system', 'tree', [rule, premises, conclusion]);
 
 const zeroCon: DerivationTerm = { is: 'con', from: 'number', tag: 'zero', args: [] };
+const zeroTerm: Term = { is: 'con', from: 'number', tag: 'zero', args: [] };
+
+const systemWithPrimNeqPremise: System = {
+  description: 'Test System',
+  syntax: system.syntax,
+  relations: {
+    distinct: {
+      description: 'Distinct numbers',
+      tex_parts: ['D'],
+      fixity: 'none',
+      arguments: [{ from: 'number', id: 'x', tex: 'x' }],
+      rules: [
+        {
+          rule: { id: 'neq', tex: 'Neq' },
+          variables: {},
+          literals: {},
+          patterns: { x: zeroTerm },
+          premises: [{ relation: 'prim_neq', args: [zeroTerm, zeroTerm] }],
+        },
+      ],
+    },
+  },
+};
 
 function succCon(arg: DerivationTerm): DerivationTerm {
   return { is: 'con', from: 'number', tag: 'succ', args: [arg] };
@@ -88,6 +111,16 @@ describe('extractTeX', () => {
     const output = extractTeX(system);
     expect(output).toContain(String.raw`\newcommand{\jyTree}`);
     expect(output).toContain(String.raw`\newcommand{\jyInfer}`);
+  });
+
+  it(String.raw`defines the built-in \jrPrimNeq relation macro`, () => {
+    const output = extractTeX(system);
+    expect(output).toContain(String.raw`\newcommand{\jrPrimNeq}[2]{#1 \neq #2}`);
+  });
+
+  it('renders a prim_neq premise with the built-in relation command', () => {
+    const output = extractTeX(systemWithPrimNeqPremise);
+    expect(output).toContain(String.raw`\jrPrimNeq{\jgNumberZero{}}{\jgNumberZero{}}`);
   });
 });
 
@@ -173,18 +206,36 @@ describe('extractDerivationTeX', () => {
   });
 });
 
+describe('extractDerivationTeX for prim_neq', () => {
+  it(String.raw`renders a prim_neq leaf with the \neq rule label and resolved arguments`, () => {
+    const derivation: Derivation = {
+      relation: 'prim_neq',
+      rule: 'prim',
+      args: [
+        { is: 'var', id: 'p', counter: 2 },
+        { is: 'var', id: 'q', counter: 1 },
+      ],
+      premises: [],
+    };
+    const conclusion = commandOf('relation', 'prim_neq', ['p^{2}', 'q^{1}']);
+    expect(extractDerivationTeX(system, derivation, queryScope)).toBe(
+      jyTree(String.raw`$\!\neq\!$`, '', conclusion),
+    );
+  });
+});
+
 describe('extractDerivationTeX scopes', () => {
   it('renders a root variable using the Query mapping and its counter as a superscript', () => {
     const derivation = leafDerivation({ is: 'var', id: 'p', counter: 7 });
     expect(extractDerivationTeX(system, derivation, queryScope)).toBe(
-      jyTree('Base', '', rJudge(String.raw`p^{7}`)),
+      jyTree('Base', '', rJudge('p^{7}')),
     );
   });
 
   it('renders a nested variable using the selected rule mapping and its counter as a superscript', () => {
     const derivation = leafDerivation({ is: 'var', id: 'n', counter: 3 });
     expect(extractDerivationTeX(system, derivation, ruleScope)).toBe(
-      jyTree('Base', '', rJudge(String.raw`n^{3}`)),
+      jyTree('Base', '', rJudge('n^{3}')),
     );
   });
 

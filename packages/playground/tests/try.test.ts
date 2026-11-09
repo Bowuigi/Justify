@@ -1,4 +1,4 @@
-import type { DerivationTerm, Query, System } from '@justify/core';
+import type { DerivationTerm, Query, QueryResultSolution, System } from '@justify/core';
 import type * as Inferencer from '@justify/inferencer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -62,9 +62,13 @@ const validQuery: Query = {
 const validQueryText = JSON.stringify(validQuery);
 
 const zeroTerm: DerivationTerm = { is: 'con', from: 'number', tag: 'zero', args: [] };
+const emptyConstraints: QueryResultSolution['constraints'] = { neq: [] };
 
-function solutionWith(term: DerivationTerm): { variables: Record<string, DerivationTerm> } {
-  return { variables: { p: term } };
+function solutionWith(
+  term: DerivationTerm,
+  constraints: QueryResultSolution['constraints'] = emptyConstraints,
+): QueryResultSolution {
+  return { variables: { p: term }, constraints };
 }
 
 function throwNonError(): never {
@@ -123,6 +127,8 @@ describe('tryQuery performs', () => {
       { id: 'p', texId: 'p', texValue: String.raw`\jgNumberZero{}` },
     ]);
     expect(outcome.solutions[0]!.derivationTeX).toBeNull();
+    expect(outcome.solutions[0]!.constraints).toEqual([]);
+    expect(outcome.solutions[0]!.unboundVariables).toEqual([]);
   });
 
   it('keeps solutions in inferencer order', () => {
@@ -135,6 +141,45 @@ describe('tryQuery performs', () => {
     expect(outcome.status).toBe('success');
     if (outcome.status !== 'success') return;
     expect(outcome.solutions).toHaveLength(3);
+  });
+});
+
+describe('tryQuery constraints', () => {
+  beforeEach(() => {
+    performed.performQuery.mockReset();
+  });
+
+  it('converts pending disequality constraints to TeX', () => {
+    const left: DerivationTerm = { is: 'var', id: 'p', counter: 0 };
+    const right: DerivationTerm = { is: 'var', id: 'q', counter: 0 };
+    performed.performQuery.mockReturnValue([
+      solutionWith(zeroTerm, { neq: [{ a: left, b: right }] }),
+    ]);
+
+    const outcome = tryQuery(validQueryText, system);
+    expect(outcome.status).toBe('success');
+    if (outcome.status !== 'success') return;
+    expect(outcome.solutions[0]!.constraints).toEqual([
+      { left: String.raw`p^{0}`, right: String.raw`q^{0}` },
+    ]);
+  });
+
+  it('reports query variables that remain unbound in pending constraints', () => {
+    const unbound: DerivationTerm = { is: 'var', id: 'p', counter: 0 };
+    const nested: DerivationTerm = {
+      is: 'con',
+      from: 'number',
+      tag: 'succ',
+      args: [unbound],
+    };
+    performed.performQuery.mockReturnValue([
+      { variables: {}, constraints: { neq: [{ a: zeroTerm, b: nested }] } },
+    ]);
+
+    const outcome = tryQuery(validQueryText, system);
+    expect(outcome.status).toBe('success');
+    if (outcome.status !== 'success') return;
+    expect(outcome.solutions[0]!.unboundVariables).toEqual([{ id: 'p', texId: 'p' }]);
   });
 });
 

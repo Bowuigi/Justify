@@ -21,8 +21,20 @@ export interface TryBinding {
   texValue: string;
 }
 
+export interface TryConstraint {
+  left: string;
+  right: string;
+}
+
+export interface TryUnboundVariable {
+  id: string;
+  texId: string;
+}
+
 export interface TrySolution {
   bindings: Array<TryBinding>;
+  unboundVariables: Array<TryUnboundVariable>;
+  constraints: Array<TryConstraint>;
   derivationTeX: string | null;
 }
 
@@ -49,6 +61,56 @@ export type TryOutcome = TryEmpty | TryInvalid | TryFatal | TrySuccess;
 
 function termTeX(term: DerivationTerm, scope: TeXScope): string {
   return extractDerivationTermTeX(term, scope);
+}
+
+function collectVariableIds(term: DerivationTerm, ids: Set<string>): void {
+  if (term.is === 'var') {
+    ids.add(term.id);
+  } else if (term.is === 'con') {
+    for (const argument of term.args) {
+      collectVariableIds(argument, ids);
+    }
+  }
+}
+
+function findUnboundVariables(
+  solution: QueryResultSolution,
+  scope: TeXScope,
+): Array<TryUnboundVariable> {
+  const referencedIds = new Set<string>();
+  for (const { a, b } of solution.constraints.neq) {
+    collectVariableIds(a, referencedIds);
+    collectVariableIds(b, referencedIds);
+  }
+
+  return Object.entries(scope.variables)
+    .filter(([id]) => !Object.hasOwn(solution.variables, id) && referencedIds.has(id))
+    .map(([id, texId]) => ({ id, texId }));
+}
+
+function toTrySolution(
+  solution: QueryResultSolution,
+  system: System,
+  scope: TeXScope,
+): TrySolution {
+  const bindings: Array<TryBinding> = Object.entries(solution.variables).map(([id, term]) => ({
+    id,
+    texId: scope.variables[id] ?? id,
+    texValue: termTeX(term, scope),
+  }));
+
+  const constraints: Array<TryConstraint> = solution.constraints.neq.map(({ a, b }) => ({
+    left: termTeX(a, scope),
+    right: termTeX(b, scope),
+  }));
+
+  const unboundVariables = findUnboundVariables(solution, scope);
+
+  const derivationTeX = solution.derivation
+    ? extractDerivationTeX(system, solution.derivation, scope)
+    : null;
+
+  return { bindings, unboundVariables, constraints, derivationTeX };
 }
 
 export function tryQuery(queryText: string, system: System): TryOutcome {
@@ -82,19 +144,9 @@ export function tryQuery(queryText: string, system: System): TryOutcome {
     literals: loaded.value.literals,
   };
 
-  const solutions: Array<TrySolution> = performed.map(solution => {
-    const bindings: Array<TryBinding> = Object.entries(solution.variables).map(([id, term]) => ({
-      id,
-      texId: rootScope.variables[id] ?? id,
-      texValue: termTeX(term, rootScope),
-    }));
-
-    const derivationTeX = solution.derivation
-      ? extractDerivationTeX(system, solution.derivation, rootScope)
-      : null;
-
-    return { bindings, derivationTeX };
-  });
+  const solutions: Array<TrySolution> = performed.map(solution =>
+    toTrySolution(solution, system, rootScope),
+  );
 
   return { status: 'success', solutions };
 }

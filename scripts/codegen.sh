@@ -18,7 +18,7 @@ npx peggy --format es --dts --return-types "$(jq -n -c '{
     conclusion: RelationCall,
   };
   export type RelationCall = {rel: string, args: Array<Term>};
-  export type Term = {is: \"ref\", to: string} | {is: \"con\", tag: string, args: Array<Term>}"
+  export type Term = {is: \"ref\", to: string} | {is: \"con\", from?: string, tag: string, args: Array<Term>}"
     | gsub("[ \n\t]"; " ")
 }')" -o packages/markdown-dsl/codegen/rule-parser.js packages/markdown-dsl/formats/rule.peggyjs
 

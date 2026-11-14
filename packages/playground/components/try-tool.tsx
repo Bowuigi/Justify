@@ -7,28 +7,62 @@ import { DiagnosticCard } from './diagnostic-card.tsx';
 import { TexBlock } from './tex-block.tsx';
 import { ToolGuard } from './tool-guard.tsx';
 
+function BindingRows({ solution }: { solution: TrySolution }): JSX.Element {
+  return (
+    <div class="space-y-1 ml-4 flex flex-col gap-0">
+      {solution.bindings.map((binding, ix) => (
+        <div key={ix} class="flex items-baseline gap-1">
+          <span class="font-semibold">{binding.id}</span>
+          {' / '}
+          <TexBlock expression={binding.texId} />
+          {' = '}
+          <TexBlock expression={binding.texValue} />
+        </div>
+      ))}
+      {solution.unboundVariables.map((variable, ix) => (
+        <div key={`unbound-${ix}`} class="flex items-baseline gap-1">
+          <span class="font-semibold">{variable.id}</span>
+          {' / '}
+          <TexBlock expression={variable.texId} />
+          <span class="italic text-base-content/60">unbound</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ConstraintRows({ solution }: { solution: TrySolution }): JSX.Element {
+  return (
+    <div class="space-y-1 ml-4 flex flex-col gap-0">
+      {solution.constraints.map((constraint, ix) => (
+        <div key={`constraint-${ix}`} class="flex items-baseline gap-1">
+          <TexBlock expression={constraint.left} />
+          {' ≠ '}
+          <TexBlock expression={constraint.right} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Solution({ solution, index }: { solution: TrySolution; index: number }): JSX.Element {
   return (
     <div class="rounded-lg p-3 mb-2" data-testid="try-solution">
       <h2 class="text-xl font-bold">Solution N° {index + 1}:</h2>
-      {solution.bindings.length > 0 && (
+      {(solution.bindings.length > 0 || solution.unboundVariables.length > 0) && (
         <div class="mb-0">
           <h3 class="text-lg font-semibold mb-1">Bindings</h3>
-          <div class="space-y-1 ml-4 flex flex-col gap-0">
-            {solution.bindings.map((binding, ix) => (
-              <div key={ix} class="flex items-baseline gap-1">
-                <span class="font-semibold">{binding.id}</span>
-                {' / '}
-                <TexBlock expression={binding.texId} />
-                {' = '}
-                <TexBlock expression={binding.texValue} />
-              </div>
-            ))}
-          </div>
+          <BindingRows solution={solution} />
+        </div>
+      )}
+      {solution.constraints.length > 0 && (
+        <div>
+          <h3 class="text-lg font-semibold mb-1">Constraints</h3>
+          <ConstraintRows solution={solution} />
         </div>
       )}
       {solution.derivationTeX !== null && (
-        <div class="mt-1">
+        <div>
           <h3 class="text-lg font-semibold mb-1">Derivation</h3>
           <TexBlock expression={solution.derivationTeX} />
         </div>

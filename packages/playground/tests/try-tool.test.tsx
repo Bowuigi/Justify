@@ -60,6 +60,7 @@ const zeroCon = { is: 'con', from: 'number', tag: 'zero', args: [] };
 
 const solutionWithBinding = {
   variables: { x: zeroCon },
+  constraints: { neq: [] },
   derivation: undefined,
 };
 
@@ -134,8 +135,8 @@ describe('TryTool results display', () => {
   it('shows every solution in inferencer order', () => {
     const { container } = mount();
     performed.performQuery.mockReturnValue([
-      { variables: { x: zeroCon }, derivation: undefined },
-      { variables: { x: zeroCon }, derivation: undefined },
+      { variables: { x: zeroCon }, constraints: { neq: [] }, derivation: undefined },
+      { variables: { x: zeroCon }, constraints: { neq: [] }, derivation: undefined },
     ]);
     typeQuery(container, validQueryText);
 
@@ -150,7 +151,9 @@ describe('TryTool results display', () => {
       args: [zeroCon, zeroCon, zeroCon],
       premises: [],
     };
-    performed.performQuery.mockReturnValue([{ variables: { x: zeroCon }, derivation }]);
+    performed.performQuery.mockReturnValue([
+      { variables: { x: zeroCon }, constraints: { neq: [] }, derivation },
+    ]);
     const { container } = mount();
     typeQuery(container, validQueryText);
 
@@ -160,13 +163,50 @@ describe('TryTool results display', () => {
     expect(container.querySelector('.katex-error')).toBeNull();
   });
 
-  it('omits the bindings section when a solution has no variables', () => {
-    performed.performQuery.mockReturnValue([{ variables: {}, derivation: undefined }]);
+  it('omits the bindings section when a solution has no variables or constraints', () => {
+    performed.performQuery.mockReturnValue([
+      { variables: {}, constraints: { neq: [] }, derivation: undefined },
+    ]);
     const { container } = mount();
     typeQuery(container, validQueryText);
 
     const solution = container.querySelector('[data-testid="try-solution"]')!;
     expect(solution.textContent).not.toContain('Bindings');
+    expect(solution.textContent).not.toContain('≠');
+  });
+});
+
+describe('TryTool constraints', () => {
+  it('shows pending constraints and the variables that remain unbound', () => {
+    performed.performQuery.mockReturnValue([
+      {
+        variables: {},
+        constraints: {
+          neq: [
+            {
+              a: zeroCon,
+              b: {
+                is: 'con',
+                from: 'number',
+                tag: 'succ',
+                args: [{ is: 'var', id: 'x', counter: 0 }],
+              },
+            },
+          ],
+        },
+        derivation: undefined,
+      },
+    ]);
+    const { container } = mount();
+    typeQuery(container, validQueryText);
+
+    const solution = container.querySelector('[data-testid="try-solution"]')!;
+    const text = solution.textContent;
+    expect(text).toContain('Bindings');
+    expect(text).toContain('unbound');
+    expect(screen.getByRole('heading', { level: 3, name: 'Constraints' })).not.toBeNull();
+    expect(text.indexOf('Constraints')).toBeLessThan(text.indexOf('≠'));
+    expect(container.querySelectorAll('.katex')).toHaveLength(3);
   });
 });
 

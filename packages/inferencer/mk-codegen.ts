@@ -71,5 +71,9 @@ export function toRelationStore(
       ); // delay
     }; // relStore[relName]
   } // for
+
+  relStore.prim_neq = (relArgs: Array<MK.Term>): MK.Goal =>
+    MK.wrapLogs('prim', 'prim_neq', relArgs, MK.neq(relArgs[0]!, relArgs[1]!));
+
   return relStore;
 }

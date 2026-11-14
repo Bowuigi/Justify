@@ -200,7 +200,9 @@ export type RelationRule = {
   conclusion: RelationCall;
 };
 export type RelationCall = { rel: string; args: Array<Term> };
-export type Term = { is: 'ref'; to: string } | { is: 'con'; tag: string; args: Array<Term> };
+export type Term =
+  | { is: 'ref'; to: string }
+  | { is: 'con'; from?: string; tag: string; args: Array<Term> };
 
 declare function ParseFunction<Options extends ParseOptions<StartRuleNames>>(
   input: string,
@@ -214,4 +216,6 @@ export type RelationRule = {
   conclusion: RelationCall;
 };
 export type RelationCall = { rel: string; args: Array<Term> };
-export type Term = { is: 'ref'; to: string } | { is: 'con'; tag: string; args: Array<Term> };
+export type Term =
+  | { is: 'ref'; to: string }
+  | { is: 'con'; from?: string; tag: string; args: Array<Term> };

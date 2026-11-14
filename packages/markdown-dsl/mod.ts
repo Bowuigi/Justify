@@ -1,3 +1,4 @@
+// oxlint-disable max-lines
 import type {
   Argument,
   Diagnostic,
@@ -62,9 +63,11 @@ type SyntaxConvertible = Extract<
 function baseDiagnostic(message: RichText): Diagnostic {
   return { source: '', origin: 'markdown-dsl', message, hints: [], relatedLocations: [] };
 }
+
 function lineSpan(provenance: { start: number; end: number }): DiagnosticLocation {
   return { is: 'line-span', start: provenance.start, end: provenance.end };
 }
+
 /** Extracts a code block list from a Markdown buffer */
 // oxlint-disable-next-line max-lines-per-function
 function parseMarkdown(markdown: string): Array<(Block | ErrorBlock) & PreservedFields> {
@@ -125,6 +128,7 @@ function parseMarkdown(markdown: string): Array<(Block | ErrorBlock) & Preserved
 
   return blocks;
 }
+
 /** Infers fixity following the standard */
 function inferFixity(
   argsLength: number,
@@ -153,6 +157,7 @@ function inferFixity(
   // `texPartsLength === argsLength + 1` or invalid cases
   return 'none';
 }
+
 /** Extracts a mixfix operator definition from the human-friendly is+where syntax */
 function convertGrammarParts(grammarParts: { is: string; where?: Record<string, string> }): {
   fixity: Fixity;
@@ -184,16 +189,21 @@ function convertGrammarParts(grammarParts: { is: string; where?: Record<string, 
     tex_parts: texParts,
   };
 }
-/** Annotates a term with `from` fields, using the available parts of the System file to infer them */
+
+/**
+ * Annotates a term with `from` fields, using either an explicit annotation or the available parts
+ * of the System file to infer them
+ */
 function convertTerm(system: System, declaration: Argument, term: BlockTerm): Term {
   if (term.is === 'ref') {
     return { is: 'ref', to: term.to };
   }
-  const constructor = system.syntax[declaration.from]?.grammar.find(con => con.id === term.tag);
+  const from = term.from ?? declaration.from;
+  const constructor = system.syntax[from]?.grammar.find(con => con.id === term.tag);
   const args = constructor?.arguments ?? [];
   return {
     is: 'con',
-    from: declaration.from,
+    from,
     tag: term.tag,
     args: term.args.map((arg, index) => convertTerm(system, args[index] ?? declaration, arg)),
   };
@@ -214,7 +224,6 @@ function convertPatterns(
   return patterns;
 }
 
-/** Extracts a premise array from a RelationCall array */
 function convertPremises(
   system: System,
   calls: Array<RelationCall>,
@@ -224,7 +233,11 @@ function convertPremises(
     args: call.args.map((arg, index) =>
       convertTerm(
         system,
-        system.relations[call.rel]?.arguments[index] ?? { from: 'literal', id: 'unknown', tex: '' },
+        system.relations[call.rel]?.arguments[index] ?? {
+          from: '<unknown>',
+          id: 'unknown',
+          tex: '\\langle\\text{unknown}\\rangle',
+        },
         arg,
       ),
     ),

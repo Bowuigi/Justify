@@ -45,6 +45,18 @@
         "properties": {
           "variables": {
             "values": { "ref": "derivation-term" }
+          },
+          "constraints": {
+            "properties": {
+              "neq": {
+                "elements": {
+                  "properties": {
+                    "a": { "ref": "derivation-term" },
+                    "b": { "ref": "derivation-term" }
+                  }
+                }
+              }
+            }
           }
         },
         "optionalProperties": {

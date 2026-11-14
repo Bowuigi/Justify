@@ -14,6 +14,32 @@ interface ExtraArguments extends C.ModuleError<typeof managedError, 'E'> {
 
 export type PushedError = MissingArguments | ExtraArguments;
 
+function checkArgumentCount(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  actualCount: number,
+  expectedArgumentIds: Array<string>,
+  sourceOfTruthLocation: C.SourceOfTruthPath | null,
+): void {
+  if (actualCount < expectedArgumentIds.length) {
+    errors.push({
+      moduleId: 'CAC',
+      id: 'CAC-M',
+      location: path,
+      sourceOfTruthLocation,
+      expectedArgumentIds,
+    });
+  } else if (actualCount > expectedArgumentIds.length) {
+    errors.push({
+      moduleId: 'CAC',
+      id: 'CAC-E',
+      location: path,
+      sourceOfTruthLocation,
+      expectedArgumentIds,
+    });
+  }
+}
+
 export function onTermCon(
   errors: C.ErrorStack<PushedError>,
   path: C.LocationPath,
@@ -27,23 +53,13 @@ export function onTermCon(
   // Error flagged by another module
   if (expectedArgs === undefined) return;
 
-  if (term.args.length < expectedArgs.length) {
-    errors.push({
-      moduleId: 'CAC',
-      id: 'CAC-M',
-      location: path,
-      sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
-    });
-  } else if (term.args.length > expectedArgs.length) {
-    errors.push({
-      moduleId: 'CAC',
-      id: 'CAC-E',
-      location: path,
-      sourceOfTruthLocation: ['system', 'syntax', term.from, term.tag, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
-    });
-  }
+  checkArgumentCount(
+    errors,
+    path,
+    term.args.length,
+    expectedArgs.map(a => a.id),
+    ['system', 'syntax', term.from, term.tag, 'arguments'],
+  );
 }
 
 export function onPremise(
@@ -52,28 +68,34 @@ export function onPremise(
   premise: T.SystemRelationRulePremise,
   system: T.System,
 ): void {
+  if (premise.relation === 'prim_neq') {
+    checkArgumentCount(errors, path, premise.args.length, ['a', 'b'], null);
+    return;
+  }
+
   const expectedArgs = system.relations[premise.relation]?.arguments;
 
   // Error flagged by another module
   if (expectedArgs === undefined) return;
 
-  if (premise.args.length < expectedArgs.length) {
-    errors.push({
-      moduleId: 'CAC',
-      id: 'CAC-M',
-      location: path,
-      sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
-    });
-  } else if (premise.args.length > expectedArgs.length) {
-    errors.push({
-      moduleId: 'CAC',
-      id: 'CAC-E',
-      location: path,
-      sourceOfTruthLocation: ['system', 'relations', premise.relation, 'arguments'],
-      expectedArgumentIds: expectedArgs.map(a => a.id),
-    });
-  }
+  checkArgumentCount(
+    errors,
+    path,
+    premise.args.length,
+    expectedArgs.map(a => a.id),
+    ['system', 'relations', premise.relation, 'arguments'],
+  );
+}
+
+export function onQuery(
+  errors: C.ErrorStack<PushedError>,
+  path: C.LocationPath,
+  query: T.Query,
+  system: T.System,
+): void {
+  if (query.relation !== 'prim_neq') return;
+
+  checkArgumentCount(errors, path, query.args.length, ['a', 'b'], null);
 }
 
 export function formatError(err: PushedError): C.ModuleErrorInfo {

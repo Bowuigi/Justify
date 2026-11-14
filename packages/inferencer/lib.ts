@@ -1,4 +1,10 @@
-import type { Derivation, Query, QueryResultSolution, System } from '@justify/core';
+import type {
+  Derivation,
+  Query,
+  QueryResultSolution,
+  QueryResultSolutionConstraints,
+  System,
+} from '@justify/core';
 
 import { toRelationStore } from './mk-codegen.ts';
 import * as MK from './mk.ts';
@@ -35,9 +41,12 @@ export function performQuery(system: System, query: Query): Array<QueryResultSol
           .map(({ key, value }) => [key.id, value] as const),
       );
 
-      // Literally guarded for by the if above
       const derivation: Derivation = MK.walkLog(rslt.log[0]!, idempotentSubst);
-      return { variables, derivation };
+      const constraints: QueryResultSolutionConstraints = MK.cleanConstraints(
+        rslt.constraints,
+        idempotentSubst,
+      );
+      return { variables, derivation, constraints };
     });
   } catch (error) {
     if (error instanceof Error) {

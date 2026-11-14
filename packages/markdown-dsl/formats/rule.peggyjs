@@ -20,8 +20,8 @@ Reference = to:Identifier {
   return {is: "ref", to};
 }
 
-Constructor = "(" tag:Identifier _* args:Term|.., _*| ")" {
-  return {is: "con", tag, args};
+Constructor = "(" from:(@Identifier "/")? tag:Identifier _* args:Term|.., _*| ")" {
+  return {is: "con", from: from ?? undefined, tag, args};
 }
 
 //// Identifier maps

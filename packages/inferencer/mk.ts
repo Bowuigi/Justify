@@ -1,4 +1,6 @@
+// oxlint-disable max-lines
 import type { Term as STerm } from '@justify/core';
+import { deepEqual } from 'fast-equals';
 
 /*
   MicroKanren implementation with the following augments:
@@ -35,6 +37,10 @@ export type Term = Var | Constructor | Literal;
 
 type Substitution = AssocArray<Var, Term>;
 
+interface Constraints {
+  neq: Array<{ a: Term; b: Term }>;
+}
+
 export interface RuleLog {
   rule: string;
   relation: string;
@@ -43,6 +49,7 @@ export interface RuleLog {
 }
 interface State {
   subst: Substitution;
+  constraints: Constraints;
   log: Array<RuleLog>;
   counter: number;
 }
@@ -57,20 +64,6 @@ type Stream = MatureStream | ImmatureStream;
 export type Goal = (st: State) => Stream;
 
 export type VarPool = Record<string, Var>;
-
-class OccursCheckFailedError extends Error {
-  public variable: Var;
-  public term: Term;
-  public subst: Substitution;
-
-  public constructor(variable: Var, term: Term, subst: Substitution) {
-    super(`Occurs check failed for variable ${variable.id}@${variable.counter}.`);
-    this.name = 'OccursCheckFailedError';
-    this.variable = variable;
-    this.term = term;
-    this.subst = subst;
-  }
-}
 
 class UnboundIdentifierError extends Error {
   public variable: string;
@@ -136,9 +129,9 @@ function occursCheck(variable: Var, term: Term, subst: Substitution): boolean {
   }
 }
 
-function extendSubstitution(variable: Var, term: Term, subst: Substitution): Substitution {
+function extendSubstitution(variable: Var, term: Term, subst: Substitution): Substitution | null {
   if (occursCheck(variable, term, subst)) {
-    throw new OccursCheckFailedError(variable, term, subst);
+    return null;
   }
   return subst.insert(variable, term);
 }
@@ -156,7 +149,12 @@ function unify(termA: Term, termB: Term, subst: Substitution): Substitution | nu
   if (termA.is === 'lit' && termB.is === 'lit') {
     return termA.id === termB.id ? subst : null;
   }
-  if (termA.is === 'con' && termB.is === 'con' && termA.tag === termB.tag) {
+  if (
+    termA.is === 'con' &&
+    termB.is === 'con' &&
+    termA.from === termB.from &&
+    termA.tag === termB.tag
+  ) {
     // `unify` and `unifyArray` are mutually recursive
     // oxlint-disable-next-line no-use-before-define
     return unifyArray(termA.args, termB.args, subst);
@@ -178,6 +176,20 @@ function unifyArray(
   }
   return oldSubst;
 }
+
+function equalTerms(termA: Term, termB: Term, subst: Substitution): boolean {
+  const unifier = unify(walk(termA, subst), walk(termB, subst), subst);
+  return deepEqual(unifier?.data, subst.data);
+}
+
+function isSubstitutionInconsistent(subst: Substitution, constraints: Constraints): boolean {
+  for (const { a, b } of constraints.neq.values()) {
+    if (equalTerms(a, b, subst)) return true;
+  }
+  return false;
+}
+
+//// Stream operations
 
 function appendStream(streamA: Stream, streamB: Stream): Stream {
   switch (streamA.is) {
@@ -266,13 +278,35 @@ export function toIdempotent(subst: Substitution): Substitution {
   return new AssocArray(subst.data.map(v => ({ key: v.key, value: walkAll(v.value, subst) })));
 }
 
-// The substitution should be idempotent for efficiency
+// The substitution should be idempotent for display purposes
 export function walkLog(log: RuleLog, subst: Substitution): RuleLog {
   return {
     rule: log.rule,
     relation: log.relation,
     args: log.args.map(a => walkAll(a, subst)),
     premises: log.premises.map(p => walkLog(p, subst)),
+  };
+}
+
+function hasVariable(term: Term): boolean {
+  switch (term.is) {
+    case 'var': {
+      return true;
+    }
+    case 'lit': {
+      return false;
+    }
+    case 'con': {
+      return term.args.some(a => hasVariable(a));
+    }
+  }
+}
+
+export function cleanConstraints(c: Constraints, subst: Substitution): Constraints {
+  return {
+    neq: c.neq
+      .map(({ a, b }) => ({ a: walkAll(a, subst), b: walkAll(b, subst) }))
+      .filter(({ a, b }) => hasVariable(a) || hasVariable(b)),
   };
 }
 
@@ -289,7 +323,7 @@ export function fresh(ids: Array<string>, block: (pool: VarPool) => Goal): Goal 
       count++;
     }
 
-    return block(pool)({ subst: st.subst, log: st.log, counter: count });
+    return block(pool)({ ...st, counter: count });
   };
 }
 
@@ -313,7 +347,7 @@ export function delay(goal: Goal): Goal {
 export function run(solutions: number, goal: Goal): Array<State> {
   return takeStream(
     solutions,
-    pullStream(goal({ subst: new AssocArray([]), log: [], counter: 0 })),
+    pullStream(goal({ subst: new AssocArray([]), constraints: { neq: [] }, log: [], counter: 0 })),
   );
 }
 
@@ -324,9 +358,28 @@ export function eq(termA: Term, termB: Term): Goal {
     const newSubst = unify(walk(termA, st.subst), walk(termB, st.subst), st.subst);
 
     if (newSubst === null) return { is: 'nil' };
+    if (isSubstitutionInconsistent(newSubst, st.constraints)) return { is: 'nil' };
+
     return {
       is: 'cons',
-      solution: { subst: newSubst, log: st.log, counter: st.counter },
+      solution: { ...st, subst: newSubst },
+      next: { is: 'nil' },
+    };
+  };
+}
+
+export function neq(termA: Term, termB: Term): Goal {
+  return (st: State) => {
+    const constraints: Constraints = {
+      ...st.constraints,
+      neq: [...st.constraints.neq, { a: termA, b: termB }],
+    };
+
+    if (isSubstitutionInconsistent(st.subst, constraints)) return { is: 'nil' };
+
+    return {
+      is: 'cons',
+      solution: { ...st, constraints },
       next: { is: 'nil' },
     };
   };

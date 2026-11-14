@@ -70,6 +70,117 @@ function validateMain(data: unknown, path: Path, errors: Errors): void {
                   suggestions: [],
                 });
               }
+              if ('constraints' in data) {
+                ((data: unknown): void => {
+                  path.push('constraints');
+                  if (
+                    typeof data === 'object' &&
+                    data !== null &&
+                    Object.getPrototypeOf(data) === Object.prototype
+                  ) {
+                    if ('neq' in data) {
+                      ((data: unknown): void => {
+                        path.push('neq');
+                        if (Array.isArray(data)) {
+                          for (const [key, value] of data.entries()) {
+                            path.push(key);
+                            const data = value;
+                            if (
+                              typeof data === 'object' &&
+                              data !== null &&
+                              Object.getPrototypeOf(data) === Object.prototype
+                            ) {
+                              if ('a' in data) {
+                                ((data: unknown): void => {
+                                  path.push('a');
+                                  validate_derivation_term(data, path, errors);
+                                  path.pop();
+                                })(data.a);
+                              } else {
+                                errors.push({
+                                  path: [...path],
+                                  message: `missing required property "a"`,
+                                  suggestions: [],
+                                });
+                              }
+                              if ('b' in data) {
+                                ((data: unknown): void => {
+                                  path.push('b');
+                                  validate_derivation_term(data, path, errors);
+                                  path.pop();
+                                })(data.b);
+                              } else {
+                                errors.push({
+                                  path: [...path],
+                                  message: `missing required property "b"`,
+                                  suggestions: [],
+                                });
+                              }
+                              {
+                                /* properties */ const dataKeys = new Set(Object.keys(data));
+                                const allowedKeys = new Set(['a', 'b']);
+                                const extraKeys = dataKeys.difference(allowedKeys);
+                                if (extraKeys.size > 0) {
+                                  errors.push({
+                                    path: [...path],
+                                    message: `unexpected properties: "${[...extraKeys].map(x => x.toString()).join('", "')}"`,
+                                    suggestions: [...allowedKeys],
+                                  });
+                                }
+                              }
+                            } else {
+                              errors.push({
+                                path: [...path],
+                                message: `expected JSON object, got ${data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data}`,
+                                suggestions: [],
+                              });
+                            }
+                            path.pop();
+                          }
+                        } else {
+                          errors.push({
+                            path: [...path],
+                            message: `expected array, got ${data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data}`,
+                            suggestions: [],
+                          });
+                        }
+                        path.pop();
+                      })(data.neq);
+                    } else {
+                      errors.push({
+                        path: [...path],
+                        message: `missing required property "neq"`,
+                        suggestions: [],
+                      });
+                    }
+                    {
+                      /* properties */ const dataKeys = new Set(Object.keys(data));
+                      const allowedKeys = new Set(['neq']);
+                      const extraKeys = dataKeys.difference(allowedKeys);
+                      if (extraKeys.size > 0) {
+                        errors.push({
+                          path: [...path],
+                          message: `unexpected properties: "${[...extraKeys].map(x => x.toString()).join('", "')}"`,
+                          suggestions: [...allowedKeys],
+                        });
+                      }
+                    }
+                  } else {
+                    errors.push({
+                      path: [...path],
+                      message: `expected JSON object, got ${data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data}`,
+                      suggestions: [],
+                    });
+                  }
+                  path.pop();
+                })(data.constraints);
+              } else {
+                errors.push({
+                  path: [...path],
+                  message: `missing required property "constraints"`,
+                  suggestions: [],
+                });
+              }
               if ('derivation' in data) {
                 ((data: unknown): void => {
                   path.push('derivation');
@@ -79,7 +190,7 @@ function validateMain(data: unknown, path: Path, errors: Errors): void {
               }
               {
                 /* properties */ const dataKeys = new Set(Object.keys(data));
-                const allowedKeys = new Set(['variables', 'derivation']);
+                const allowedKeys = new Set(['variables', 'constraints', 'derivation']);
                 const extraKeys = dataKeys.difference(allowedKeys);
                 if (extraKeys.size > 0) {
                   errors.push({

@@ -62,6 +62,7 @@
     "unicorn/no-immediate-mutation": "warn",
     "unicorn/no-process-exit": "warn",
 
+    "no-underscore-dangle": ["error", { "allow": ["var_"] }],
     "new-cap": ["error", { "capIsNewExceptions": ["CodeJar"] }],
     "typescript/explicit-function-return-type": ["error", { "allowExpressions": true }],
     "typescript/array-type": ["error", { "default": "generic" }],

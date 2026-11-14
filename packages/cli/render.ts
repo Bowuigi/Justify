@@ -88,10 +88,23 @@ function prettyDerivationTree(indent: number, derivation: Derivation): string {
 
 export function prettySolution(solution: QueryResultSolution): string {
   let output = '';
-  for (const [meta, binding] of Object.entries(solution.variables)) {
-    output += `${meta} = ${prettyTerm(binding)}\n`;
+
+  if (Object.keys(solution.variables).length > 0) {
+    output += 'Bindings\n';
   }
+  for (const [meta, binding] of Object.entries(solution.variables)) {
+    output += `  ${meta} = ${prettyTerm(binding)}\n`;
+  }
+
+  if (solution.constraints.neq.length > 0) {
+    output += `Constraints\n`;
+  }
+  for (const { a, b } of solution.constraints.neq) {
+    output += `  ${prettyTerm(a)} =/= ${prettyTerm(b)}\n`;
+  }
+
   if (solution.derivation !== undefined) {
+    output += 'Derivation\n';
     output += prettyDerivationTree(0, solution.derivation);
   }
   return output;

@@ -30,9 +30,11 @@ export type LocationPath =
   | ['query-result', number, 'variables']
   | DTLocationPath;
 
+type DTLocationPathTerms = Array<number | 'premises' | 'arguments'>;
 export type DTLocationPath =
-  | ['query-result', number, 'derivation', ...Array<number | 'premises' | 'arguments'>]
-  | ['query-result', number, 'variables', string, ...Array<number | 'premises' | 'arguments'>];
+  | ['query-result', number, 'derivation', ...DTLocationPathTerms]
+  | ['query-result', number, 'variables', string, ...DTLocationPathTerms]
+  | ['query-result', number, 'constraints', 'neq', number, 'a' | 'b', ...DTLocationPathTerms];
 
 export interface ErrorStack<T> {
   push: (error: T) => void;

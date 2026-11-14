@@ -136,7 +136,10 @@ export function extractDerivationTeX(
     .map(premise => extractDerivationTeX(system, premise, nodeScope))
     .join(String.raw` \qquad `);
 
-  const ruleTex = rule?.rule.tex ?? derivation.rule;
+  const ruleTex =
+    derivation.relation === 'prim_neq'
+      ? String.raw`$\!\neq\!$`
+      : (rule?.rule.tex ?? derivation.rule);
 
   return commandOf('system', 'tree', [ruleTex, premises, conclusion]);
 }
@@ -189,17 +192,30 @@ export function extractTeX(system: System): string {
       ),
     ),
     // \jr<relation>{...}{...}... macros
-    relation: mapEntries(system.relations, ([relation, definition]) => [
-      relation,
-      {
-        arguments: definition.arguments.length,
-        definition: renderMixfix(
-          definition.fixity,
-          definition.tex_parts,
-          Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
-        ),
-      },
-    ]),
+    relation: [
+      [
+        'prim_neq',
+        {
+          arguments: 2,
+          definition: String.raw`#1 \neq #2`,
+        },
+      ],
+      ...mapEntries(
+        system.relations,
+        ([relation, definition]) =>
+          [
+            relation,
+            {
+              arguments: definition.arguments.length,
+              definition: renderMixfix(
+                definition.fixity,
+                definition.tex_parts,
+                Array.from({ length: definition.arguments.length }, (_, i) => `#${i + 1}`),
+              ),
+            },
+          ] as const,
+      ),
+    ],
     // \jrd<relation> macros
     relationDescription: mapEntries(system.relations, ([relation, definition]) => [
       relation,
